@@ -6,6 +6,7 @@ from typing import Annotated
 from app.core.security import decode_access_token
 from app.db.redis import get_redis
 from app.db.session import get_db
+from app.models.enums import Role
 from app.models.user import User
 from app.repositories.user import UserRepository
 from app.services.auth import AuthService
@@ -74,3 +75,23 @@ async def get_current_user(
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+def require_role(*roles: Role):  # type: ignore[no-untyped-def]
+    """Dependency factory: allow access only to users with one of the given roles.
+
+    Usage:
+        @router.get("/admin-only")
+        async def endpoint(user: Annotated[User, Depends(require_role(Role.ADMIN))]) -> ...:
+            ...
+    """
+
+    async def checker(current_user: CurrentUser) -> User:
+        if current_user.role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient permissions",
+            )
+        return current_user
+
+    return checker
