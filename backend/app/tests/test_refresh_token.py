@@ -12,12 +12,14 @@ def service(redis_client: Redis) -> RefreshTokenService:
 
 
 class TestIssue:
-    async def test_issue_returns_token_with_dot(self, service: RefreshTokenService) -> None:
+    async def test_issue_returns_token_with_two_dots(self, service: RefreshTokenService) -> None:
         user_id = uuid.uuid4()
         token = await service.issue(user_id)
-        assert "." in token
-        jti, secret = token.split(".", 1)
-        assert jti and secret
+        parts = token.split(".")
+        assert len(parts) == 3
+        assert parts[0] == str(user_id)
+        assert parts[1]  # jti not empty
+        assert parts[2]  # secret not empty
 
     async def test_issue_produces_unique_tokens(self, service: RefreshTokenService) -> None:
         user_id = uuid.uuid4()
@@ -40,19 +42,32 @@ class TestVerify:
 
     async def test_verify_unknown_token(self, service: RefreshTokenService) -> None:
         user_id = uuid.uuid4()
-        assert await service.verify(user_id, "somejti.somesecret") is False
+        fake = f"{user_id}.somejti.somesecret"
+        assert await service.verify(user_id, fake) is False
 
     async def test_verify_malformed_token(self, service: RefreshTokenService) -> None:
         user_id = uuid.uuid4()
-        assert await service.verify(user_id, "no-dot-here") is False
-        assert await service.verify(user_id, ".secret-only") is False
-        assert await service.verify(user_id, "jti-only.") is False
+        assert await service.verify(user_id, "no-dots") is False
+        assert await service.verify(user_id, "only.two") is False
+        assert await service.verify(user_id, f"{user_id}.jti.") is False
+        assert await service.verify(user_id, ".jti.secret") is False
+        assert await service.verify(user_id, "not-uuid.jti.secret") is False
 
     async def test_verify_tampered_secret(self, service: RefreshTokenService) -> None:
         user_id = uuid.uuid4()
         token = await service.issue(user_id)
-        jti, _ = token.split(".", 1)
-        tampered = f"{jti}.completelydifferentsecret"
+        parts = token.split(".")
+        tampered = f"{parts[0]}.{parts[1]}.completelydifferentsecret"
+        assert await service.verify(user_id, tampered) is False
+
+    async def test_verify_tampered_user_id(self, service: RefreshTokenService) -> None:
+        user_id = uuid.uuid4()
+        other_user = uuid.uuid4()
+        token = await service.issue(user_id)
+        parts = token.split(".")
+        # Swap the user_id inside the token to a different one
+        tampered = f"{other_user}.{parts[1]}.{parts[2]}"
+        # verify with the original user_id must fail — token claims a different user
         assert await service.verify(user_id, tampered) is False
 
 
@@ -76,7 +91,8 @@ class TestRotate:
         self, service: RefreshTokenService
     ) -> None:
         user_id = uuid.uuid4()
-        assert await service.rotate(user_id, "jti.secret") is None
+        fake = f"{user_id}.jti.secret"
+        assert await service.rotate(user_id, fake) is None
 
 
 class TestRevoke:
@@ -88,7 +104,7 @@ class TestRevoke:
 
     async def test_revoke_malformed_token_is_noop(self, service: RefreshTokenService) -> None:
         user_id = uuid.uuid4()
-        await service.revoke(user_id, "no-dot")
+        await service.revoke(user_id, "no-dots")
 
     async def test_revoke_all_removes_every_token(self, service: RefreshTokenService) -> None:
         user_id = uuid.uuid4()

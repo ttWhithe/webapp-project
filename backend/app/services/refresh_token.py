@@ -1,8 +1,9 @@
 """Refresh token service: issue, verify, rotate, revoke.
 
 Design:
-    Token format: "<jti>.<secret>"
-        - jti: public short identifier, used as part of the Redis key
+    Token format: "<user_id>.<jti>.<secret>"
+        - user_id: UUID of the user (public, safe to expose)
+        - jti: public short identifier (part of the Redis key)
         - secret: random part, verified by comparing sha256(secret) with stored hash
 
     Storage:
@@ -55,14 +56,16 @@ class RefreshTokenService:
             _hash_secret(secret),
             ex=_ttl_seconds(),
         )
-        return f"{jti}.{secret}"
+        return f"{user_id}.{jti}.{secret}"
 
     async def verify(self, user_id: uuid.UUID, token: str) -> bool:
-        """Check that the token exists and matches the stored hash."""
+        """Check that the token exists, belongs to the user, and matches the stored hash."""
         parsed = self._parse(token)
         if parsed is None:
             return False
-        jti, secret = parsed
+        token_user_id, jti, secret = parsed
+        if token_user_id != user_id:
+            return False
         stored = cast(str | None, await self._redis.get(_key(user_id, jti)))
         if stored is None:
             return False
@@ -77,7 +80,7 @@ class RefreshTokenService:
             return None
         parsed = self._parse(old_token)
         assert parsed is not None  # verify already ensured it parses
-        old_jti, _ = parsed
+        _, old_jti, _ = parsed
         await self._redis.delete(_key(user_id, old_jti))
         return await self.issue(user_id)
 
@@ -86,7 +89,7 @@ class RefreshTokenService:
         parsed = self._parse(token)
         if parsed is None:
             return
-        jti, _ = parsed
+        _, jti, _ = parsed
         await self._redis.delete(_key(user_id, jti))
 
     async def revoke_all(self, user_id: uuid.UUID) -> int:
@@ -102,10 +105,19 @@ class RefreshTokenService:
         return deleted
 
     @staticmethod
-    def _parse(token: str) -> tuple[str, str] | None:
-        if "." not in token:
+    def _parse(token: str) -> tuple[uuid.UUID, str, str] | None:
+        """Parse "<user_id>.<jti>.<secret>" into components.
+
+        Returns None if the token is malformed.
+        """
+        parts = token.split(".")
+        if len(parts) != 3:
             return None
-        jti, secret = token.split(".", 1)
-        if not jti or not secret:
+        user_id_str, jti, secret = parts
+        if not user_id_str or not jti or not secret:
             return None
-        return jti, secret
+        try:
+            user_id = uuid.UUID(user_id_str)
+        except ValueError:
+            return None
+        return user_id, jti, secret
