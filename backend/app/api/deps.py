@@ -8,6 +8,7 @@ from app.db.redis import get_redis
 from app.db.session import get_db
 from app.models.user import User
 from app.repositories.user import UserRepository
+from app.services.auth import AuthService
 from app.services.refresh_token import RefreshTokenService
 from fastapi import Cookie, Depends, HTTPException, status
 from jose import JWTError
@@ -26,6 +27,12 @@ def get_refresh_service(
     redis: Annotated[Redis, Depends(get_redis)],
 ) -> RefreshTokenService:
     return RefreshTokenService(redis)
+
+
+def get_auth_service(
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> AuthService:
+    return AuthService(db)
 
 
 def _credentials_exception() -> HTTPException:

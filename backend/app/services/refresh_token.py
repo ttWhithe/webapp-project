@@ -41,6 +41,33 @@ def _ttl_seconds() -> int:
     return settings.refresh_token_expire_days * 24 * 60 * 60
 
 
+def _parse_refresh_token(token: str) -> tuple[uuid.UUID, str, str] | None:
+    """Parse "<user_id>.<jti>.<secret>". Returns None if malformed."""
+    parts = token.split(".")
+    if len(parts) != 3:
+        return None
+    user_id_str, jti, secret = parts
+    if not user_id_str or not jti or not secret:
+        return None
+    try:
+        user_id = uuid.UUID(user_id_str)
+    except ValueError:
+        return None
+    return user_id, jti, secret
+
+
+def extract_user_id(token: str) -> uuid.UUID | None:
+    """Extract user_id from a refresh token without verifying the secret.
+
+    Used by /auth/refresh to find the user before validating the token.
+    """
+    parsed = _parse_refresh_token(token)
+    if parsed is None:
+        return None
+    user_id, _, _ = parsed
+    return user_id
+
+
 class RefreshTokenService:
     """Redis-backed refresh token storage with rotation."""
 
@@ -60,7 +87,7 @@ class RefreshTokenService:
 
     async def verify(self, user_id: uuid.UUID, token: str) -> bool:
         """Check that the token exists, belongs to the user, and matches the stored hash."""
-        parsed = self._parse(token)
+        parsed = _parse_refresh_token(token)
         if parsed is None:
             return False
         token_user_id, jti, secret = parsed
@@ -78,7 +105,7 @@ class RefreshTokenService:
         """
         if not await self.verify(user_id, old_token):
             return None
-        parsed = self._parse(old_token)
+        parsed = _parse_refresh_token(old_token)
         assert parsed is not None  # verify already ensured it parses
         _, old_jti, _ = parsed
         await self._redis.delete(_key(user_id, old_jti))
@@ -86,7 +113,7 @@ class RefreshTokenService:
 
     async def revoke(self, user_id: uuid.UUID, token: str) -> None:
         """Revoke a single token (logout from current device)."""
-        parsed = self._parse(token)
+        parsed = _parse_refresh_token(token)
         if parsed is None:
             return
         _, jti, _ = parsed
@@ -103,21 +130,3 @@ class RefreshTokenService:
             await self._redis.delete(key)
             deleted += 1
         return deleted
-
-    @staticmethod
-    def _parse(token: str) -> tuple[uuid.UUID, str, str] | None:
-        """Parse "<user_id>.<jti>.<secret>" into components.
-
-        Returns None if the token is malformed.
-        """
-        parts = token.split(".")
-        if len(parts) != 3:
-            return None
-        user_id_str, jti, secret = parts
-        if not user_id_str or not jti or not secret:
-            return None
-        try:
-            user_id = uuid.UUID(user_id_str)
-        except ValueError:
-            return None
-        return user_id, jti, secret
