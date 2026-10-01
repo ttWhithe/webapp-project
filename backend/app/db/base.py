@@ -1,13 +1,4 @@
-from sqlalchemy.orm import DeclarativeBase
+from app.db.base_class import Base
+from app.models.user import User
 
-
-class Base(DeclarativeBase):
-    """Base class для всех ORM-моделей."""
-
-    pass
-
-
-# Импорты моделей нужны, чтобы Alembic их видел.
-# Раскомментируем по мере создания моделей:
-# from app.models.user import User
-# from app.models.character import Character
+__all__ = ["Base", "User"]
