@@ -8,3 +8,25 @@ class Role(StrEnum):
     USER = "user"
     PREMIUM = "premium"
     ADMIN = "admin"
+
+
+class Element(StrEnum):
+    """Character elemental type."""
+
+    PYRO = "pyro"
+    HYDRO = "hydro"
+    ANEMO = "anemo"
+    ELECTRO = "electro"
+    DENDRO = "dendro"
+    CRYO = "cryo"
+    GEO = "geo"
+
+
+class WeaponType(StrEnum):
+    """Weapon category."""
+
+    SWORD = "sword"
+    CLAYMORE = "claymore"
+    POLEARM = "polearm"
+    BOW = "bow"
+    CATALYST = "catalyst"
