@@ -39,6 +39,7 @@ class User(Base):
             name="user_role",
             native_enum=False,
             length=20,
+            values_callable=lambda enum_cls: [e.value for e in enum_cls],
             validate_strings=True,
         ),
         default=Role.USER,
