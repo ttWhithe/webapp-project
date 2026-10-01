@@ -39,3 +39,7 @@ frontend/.vite/
 
 # Office documents (keep only spec.md in git)
 *.docx
+
+# Local test artifacts
+cookies.txt
+*.cookies
