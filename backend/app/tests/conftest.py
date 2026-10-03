@@ -35,11 +35,20 @@ async def _engine() -> AsyncGenerator[AsyncEngine, None]:
 
 @pytest_asyncio.fixture
 async def db_session(_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
-    """DB session with automatic rollback after each test."""
+    """DB session with cleanup after each test.
+
+    Cleans up catalog tables after the test because some tests commit, and we
+    want each test to start with an empty catalog.
+    """
     session_factory = async_sessionmaker(_engine, class_=AsyncSession, expire_on_commit=False)
     async with session_factory() as session:
         yield session
-        await session.rollback()
+
+    async with _engine.begin() as conn:
+        await conn.execute(text("DELETE FROM users"))
+        await conn.execute(text("DELETE FROM characters"))
+        await conn.execute(text("DELETE FROM weapons"))
+        await conn.execute(text("DELETE FROM artifact_sets"))
 
 
 @pytest_asyncio.fixture

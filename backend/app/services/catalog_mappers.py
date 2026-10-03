@@ -16,6 +16,7 @@ _WEAPON_MAP: dict[str, WeaponType] = {
     "WEAPON_SWORD_ONE_HAND": WeaponType.SWORD,
     "WEAPON_CLAYMORE": WeaponType.CLAYMORE,
     "WEAPON_POLEARM": WeaponType.POLEARM,
+    "WEAPON_POLE": WeaponType.POLEARM,
     "WEAPON_BOW": WeaponType.BOW,
     "WEAPON_CATALYST": WeaponType.CATALYST,
 }
@@ -44,3 +45,20 @@ def to_slug(name: str) -> str:
         "Kamisato Ayaka"  -> "kamisato-ayaka"
     """
     return name.lower().replace("'", "").replace(" ", "-")
+
+
+# Names that come from the API but are not real, playable catalog entries.
+# They either lack a proper element/weapon type (Traveler variants, Aloy),
+# or are placeholder records (Manekin/Manekina).
+_SKIPPED_CHARACTER_NAMES: set[str] = {
+    "Aether",
+    "Lumine",
+    "Manekin",
+    "Manekina",
+    "Aloy",
+}
+
+
+def should_skip_character(name: str) -> bool:
+    """Return True for non-playable or placeholder character entries."""
+    return name in _SKIPPED_CHARACTER_NAMES

@@ -115,7 +115,7 @@ class GenshinDbClient:
             )
         return [str(name) for name in payload]
 
-    async def _get_detail(self, resource: str, name: str) -> dict | None:
+    async def _get_detail(self, resource: str, name: str) -> dict[str, object] | None:
         client = self._require_client()
         payload = await self._request_with_retry(
             client,
