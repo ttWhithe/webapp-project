@@ -8,8 +8,14 @@ from app.db.redis import get_redis
 from app.db.session import get_db
 from app.models.enums import Role
 from app.models.user import User
+from app.repositories.catalog import (
+    ArtifactSetRepository,
+    CharacterRepository,
+    WeaponRepository,
+)
 from app.repositories.user import UserRepository
 from app.services.auth import AuthService
+from app.services.cache import CacheService
 from app.services.refresh_token import RefreshTokenService
 from fastapi import Cookie, Depends, HTTPException, status
 from jose import JWTError
@@ -34,6 +40,30 @@ def get_auth_service(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> AuthService:
     return AuthService(db)
+
+
+def get_character_repo(
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> CharacterRepository:
+    return CharacterRepository(db)
+
+
+def get_weapon_repo(
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> WeaponRepository:
+    return WeaponRepository(db)
+
+
+def get_artifact_set_repo(
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> ArtifactSetRepository:
+    return ArtifactSetRepository(db)
+
+
+def get_cache_service(
+    redis: Annotated[Redis, Depends(get_redis)],
+) -> CacheService:
+    return CacheService(redis)
 
 
 def _credentials_exception() -> HTTPException:
