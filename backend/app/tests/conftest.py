@@ -94,5 +94,8 @@ async def async_client(
         yield client
 
     async with _engine.begin() as conn:
+        await conn.execute(text("DELETE FROM characters"))
+        await conn.execute(text("DELETE FROM weapons"))
+        await conn.execute(text("DELETE FROM artifact_sets"))
         await conn.execute(text("DELETE FROM users"))
     app.dependency_overrides.clear()

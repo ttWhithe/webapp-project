@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     genshin_db_api_base: str = "https://genshin-db-api.vercel.app/api/v5"
     genshin_db_api_timeout: int = 30
     genshin_db_api_concurrency: int = 5
+    catalog_cache_ttl: int = 86400
 
     # CORS
     cors_origins: str = "http://localhost:5173"
