@@ -20,6 +20,7 @@ class Settings(BaseSettings):
 
     # DB
     database_url: str
+    test_database_url: str | None = None
 
     # Redis
     redis_url: str

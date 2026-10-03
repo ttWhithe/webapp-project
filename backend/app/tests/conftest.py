@@ -14,11 +14,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.pool import NullPool
 
 os.environ.setdefault("APP_SECRET_KEY", "test-secret-key-do-not-use-in-prod-32chars")
-os.environ.setdefault(
-    "DATABASE_URL",
-    "postgresql+asyncpg://gpt:gpt_secret@localhost:5432/gpt_tracker",
-)
-os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
+
 
 from app.core.config import settings
 from app.db.base_class import Base
@@ -29,7 +25,8 @@ from app.main import app
 
 @pytest_asyncio.fixture(scope="session")
 async def _engine() -> AsyncGenerator[AsyncEngine, None]:
-    engine = create_async_engine(settings.database_url, poolclass=NullPool)
+    test_url = settings.test_database_url or settings.database_url
+    engine = create_async_engine(test_url, poolclass=NullPool)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield engine
