@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 30
 
+    # External catalog API
+    genshin_db_api_base: str = "https://genshin-db-api.vercel.app/api/v5"
+    genshin_db_api_timeout: int = 30
+    genshin_db_api_concurrency: int = 5
+
     # CORS
     cors_origins: str = "http://localhost:5173"
 
