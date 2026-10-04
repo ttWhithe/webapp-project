@@ -30,3 +30,13 @@ class WeaponType(StrEnum):
     POLEARM = "polearm"
     BOW = "bow"
     CATALYST = "catalyst"
+
+
+class ArtifactSlot(StrEnum):
+    """Artifact equipment slot."""
+
+    FLOWER = "flower"
+    PLUME = "plume"
+    SANDS = "sands"
+    GOBLET = "goblet"
+    CIRCLET = "circlet"
