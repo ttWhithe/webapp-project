@@ -19,6 +19,7 @@ from app.db.base_class import Base
 from app.models.enums import ArtifactSlot
 
 if TYPE_CHECKING:
+    from app.models.artifact_set import ArtifactSet
     from app.models.user_character import UserCharacter
 
 
@@ -84,6 +85,7 @@ class UserArtifact(Base):
         "UserCharacter",
         back_populates="artifacts",
     )
+    artifact_set: Mapped[ArtifactSet] = relationship("ArtifactSet")
 
     def __repr__(self) -> str:
         return f"<UserArtifact slot={self.slot} set_id={self.set_id} level={self.level}>"

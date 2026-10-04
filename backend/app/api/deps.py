@@ -14,6 +14,7 @@ from app.repositories.catalog import (
     WeaponRepository,
 )
 from app.repositories.user import UserRepository
+from app.repositories.user_character import UserCharacterRepository
 from app.services.auth import AuthService
 from app.services.cache import CacheService
 from app.services.refresh_token import RefreshTokenService
@@ -125,3 +126,9 @@ def require_role(*roles: Role):  # type: ignore[no-untyped-def]
         return current_user
 
     return checker
+
+
+def get_user_character_repo(
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> UserCharacterRepository:
+    return UserCharacterRepository(db)

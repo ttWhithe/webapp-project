@@ -4,6 +4,7 @@ Each `list_*` method returns a tuple (items, total) to support pagination
 without a second round-trip.
 """
 
+import uuid
 from typing import Any
 
 from sqlalchemy import Select, func, select
@@ -60,6 +61,9 @@ class CharacterRepository:
     async def get_by_slug(self, slug: str) -> Character | None:
         return await self._session.scalar(select(Character).where(Character.slug == slug))
 
+    async def get_by_id(self, char_id: uuid.UUID) -> Character | None:
+        return await self._session.get(Character, char_id)
+
     async def _count(self, stmt: Select[Any]) -> int:
         count_stmt = select(func.count()).select_from(stmt.subquery())
         return await self._session.scalar(count_stmt) or 0
@@ -93,6 +97,9 @@ class WeaponRepository:
     async def get_by_slug(self, slug: str) -> Weapon | None:
         return await self._session.scalar(select(Weapon).where(Weapon.slug == slug))
 
+    async def get_by_id(self, weapon_id: uuid.UUID) -> Weapon | None:
+        return await self._session.get(Weapon, weapon_id)
+
     async def _count(self, stmt: Select[Any]) -> int:
         count_stmt = select(func.count()).select_from(stmt.subquery())
         return await self._session.scalar(count_stmt) or 0
@@ -116,3 +123,6 @@ class ArtifactSetRepository:
         stmt = stmt.order_by(ArtifactSet.name.asc()).limit(limit).offset(offset)
         result = await self._session.scalars(stmt)
         return list(result.all()), total
+
+    async def get_by_id(self, set_id: uuid.UUID) -> ArtifactSet | None:
+        return await self._session.get(ArtifactSet, set_id)
