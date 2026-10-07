@@ -111,3 +111,72 @@ export interface UserCharacterListItem {
   crowns_used: number
   progress: number
 }
+
+// Admin types
+
+export interface AdminCharacter {
+  id: string
+  external_id: number
+  slug: string
+  name: string
+  name_ru: string | null
+  title: string | null
+  element: Element
+  weapon_type: WeaponType
+  rarity: number
+  region: string | null
+  birthday: string | null
+  icon_url: string | null
+  portrait_url: string | null
+  version_added: string | null
+}
+
+export interface AdminWeapon {
+  id: string
+  external_id: number
+  slug: string
+  name: string
+  name_ru: string | null
+  weapon_type: WeaponType
+  rarity: number
+  base_atk: number | null
+  main_stat: string | null
+  icon_url: string | null
+  version_added: string | null
+}
+
+export interface AdminArtifactSet {
+  id: string
+  external_id: number | null
+  slug: string
+  name: string
+  name_ru: string | null
+  icon_url: string | null
+}
+
+export interface AdminCharacterUpdate {
+  name_ru?: string | null
+  title?: string | null
+  rarity?: number
+  region?: string | null
+  birthday?: string | null
+  icon_url?: string | null
+  portrait_url?: string | null
+  version_added?: string | null
+  element?: Element
+  weapon_type?: WeaponType
+}
+
+export interface AdminWeaponUpdate {
+  name_ru?: string | null
+  rarity?: number
+  icon_url?: string | null
+  base_atk?: number | null
+  main_stat?: string | null
+  version_added?: string | null
+}
+
+export interface AdminArtifactSetUpdate {
+  name_ru?: string | null
+  icon_url?: string | null
+}

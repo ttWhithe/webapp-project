@@ -27,6 +27,9 @@ export default function Layout() {
           <nav className="flex items-center gap-4 text-sm">
             <NavItem to="/characters">Каталог</NavItem>
             <NavItem to="/me/characters">Мои персонажи</NavItem>
+            {user?.role === 'admin' && (
+              <NavItem to="/admin/catalog">Админка</NavItem>
+            )}
             {user && (
               <>
                 <span className="text-slate-500">|</span>

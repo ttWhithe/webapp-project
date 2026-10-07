@@ -1,8 +1,10 @@
 import { createBrowserRouter } from 'react-router-dom'
 
+import AdminRoute from './AdminRoute'
 import Layout from './Layout'
 import ProtectedRoute from './ProtectedRoute'
 
+import AdminCatalogPage from '@/pages/AdminCatalogPage'
 import AuthPage from '@/pages/AuthPage'
 import CharacterDetailPage from '@/pages/CharacterDetailPage'
 import CharactersPage from '@/pages/CharactersPage'
@@ -35,6 +37,15 @@ export const router = createBrowserRouter([
           {
             path: 'characters/:slug',
             element: <CharacterDetailPage />,
+          },
+          {
+            element: <AdminRoute />,
+            children: [
+              {
+                path: 'admin/catalog',
+                element: <AdminCatalogPage />,
+              },
+            ],
           },
         ],
       },
