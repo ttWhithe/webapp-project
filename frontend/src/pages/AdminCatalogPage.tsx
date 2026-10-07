@@ -339,8 +339,8 @@ export default function AdminCatalogPage() {
           fields={[
             { key: 'name_ru', label: 'Русское имя' },
             { key: 'title', label: 'Титул' },
-            { key: 'icon_url', label: 'URL иконки (для карточек)' },
-            { key: 'portrait_url', label: 'URL портрета (для карточки героя)' },
+            { key: 'icon_url', label: 'URL Icon (Портрет)' },
+            { key: 'portrait_url', label: 'URL Full (страница персонажа)' },
             { key: 'rarity', label: 'Редкость (1–5)', type: 'number' },
             { key: 'region', label: 'Регион' },
             { key: 'birthday', label: 'День рождения' },

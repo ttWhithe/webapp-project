@@ -1,0 +1,3909 @@
+{
+  "characters": [
+    {
+      "slug": "aino",
+      "name_ru": "Айно",
+      "title": "Clinky-Clank Gadgets-A-Gogo",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/a/a3/Aino_Icon.png",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/7/73/Aino_Wish.png",
+      "rarity": 4,
+      "region": "Nod-Krai",
+      "birthday": "9/21",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "albedo",
+      "name_ru": null,
+      "title": "Kreideprinz",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Character_Albedo_Card.png",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/2/23/Character_Albedo_Portrait.png",
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "9/13",
+      "version_added": "1.2"
+    },
+    {
+      "slug": "alhaitham",
+      "name_ru": null,
+      "title": "Admonishing Instruction",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Sumeru",
+      "birthday": "2/11",
+      "version_added": "3.4"
+    },
+    {
+      "slug": "alyosha",
+      "name_ru": null,
+      "title": "Swift-Striding Hound",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": null,
+      "birthday": "2/9",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "amber",
+      "name_ru": null,
+      "title": "Gliding Champion",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/2/26/Character_Amber_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/0/00/Character_Amber_Portrait.png",
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "8/10",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "arataki-itto",
+      "name_ru": null,
+      "title": "Hanamizaka Heroics",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Inazuma",
+      "birthday": "6/1",
+      "version_added": "2.3"
+    },
+    {
+      "slug": "arlecchino",
+      "name_ru": null,
+      "title": "Dire Balemoon",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Snezhnaya",
+      "birthday": "8/22",
+      "version_added": "4.6"
+    },
+    {
+      "slug": "baizhu",
+      "name_ru": null,
+      "title": "Beyond Mortality",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Liyue",
+      "birthday": "4/25",
+      "version_added": "3.6"
+    },
+    {
+      "slug": "barbara",
+      "name_ru": null,
+      "title": "Shining Idol",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/9/93/Character_Barbara_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/4/4a/Character_Barbara_Portrait.png",
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "7/5",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "beidou",
+      "name_ru": null,
+      "title": "Uncrowned Lord of the Ocean",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/8/84/Character_Beidou_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/7/74/Character_Beidou_Portrait.png",
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "2/14",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "bennett",
+      "name_ru": null,
+      "title": "Trial by Fire",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/7/7f/Character_Bennett_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/7/73/Character_Bennett_Portrait.png",
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "2/29",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "candace",
+      "name_ru": null,
+      "title": "Golden Vow",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Sumeru",
+      "birthday": "5/3",
+      "version_added": "3.1"
+    },
+    {
+      "slug": "charlotte",
+      "name_ru": null,
+      "title": "Lens of Verity",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Fontaine",
+      "birthday": "4/10",
+      "version_added": "4.2"
+    },
+    {
+      "slug": "chasca",
+      "name_ru": null,
+      "title": "Skyborne Arbiter",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Natlan",
+      "birthday": "12/10",
+      "version_added": "5.2"
+    },
+    {
+      "slug": "chevreuse",
+      "name_ru": null,
+      "title": "Executor of Justice",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Fontaine",
+      "birthday": "1/10",
+      "version_added": "4.3"
+    },
+    {
+      "slug": "chiori",
+      "name_ru": null,
+      "title": "The Thundering Seamstress",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Inazuma",
+      "birthday": "8/17",
+      "version_added": "4.5"
+    },
+    {
+      "slug": "chongyun",
+      "name_ru": null,
+      "title": "Frozen Ardor",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/f/fa/Character_Chongyun_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/a/aa/Character_Chongyun_Portrait.png",
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "9/7",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "citlali",
+      "name_ru": null,
+      "title": "Obsidian Opalstar",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Natlan",
+      "birthday": "1/20",
+      "version_added": "5.3"
+    },
+    {
+      "slug": "clorinde",
+      "name_ru": null,
+      "title": "Candlebearer, Shadowhunter",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Fontaine",
+      "birthday": "9/20",
+      "version_added": "4.7"
+    },
+    {
+      "slug": "collei",
+      "name_ru": null,
+      "title": "Sprout of Rebirth",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Sumeru",
+      "birthday": "5/8",
+      "version_added": "3.0"
+    },
+    {
+      "slug": "columbina",
+      "name_ru": null,
+      "title": "Welkin Moon's Homecoming",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Nod-Krai",
+      "birthday": "1/14",
+      "version_added": "6.3"
+    },
+    {
+      "slug": "cyno",
+      "name_ru": null,
+      "title": "Judicator of Secrets",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Sumeru",
+      "birthday": "6/23",
+      "version_added": "3.1"
+    },
+    {
+      "slug": "dahlia",
+      "name_ru": null,
+      "title": "Ode and Oblation",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "5/25",
+      "version_added": "5.7"
+    },
+    {
+      "slug": "dehya",
+      "name_ru": null,
+      "title": "Flame-Mane",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Sumeru",
+      "birthday": "4/7",
+      "version_added": "3.5"
+    },
+    {
+      "slug": "diluc",
+      "name_ru": null,
+      "title": "Dark Side of Dawn",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/4/45/Character_Diluc_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/b/bc/Character_Diluc_Portrait.png",
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "4/30",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "diona",
+      "name_ru": null,
+      "title": "Kätzlein Cocktail",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/0/08/Character_Diona_Card.png",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/c/ce/Character_Diona_Portrait.png",
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "1/18",
+      "version_added": "1.1"
+    },
+    {
+      "slug": "dori",
+      "name_ru": null,
+      "title": "Treasure of Dream Garden",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Sumeru",
+      "birthday": "12/21",
+      "version_added": "3.0"
+    },
+    {
+      "slug": "durin",
+      "name_ru": null,
+      "title": "\"The Undying Fire\"",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "3/14",
+      "version_added": "6.2"
+    },
+    {
+      "slug": "emilie",
+      "name_ru": null,
+      "title": "A Thousand Scents Traced",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Fontaine",
+      "birthday": "9/22",
+      "version_added": "4.8"
+    },
+    {
+      "slug": "escoffier",
+      "name_ru": null,
+      "title": "Tasteful Excellence",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Fontaine",
+      "birthday": "6/8",
+      "version_added": "5.6"
+    },
+    {
+      "slug": "eula",
+      "name_ru": null,
+      "title": "Dance of the Shimmering Wave",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "10/25",
+      "version_added": "1.5"
+    },
+    {
+      "slug": "faruzan",
+      "name_ru": null,
+      "title": "Enigmatic Machinist",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Sumeru",
+      "birthday": "8/20",
+      "version_added": "3.3"
+    },
+    {
+      "slug": "fischl",
+      "name_ru": null,
+      "title": "Prinzessin der Verurteilung!",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/4/48/Character_Fischl_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/3/34/Character_Fischl_Portrait.png",
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "5/27",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "flins",
+      "name_ru": null,
+      "title": "Shadowy Lights, Stranger Wights",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Nod-Krai",
+      "birthday": "10/31",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "freminet",
+      "name_ru": null,
+      "title": "Yearning for Unseen Depths",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Fontaine",
+      "birthday": "9/24",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "furina",
+      "name_ru": null,
+      "title": "Endless Solo of Solitude",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Fontaine",
+      "birthday": "10/13",
+      "version_added": "4.2"
+    },
+    {
+      "slug": "gaming",
+      "name_ru": null,
+      "title": "Leonine Vanguard",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "12/22",
+      "version_added": "4.4"
+    },
+    {
+      "slug": "ganyu",
+      "name_ru": null,
+      "title": "Plenilune Gaze",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/8/8d/Character_Ganyu_Card.png",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/a/a0/Character_Ganyu_Portrait.png",
+      "rarity": 5,
+      "region": "Liyue",
+      "birthday": "12/2",
+      "version_added": "1.2"
+    },
+    {
+      "slug": "gorou",
+      "name_ru": null,
+      "title": "Canine Warrior",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Inazuma",
+      "birthday": "5/18",
+      "version_added": "2.3"
+    },
+    {
+      "slug": "hu-tao",
+      "name_ru": "Ху Тао",
+      "title": "Fragrance in Thaw",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/e/e9/Hu_Tao_Icon.png",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/b/b2/Hu_Tao_Wish.png",
+      "rarity": 5,
+      "region": "Liyue",
+      "birthday": "7/15",
+      "version_added": "1.3"
+    },
+    {
+      "slug": "iansan",
+      "name_ru": null,
+      "title": "Tempered in Molten Stone",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Natlan",
+      "birthday": "8/8",
+      "version_added": "5.5"
+    },
+    {
+      "slug": "ifa",
+      "name_ru": null,
+      "title": "In the Wake of Wandering Winds",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Natlan",
+      "birthday": "3/23",
+      "version_added": "5.6"
+    },
+    {
+      "slug": "illuga",
+      "name_ru": null,
+      "title": "Nightmare's Burning Heart",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Nod-Krai",
+      "birthday": "12/23",
+      "version_added": "6.3"
+    },
+    {
+      "slug": "ineffa",
+      "name_ru": null,
+      "title": "Boom Boom Thunderwave",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Nod-Krai",
+      "birthday": "4/2",
+      "version_added": "5.8"
+    },
+    {
+      "slug": "jahoda",
+      "name_ru": null,
+      "title": "Windthreading Shadow",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Nod-Krai",
+      "birthday": "1/5",
+      "version_added": "6.2"
+    },
+    {
+      "slug": "jean",
+      "name_ru": null,
+      "title": "Dandelion Knight",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/0/0e/Character_Jean_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/0/02/Character_Jean_Portrait.png",
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "3/14",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "kachina",
+      "name_ru": null,
+      "title": "Mottled Gold Yet Unsmelted",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Natlan",
+      "birthday": "4/22",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "kaedehara-kazuha",
+      "name_ru": null,
+      "title": "Scarlet Leaves Pursue Wild Waves",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Inazuma",
+      "birthday": "10/29",
+      "version_added": "1.6"
+    },
+    {
+      "slug": "kaeya",
+      "name_ru": null,
+      "title": "Frostwind Swordsman",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/6/64/Character_Kaeya_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/1/1c/Character_Kaeya_Portrait.png",
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "11/30",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "kamisato-ayaka",
+      "name_ru": null,
+      "title": "Frostflake Heron",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Inazuma",
+      "birthday": "9/28",
+      "version_added": "2.0"
+    },
+    {
+      "slug": "kamisato-ayato",
+      "name_ru": null,
+      "title": "Pillar of Fortitude",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Inazuma",
+      "birthday": "3/26",
+      "version_added": "2.6"
+    },
+    {
+      "slug": "kaveh",
+      "name_ru": null,
+      "title": "Empyrean Reflection",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Sumeru",
+      "birthday": "7/9",
+      "version_added": "3.6"
+    },
+    {
+      "slug": "keqing",
+      "name_ru": null,
+      "title": "Driving Thunder",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/f/f4/Character_Keqing_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/8/81/Character_Keqing_Portrait.png",
+      "rarity": 5,
+      "region": "Liyue",
+      "birthday": "11/20",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "kinich",
+      "name_ru": null,
+      "title": "Turnfire Hunt",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Natlan",
+      "birthday": "11/11",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "kirara",
+      "name_ru": null,
+      "title": "Cat Upon the Eaves",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Inazuma",
+      "birthday": "1/22",
+      "version_added": "3.7"
+    },
+    {
+      "slug": "klee",
+      "name_ru": null,
+      "title": "Fleeing Sunlight",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/7/78/Character_Klee_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/3/3f/Character_Klee_Portrait.png",
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "7/27",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "kujou-sara",
+      "name_ru": null,
+      "title": "Crowfeather Kaburaya",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Inazuma",
+      "birthday": "7/14",
+      "version_added": "2.1"
+    },
+    {
+      "slug": "kuki-shinobu",
+      "name_ru": null,
+      "title": "Mender of Tribulations",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Inazuma",
+      "birthday": "7/27",
+      "version_added": "2.7"
+    },
+    {
+      "slug": "lan-yan",
+      "name_ru": null,
+      "title": "Spring Woven From Jade",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "1/6",
+      "version_added": "5.3"
+    },
+    {
+      "slug": "lauma",
+      "name_ru": null,
+      "title": "Evermoon's Sacrament Song",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Nod-Krai",
+      "birthday": "3/1",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "layla",
+      "name_ru": null,
+      "title": "Fantastical Evening Star",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Sumeru",
+      "birthday": "12/19",
+      "version_added": "3.2"
+    },
+    {
+      "slug": "linnea",
+      "name_ru": null,
+      "title": "Augur of Wonders",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Nod-Krai",
+      "birthday": "5/23",
+      "version_added": "6.5"
+    },
+    {
+      "slug": "lisa",
+      "name_ru": null,
+      "title": "Witch of Purple Rose",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/d/dc/Character_Lisa_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/f/fa/Character_Lisa_Portrait.png",
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "6/9",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "lohen",
+      "name_ru": null,
+      "title": "Sharpened Arrowhead",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "4/3",
+      "version_added": "6.6"
+    },
+    {
+      "slug": "lynette",
+      "name_ru": null,
+      "title": "Elegance in the Shadows",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Fontaine",
+      "birthday": "2/2",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "lyney",
+      "name_ru": null,
+      "title": "Spectacle of Phantasmagoria",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Fontaine",
+      "birthday": "2/2",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "mavuika",
+      "name_ru": null,
+      "title": "Night-Igniting Flame",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Natlan",
+      "birthday": "8/28",
+      "version_added": "5.3"
+    },
+    {
+      "slug": "mika",
+      "name_ru": null,
+      "title": "Coordinates of Clear Frost",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "8/11",
+      "version_added": "3.5"
+    },
+    {
+      "slug": "mona",
+      "name_ru": null,
+      "title": "Astral Reflection",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/6/69/Character_Mona_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/f/fe/Character_Mona_Portrait.png",
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "8/31",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "mualani",
+      "name_ru": null,
+      "title": "Splish-Splash Wavechaser",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Natlan",
+      "birthday": "8/3",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "nahida",
+      "name_ru": null,
+      "title": "Physic of Purity",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Sumeru",
+      "birthday": "10/27",
+      "version_added": "3.2"
+    },
+    {
+      "slug": "navia",
+      "name_ru": null,
+      "title": "Helm of the Radiant Rose",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Fontaine",
+      "birthday": "8/16",
+      "version_added": "4.3"
+    },
+    {
+      "slug": "nefer",
+      "name_ru": null,
+      "title": "Secret Beneath the Sands",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Nod-Krai",
+      "birthday": "5/9",
+      "version_added": "6.1"
+    },
+    {
+      "slug": "neuvillette",
+      "name_ru": null,
+      "title": "Ordainer of Inexorable Judgment",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Fontaine",
+      "birthday": "12/18",
+      "version_added": "4.1"
+    },
+    {
+      "slug": "nicole",
+      "name_ru": null,
+      "title": "Clamor Within",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": null,
+      "birthday": "9/29",
+      "version_added": "6.6"
+    },
+    {
+      "slug": "nilou",
+      "name_ru": null,
+      "title": "Dance of Lotuslight",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Sumeru",
+      "birthday": "12/3",
+      "version_added": "3.1"
+    },
+    {
+      "slug": "ningguang",
+      "name_ru": null,
+      "title": "Eclipsing Star",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/3/3e/Character_Ningguang_Card.jpg/",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/1/17/Character_Ningguang_Portrait.png",
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "8/26",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "noelle",
+      "name_ru": null,
+      "title": "Chivalric Blossom",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/9/92/Character_Noelle_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/a/a5/Character_Noelle_Portrait.png",
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "3/21",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "odette",
+      "name_ru": null,
+      "title": "Swirling Snow",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": null,
+      "birthday": "2/20",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "ororon",
+      "name_ru": null,
+      "title": "Shadow of the Night-Wind",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Natlan",
+      "birthday": "10/14",
+      "version_added": "5.2"
+    },
+    {
+      "slug": "prune",
+      "name_ru": null,
+      "title": "Childlike Dreams Cherished",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "11/20",
+      "version_added": "6.6"
+    },
+    {
+      "slug": "qiqi",
+      "name_ru": null,
+      "title": "Icy Resurrection",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/b/b9/Character_Qiqi_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/2/2a/Character_Qiqi_Portrait.png",
+      "rarity": 5,
+      "region": "Liyue",
+      "birthday": "3/3",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "raiden-shogun",
+      "name_ru": null,
+      "title": "Plane of Euthymia",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Inazuma",
+      "birthday": "6/26",
+      "version_added": "2.1"
+    },
+    {
+      "slug": "razor",
+      "name_ru": null,
+      "title": "Wolf Boy",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/6/68/Character_Razor_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/1/1e/Character_Razor_Portrait.png",
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "9/9",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "rosaria",
+      "name_ru": null,
+      "title": "Thorny Benevolence",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "1/24",
+      "version_added": "1.4"
+    },
+    {
+      "slug": "sandrone",
+      "name_ru": null,
+      "title": "Mirrored Analysis",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": null,
+      "birthday": "1/13",
+      "version_added": "6.7"
+    },
+    {
+      "slug": "sangonomiya-kokomi",
+      "name_ru": null,
+      "title": "Pearl of Wisdom",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Inazuma",
+      "birthday": "2/22",
+      "version_added": "2.1"
+    },
+    {
+      "slug": "sayu",
+      "name_ru": null,
+      "title": "Mujina Ninja",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Inazuma",
+      "birthday": "10/19",
+      "version_added": "2.0"
+    },
+    {
+      "slug": "sethos",
+      "name_ru": null,
+      "title": "Wisdom's Measure",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Sumeru",
+      "birthday": "5/31",
+      "version_added": "4.7"
+    },
+    {
+      "slug": "shenhe",
+      "name_ru": null,
+      "title": "Lonesome Transcendence",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Liyue",
+      "birthday": "3/10",
+      "version_added": "2.4"
+    },
+    {
+      "slug": "shikanoin-heizou",
+      "name_ru": null,
+      "title": "Analytical Harmony",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Inazuma",
+      "birthday": "7/24",
+      "version_added": "2.8"
+    },
+    {
+      "slug": "sigewinne",
+      "name_ru": null,
+      "title": "Wondrous Dragonheir",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Fontaine",
+      "birthday": "3/30",
+      "version_added": "4.7"
+    },
+    {
+      "slug": "skirk",
+      "name_ru": null,
+      "title": "Void Star",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": null,
+      "birthday": "11/5",
+      "version_added": "5.7"
+    },
+    {
+      "slug": "sucrose",
+      "name_ru": null,
+      "title": "Harmless Sweetie",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/2/22/Character_Sucrose_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/2/20/Character_Sucrose_Portrait.png",
+      "rarity": 4,
+      "region": "Mondstadt",
+      "birthday": "11/26",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "tartaglia",
+      "name_ru": null,
+      "title": "Childe",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/4/4c/Character_Tartaglia_Card.png",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/3/3a/Character_Tartaglia_Portrait.png",
+      "rarity": 5,
+      "region": "Snezhnaya",
+      "birthday": "7/20",
+      "version_added": "1.1"
+    },
+    {
+      "slug": "thoma",
+      "name_ru": null,
+      "title": "Protector From Afar",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Inazuma",
+      "birthday": "1/9",
+      "version_added": "2.2"
+    },
+    {
+      "slug": "tighnari",
+      "name_ru": null,
+      "title": "Verdant Strider",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Sumeru",
+      "birthday": "12/29",
+      "version_added": "3.0"
+    },
+    {
+      "slug": "varesa",
+      "name_ru": null,
+      "title": "Strength in Serenity",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Natlan",
+      "birthday": "11/15",
+      "version_added": "5.5"
+    },
+    {
+      "slug": "varka",
+      "name_ru": null,
+      "title": "Knight of Boreas",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "2/17",
+      "version_added": "6.4"
+    },
+    {
+      "slug": "venti",
+      "name_ru": null,
+      "title": "Windborne Bard",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/7/76/Character_Venti_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/c/cf/Character_Venti_Portrait.png",
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "6/16",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "vesna",
+      "name_ru": null,
+      "title": "Snowy Banquet's Sharp Blade",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": null,
+      "birthday": "2/4",
+      "version_added": "7.1"
+    },
+    {
+      "slug": "vodyanitsa",
+      "name_ru": null,
+      "title": "Lingering Siren-Song",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": null,
+      "birthday": "3/29",
+      "version_added": "7.1"
+    },
+    {
+      "slug": "wanderer",
+      "name_ru": null,
+      "title": "Eons Adrift",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Sumeru",
+      "birthday": "1/3",
+      "version_added": "3.3"
+    },
+    {
+      "slug": "wriothesley",
+      "name_ru": null,
+      "title": "Emissary of Solitary Iniquity",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Fontaine",
+      "birthday": "11/23",
+      "version_added": "4.1"
+    },
+    {
+      "slug": "xiangling",
+      "name_ru": null,
+      "title": "Exquisite Delicacy",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/f/f1/Character_Xiangling_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/2/22/Character_Xiangling_Portrait.png",
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "11/2",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "xianyun",
+      "name_ru": null,
+      "title": "Passerine Herald",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Liyue",
+      "birthday": "4/11",
+      "version_added": "4.4"
+    },
+    {
+      "slug": "xiao",
+      "name_ru": null,
+      "title": "Vigilant Yaksha",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/8/88/Character_Xiao_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/1/1e/Character_Xiao_Portrait.png",
+      "rarity": 5,
+      "region": "Liyue",
+      "birthday": "4/17",
+      "version_added": "1.3"
+    },
+    {
+      "slug": "xilonen",
+      "name_ru": null,
+      "title": "Ardent Flames Forge the Soul",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Natlan",
+      "birthday": "3/13",
+      "version_added": "5.1"
+    },
+    {
+      "slug": "xingqiu",
+      "name_ru": null,
+      "title": "Juvenile Galant",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/c/c2/Character_Xingqiu_Card.jpg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/a/a9/Character_Xingqiu_Portrait.png",
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "10/9",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "xinyan",
+      "name_ru": null,
+      "title": "Blazing Riff",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/4/4c/Character_Xinyan_Card.jpeg",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/c/c8/Character_Xinyan_Portrait.png",
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "10/16",
+      "version_added": "1.1"
+    },
+    {
+      "slug": "yae-miko",
+      "name_ru": null,
+      "title": "Astute Amusement",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Inazuma",
+      "birthday": "6/27",
+      "version_added": "2.5"
+    },
+    {
+      "slug": "yanfei",
+      "name_ru": null,
+      "title": "Wise Innocence",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "7/28",
+      "version_added": "1.5"
+    },
+    {
+      "slug": "yaoyao",
+      "name_ru": null,
+      "title": "Burgeoning Grace",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "3/6",
+      "version_added": "3.4"
+    },
+    {
+      "slug": "yelan",
+      "name_ru": null,
+      "title": "Valley Orchid",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Liyue",
+      "birthday": "4/20",
+      "version_added": "2.7"
+    },
+    {
+      "slug": "yoimiya",
+      "name_ru": null,
+      "title": "Frolicking Flames",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Inazuma",
+      "birthday": "6/21",
+      "version_added": "2.0"
+    },
+    {
+      "slug": "yumemizuki-mizuki",
+      "name_ru": null,
+      "title": "Embrace of Enchanting Dreams",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": "Inazuma",
+      "birthday": "3/16",
+      "version_added": "5.4"
+    },
+    {
+      "slug": "yun-jin",
+      "name_ru": null,
+      "title": "Stage Lucida",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 4,
+      "region": "Liyue",
+      "birthday": "5/21",
+      "version_added": "2.4"
+    },
+    {
+      "slug": "zhongli",
+      "name_ru": null,
+      "title": "Vago Mundo",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/7/79/Character_Zhongli_Card.png",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/7/7d/Character_Zhongli_Portrait.png",
+      "rarity": 5,
+      "region": "Liyue",
+      "birthday": "12/31",
+      "version_added": "1.1"
+    },
+    {
+      "slug": "zibai",
+      "name_ru": null,
+      "title": "White Horse's Fleeting Spring",
+      "icon_url": null,
+      "portrait_url": null,
+      "rarity": 5,
+      "region": null,
+      "birthday": "5/15",
+      "version_added": "6.3"
+    }
+  ],
+  "weapons": [
+    {
+      "slug": "\"the-catch\"",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Mori.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "2.1"
+    },
+    {
+      "slug": "\"ultimate-overlords-mega-magic-sword\"",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "4.3"
+    },
+    {
+      "slug": "a-teaspoon-of-transcendence",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT DMG",
+      "version_added": "6.7"
+    },
+    {
+      "slug": "a-thousand-blazing-suns",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 49.14,
+      "main_stat": "CRIT Rate",
+      "version_added": "5.3"
+    },
+    {
+      "slug": "a-thousand-floating-dreams",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Ayus.png",
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "Elemental Mastery",
+      "version_added": "3.2"
+    },
+    {
+      "slug": "absolution",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT DMG",
+      "version_added": "4.7"
+    },
+    {
+      "slug": "akuoumaru",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Maria.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "2.2"
+    },
+    {
+      "slug": "alley-hunter",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Outlaw.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "1.4"
+    },
+    {
+      "slug": "amenoma-kageuchi",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Bakufu.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "ATK",
+      "version_added": "2.0"
+    },
+    {
+      "slug": "amos-bow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Amos.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "angelos-heptades",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 49.14,
+      "main_stat": "ATK",
+      "version_added": "6.6"
+    },
+    {
+      "slug": "apprentices-notes",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Apprentice.png",
+      "rarity": 1,
+      "base_atk": 23.25,
+      "main_stat": null,
+      "version_added": "1.0"
+    },
+    {
+      "slug": "aqua-simulacra",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Kirin.png",
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "2.7"
+    },
+    {
+      "slug": "aquila-favonia",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Falcon.png",
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "Physical DMG Bonus",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "ash-graven-drinking-horn",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "HP",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "astral-vultures-crimson-plumage",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT DMG",
+      "version_added": "5.2"
+    },
+    {
+      "slug": "athame-artis",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT Rate",
+      "version_added": "6.2"
+    },
+    {
+      "slug": "azurelight",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT Rate",
+      "version_added": "5.7"
+    },
+    {
+      "slug": "ballad-of-the-boundless-blue",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "4.1"
+    },
+    {
+      "slug": "ballad-of-the-fjords",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Shanty.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "beacon-of-the-reed-sea",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Deshret.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT Rate",
+      "version_added": "3.5"
+    },
+    {
+      "slug": "beginners-protector",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Gewalt.png",
+      "rarity": 1,
+      "base_atk": 23.25,
+      "main_stat": null,
+      "version_added": "1.0"
+    },
+    {
+      "slug": "beyond-the-chrysalis",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT DMG",
+      "version_added": "7.1"
+    },
+    {
+      "slug": "black-tassel",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Noire.png",
+      "rarity": 3,
+      "base_atk": 37.61,
+      "main_stat": "HP",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "blackcliff-agate",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Blackrock.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT DMG",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "blackcliff-longsword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Blackrock.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "CRIT DMG",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "blackcliff-pole",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Blackrock.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT DMG",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "blackcliff-slasher",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Blackrock.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT DMG",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "blackcliff-warbow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Blackrock.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "CRIT DMG",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "blackmarrow-lantern",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Elemental Mastery",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "blade-of-atonement",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "bloodsoaked-ruins",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT Rate",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "bloodtainted-greatsword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Siegfry.png",
+      "rarity": 3,
+      "base_atk": 37.61,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "breezeborne-refrain",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "7.1"
+    },
+    {
+      "slug": "calamity-of-eshu",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "5.2"
+    },
+    {
+      "slug": "calamity-queller",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Santika.png",
+      "rarity": 5,
+      "base_atk": 49.14,
+      "main_stat": "ATK",
+      "version_added": "2.4"
+    },
+    {
+      "slug": "cashflow-supervision",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT Rate",
+      "version_added": "4.1"
+    },
+    {
+      "slug": "chain-breaker",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "cinnabar-spindle",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Opus.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "DEF",
+      "version_added": "2.3"
+    },
+    {
+      "slug": "clash-of-kings",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "cloudforged",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "4.7"
+    },
+    {
+      "slug": "compound-bow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Exotic.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Physical DMG Bonus",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "cool-steel",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Steel.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "covenant-of-frost-and-snow",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "DEF",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "cranes-echoing-call",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 49.14,
+      "main_stat": "ATK",
+      "version_added": "4.4"
+    },
+    {
+      "slug": "crescent-pike",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Exotic.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Physical DMG Bonus",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "crimson-moons-semblance",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT Rate",
+      "version_added": "4.6"
+    },
+    {
+      "slug": "dark-iron-sword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Darker.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "dawning-frost",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT DMG",
+      "version_added": "6.1"
+    },
+    {
+      "slug": "deathmatch",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Gladiator.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "debate-club",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Reasoning.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "dialogues-of-the-desert-sages",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "HP",
+      "version_added": "4.5"
+    },
+    {
+      "slug": "disaster-and-remorse",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT Rate",
+      "version_added": "6.6"
+    },
+    {
+      "slug": "dodoco-tales",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Ludiharpastum.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "ATK",
+      "version_added": "1.6"
+    },
+    {
+      "slug": "dragons-bane",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Stardust.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "dragonspine-spear",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Everfrost.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Physical DMG Bonus",
+      "version_added": "1.2"
+    },
+    {
+      "slug": "dull-blade",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Blunt.png",
+      "rarity": 1,
+      "base_atk": 23.25,
+      "main_stat": null,
+      "version_added": "1.0"
+    },
+    {
+      "slug": "earth-shaker",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "echoes-of-the-heart",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "elegy-for-the-end",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Widsith.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.4"
+    },
+    {
+      "slug": "emberwell",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "emerald-orb",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Jade.png",
+      "rarity": 3,
+      "base_atk": 39.88,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "end-of-the-line",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Fin.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "3.0"
+    },
+    {
+      "slug": "engulfing-lightning",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Narukami.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "Energy Recharge",
+      "version_added": "2.1"
+    },
+    {
+      "slug": "etherlight-spindlelute",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "everlasting-moonglow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Kaleido.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "HP",
+      "version_added": "2.1"
+    },
+    {
+      "slug": "exaiphanes-blade",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT Rate",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "eye-of-perception",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Truelens.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "fading-twilight",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Fallensun.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "2.7"
+    },
+    {
+      "slug": "fang-of-the-mountain-king",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 49.14,
+      "main_stat": "CRIT Rate",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "favonius-codex",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Zephyrus.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "favonius-greatsword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Zephyrus.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "favonius-lance",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Zephyrus.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "favonius-sword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Zephyrus.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "favonius-warbow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Zephyrus.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "ferrous-shadow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Glaive.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "HP",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "festering-desire",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Magnum.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.2"
+    },
+    {
+      "slug": "fillet-blade",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Sashimi.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "finale-of-the-deep",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Vorpal.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "flame-forged-insight",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "5.8"
+    },
+    {
+      "slug": "fleuve-cendre-ferryman",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Machination.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "flower-wreathed-feathers",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "5.2"
+    },
+    {
+      "slug": "flowing-purity",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Vorpal.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "flute-of-ezpitzal",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "DEF",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "footprint-of-the-rainbow",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "DEF",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "forest-regalia",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Arakalari.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "3.0"
+    },
+    {
+      "slug": "forged-by-the-golden-melody",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "fractured-halo",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT DMG",
+      "version_added": "5.8"
+    },
+    {
+      "slug": "freedom-sworn",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Widsith.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.6"
+    },
+    {
+      "slug": "frostbearer",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Everfrost.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "1.2"
+    },
+    {
+      "slug": "frostbreath",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "fruit-of-fulfillment",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Arakalari.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "3.0"
+    },
+    {
+      "slug": "fruitful-hook",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "5.1"
+    },
+    {
+      "slug": "gest-of-the-mighty-wolf",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT Rate",
+      "version_added": "6.4"
+    },
+    {
+      "slug": "golden-frostbound-oath",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "6.5"
+    },
+    {
+      "slug": "hakushin-ring",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Bakufu.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "2.0"
+    },
+    {
+      "slug": "halberd",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Halberd.png",
+      "rarity": 3,
+      "base_atk": 39.88,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "hamayumi",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Bakufu.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "ATK",
+      "version_added": "2.0"
+    },
+    {
+      "slug": "haran-geppaku-futsu",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Amenoma.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT Rate",
+      "version_added": "2.6"
+    },
+    {
+      "slug": "harbinger-of-dawn",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Dawn.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "CRIT DMG",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "heretics-molten-blade",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "hunters-bow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Hunters.png",
+      "rarity": 1,
+      "base_atk": 23.25,
+      "main_stat": null,
+      "version_added": "1.0"
+    },
+    {
+      "slug": "hunters-path",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Ayus.png",
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT Rate",
+      "version_added": "3.0"
+    },
+    {
+      "slug": "hymn-of-the-maelstrom",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "HP",
+      "version_added": "7.1"
+    },
+    {
+      "slug": "ibis-piercer",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Ibis.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "3.7"
+    },
+    {
+      "slug": "iron-point",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Rod.png",
+      "rarity": 2,
+      "base_atk": 32.93,
+      "main_stat": null,
+      "version_added": "1.0"
+    },
+    {
+      "slug": "iron-sting",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Exotic.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "jade-vista",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "jadefalls-splendor",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Morax.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "HP",
+      "version_added": "3.6"
+    },
+    {
+      "slug": "kagotsurube-isshin",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Youtou.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "2.8"
+    },
+    {
+      "slug": "kaguras-verity",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Narukami.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT DMG",
+      "version_added": "2.5"
+    },
+    {
+      "slug": "katsuragikiri-nagamasa",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Bakufu.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "2.0"
+    },
+    {
+      "slug": "key-of-khaj-nisut",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Deshret.png",
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "HP",
+      "version_added": "3.1"
+    },
+    {
+      "slug": "kings-squire",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Arakalari.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "ATK",
+      "version_added": "3.0"
+    },
+    {
+      "slug": "kitain-cross-spear",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Bakufu.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Elemental Mastery",
+      "version_added": "2.0"
+    },
+    {
+      "slug": "light-of-foliar-incision",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Ayus.png",
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "3.4"
+    },
+    {
+      "slug": "lightbearing-moonshard",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "6.3"
+    },
+    {
+      "slug": "lions-roar",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Rockkiller.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "lithic-blade",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Lapis.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "1.3"
+    },
+    {
+      "slug": "lithic-spear",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Lapis.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "1.3"
+    },
+    {
+      "slug": "lost-prayer-to-the-sacred-winds",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Fourwinds.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "lumidouce-elegy",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT Rate",
+      "version_added": "4.8"
+    },
+    {
+      "slug": "luxurious-sea-lord",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_MillenniaTuna.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "ATK",
+      "version_added": "2.1"
+    },
+    {
+      "slug": "magic-guide",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Intro.png",
+      "rarity": 3,
+      "base_atk": 37.61,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "mailed-flower",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Fleurfair.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Elemental Mastery",
+      "version_added": "3.5"
+    },
+    {
+      "slug": "makhaira-aquamarine",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Pleroma.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "3.1"
+    },
+    {
+      "slug": "mappa-mare",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Exotic.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "master-key",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Energy Recharge",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "memory-of-dust",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Kunwu.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "ATK",
+      "version_added": "1.1"
+    },
+    {
+      "slug": "messenger",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Msg.png",
+      "rarity": 3,
+      "base_atk": 39.88,
+      "main_stat": "CRIT DMG",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "missive-windspear",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Windvane.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "3.1"
+    },
+    {
+      "slug": "mistsplitter-reforged",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Narukami.png",
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT DMG",
+      "version_added": "2.0"
+    },
+    {
+      "slug": "mitternachts-waltz",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Nachtblind.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Physical DMG Bonus",
+      "version_added": "1.6"
+    },
+    {
+      "slug": "moonpiercer",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Arakalari.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Elemental Mastery",
+      "version_added": "3.0"
+    },
+    {
+      "slug": "moonweavers-dawn",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "mountain-bracing-bolt",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "5.1"
+    },
+    {
+      "slug": "mouuns-moon",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Maria.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "2.2"
+    },
+    {
+      "slug": "new-bough",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT DMG",
+      "version_added": "7.1"
+    },
+    {
+      "slug": "nightweavers-looking-glass",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "Elemental Mastery",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "nocturnes-curtain-call",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "6.3"
+    },
+    {
+      "slug": "oathsworn-eye",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Jyanome.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "2.5"
+    },
+    {
+      "slug": "old-mercs-pal",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Oyaji.png",
+      "rarity": 2,
+      "base_atk": 32.93,
+      "main_stat": null,
+      "version_added": "1.0"
+    },
+    {
+      "slug": "otherworldly-story",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Lightnov.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "peak-patrol-song",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "DEF",
+      "version_added": "5.1"
+    },
+    {
+      "slug": "pocket-grimoire",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Pocket.png",
+      "rarity": 2,
+      "base_atk": 32.93,
+      "main_stat": null,
+      "version_added": "1.0"
+    },
+    {
+      "slug": "polar-star",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Worldbane.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT Rate",
+      "version_added": "2.2"
+    },
+    {
+      "slug": "portable-power-saw",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "HP",
+      "version_added": "4.1"
+    },
+    {
+      "slug": "predator",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Predator.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "2.1"
+    },
+    {
+      "slug": "primordial-jade-cutter",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Morax.png",
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.3"
+    },
+    {
+      "slug": "primordial-jade-winged-spear",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Morax.png",
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "prized-isshin-blade",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "2.8"
+    },
+    {
+      "slug": "prospectors-drill",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "4.1"
+    },
+    {
+      "slug": "prospectors-shovel",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "prototype-amber",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Proto.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "HP",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "prototype-archaic",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Proto.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "prototype-crescent",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Proto.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "prototype-rancour",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Proto.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Physical DMG Bonus",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "prototype-starglitter",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Proto.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "rainbow-serpents-rain-bow",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Energy Recharge",
+      "version_added": "6.2"
+    },
+    {
+      "slug": "rainslasher",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Perdue.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "range-gauge",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "4.1"
+    },
+    {
+      "slug": "raven-bow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Crowfeather.png",
+      "rarity": 3,
+      "base_atk": 39.88,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "recurve-bow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Curve.png",
+      "rarity": 3,
+      "base_atk": 37.61,
+      "main_stat": "HP",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "redhorn-stonethresher",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Itadorimaru.png",
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "2.3"
+    },
+    {
+      "slug": "reliquary-of-truth",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "6.1"
+    },
+    {
+      "slug": "rightful-reward",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Vorpal.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "HP",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "ring-of-yaxche",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "HP",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "royal-bow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Theocrat.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "royal-greatsword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Theocrat.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "royal-grimoire",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Theocrat.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "royal-longsword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Theocrat.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "royal-spear",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Theocrat.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "1.1"
+    },
+    {
+      "slug": "rust",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Recluse.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "sacrificers-staff",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 45.07,
+      "main_stat": "CRIT Rate",
+      "version_added": "6.1"
+    },
+    {
+      "slug": "sacrificial-bow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Fossil.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "sacrificial-fragments",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Fossil.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "sacrificial-greatsword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Fossil.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "sacrificial-jade",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Yue.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "CRIT Rate",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "sacrificial-sword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Fossil.png",
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "sapwood-blade",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Arakalari.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "3.0"
+    },
+    {
+      "slug": "scion-of-the-blazing-sun",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Gurabad.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "CRIT Rate",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "seasoned-hunters-bow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Old.png",
+      "rarity": 2,
+      "base_atk": 32.93,
+      "main_stat": null,
+      "version_added": "1.0"
+    },
+    {
+      "slug": "sequence-of-solitude",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "HP",
+      "version_added": "5.6"
+    },
+    {
+      "slug": "serenitys-call",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Energy Recharge",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "serpent-spine",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Kione.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "sharpshooters-oath",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Arjuna.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "CRIT DMG",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "silver-light",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "7.1"
+    },
+    {
+      "slug": "silver-sword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Silver.png",
+      "rarity": 2,
+      "base_atk": 32.93,
+      "main_stat": null,
+      "version_added": "1.0"
+    },
+    {
+      "slug": "silvershower-heartstrings",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "HP",
+      "version_added": "4.7"
+    },
+    {
+      "slug": "skyrider-greatsword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Mitsurugi.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "Physical DMG Bonus",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "skyrider-sword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Mitsurugi.png",
+      "rarity": 3,
+      "base_atk": 37.61,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "skyward-atlas",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Dvalin.png",
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "skyward-blade",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Dvalin.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "skyward-harp",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Dvalin.png",
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "skyward-pride",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Dvalin.png",
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "skyward-spine",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Dvalin.png",
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "slingshot",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Sling.png",
+      "rarity": 3,
+      "base_atk": 37.61,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "snare-hook",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Energy Recharge",
+      "version_added": "6.0"
+    },
+    {
+      "slug": "snow-tombed-starsilver",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Dragonfell.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Physical DMG Bonus",
+      "version_added": "1.2"
+    },
+    {
+      "slug": "solar-pearl",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Resurrection.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "song-of-broken-pines",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Widsith.png",
+      "rarity": 5,
+      "base_atk": 49.14,
+      "main_stat": "Physical DMG Bonus",
+      "version_added": "1.5"
+    },
+    {
+      "slug": "song-of-stillness",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Vorpal.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "song-of-the-vigil",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Elemental Mastery",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "splendor-of-tranquil-waters",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "4.2"
+    },
+    {
+      "slug": "staff-of-homa",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Homa.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT DMG",
+      "version_added": "1.3"
+    },
+    {
+      "slug": "staff-of-the-scarlet-sands",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Deshret.png",
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT Rate",
+      "version_added": "3.1"
+    },
+    {
+      "slug": "starcallers-watch",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "Elemental Mastery",
+      "version_added": "5.3"
+    },
+    {
+      "slug": "sturdy-bone",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "ATK",
+      "version_added": "5.1"
+    },
+    {
+      "slug": "summit-shaper",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Kunwu.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "ATK",
+      "version_added": "1.2"
+    },
+    {
+      "slug": "sunny-morning-sleep-in",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "Elemental Mastery",
+      "version_added": "5.4"
+    },
+    {
+      "slug": "surfs-up",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "5.0"
+    },
+    {
+      "slug": "sword-of-descension",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Psalmus.png",
+      "rarity": 4,
+      "base_atk": 38.74,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "sword-of-narzissenkreuz",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "4.2"
+    },
+    {
+      "slug": "symphonist-of-scents",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT DMG",
+      "version_added": "5.6"
+    },
+    {
+      "slug": "talking-stick",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_BeastTamer.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "CRIT Rate",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "tamayuratei-no-ohanashi",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "5.4"
+    },
+    {
+      "slug": "the-alley-flash",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Outlaw.png",
+      "rarity": 4,
+      "base_atk": 45.07,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.4"
+    },
+    {
+      "slug": "the-bell",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Troupe.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "HP",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "the-black-sword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Bloodstained.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "the-daybreak-chronicles",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT DMG",
+      "version_added": "6.2"
+    },
+    {
+      "slug": "the-dockhands-assistant",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "HP",
+      "version_added": "4.1"
+    },
+    {
+      "slug": "the-first-great-magic",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Pledge.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT DMG",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "the-flute",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Troupe.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "the-stringless",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Troupe.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "the-unforged",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Kunwu.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "ATK",
+      "version_added": "1.1"
+    },
+    {
+      "slug": "the-viridescent-hunt",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Viridescent.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "the-widsith",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Troupe.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT DMG",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "thrilling-tales-of-dragon-slayers",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Pulpfic.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "HP",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "thundering-pulse",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Narukami.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "CRIT DMG",
+      "version_added": "2.0"
+    },
+    {
+      "slug": "tidal-shadow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Vorpal.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "ATK",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "tome-of-the-eternal-flow",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "4.1"
+    },
+    {
+      "slug": "toukabou-shigure",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Kasabouzu.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "3.3"
+    },
+    {
+      "slug": "travelers-handy-sword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Traveler.png",
+      "rarity": 3,
+      "base_atk": 39.88,
+      "main_stat": "DEF",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "tulaytullahs-remembrance",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Alaya.png",
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT DMG",
+      "version_added": "3.3"
+    },
+    {
+      "slug": "twin-nephrite",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Phoney.png",
+      "rarity": 3,
+      "base_atk": 39.88,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "uraku-misugiri",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 44.34,
+      "main_stat": "CRIT DMG",
+      "version_added": "4.5"
+    },
+    {
+      "slug": "verdict",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT Rate",
+      "version_added": "4.3"
+    },
+    {
+      "slug": "vivid-notions",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT DMG",
+      "version_added": "5.5"
+    },
+    {
+      "slug": "vortex-vanquisher",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Kunwu.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "ATK",
+      "version_added": "1.1"
+    },
+    {
+      "slug": "wandering-evenstar",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Pleroma.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "3.1"
+    },
+    {
+      "slug": "waster-greatsword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Aniki.png",
+      "rarity": 1,
+      "base_atk": 23.25,
+      "main_stat": null,
+      "version_added": "1.0"
+    },
+    {
+      "slug": "wavebreakers-fin",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Maria.png",
+      "rarity": 4,
+      "base_atk": 45.07,
+      "main_stat": "ATK",
+      "version_added": "2.2"
+    },
+    {
+      "slug": "waveriding-whirl",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 41.07,
+      "main_stat": "Energy Recharge",
+      "version_added": "5.2"
+    },
+    {
+      "slug": "white-iron-greatsword",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Tin.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "DEF",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "white-tassel",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Pole_Ruby.png",
+      "rarity": 3,
+      "base_atk": 38.74,
+      "main_stat": "CRIT Rate",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "whiteblind",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Exotic.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "DEF",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "whitelake-frostfeather",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 5,
+      "base_atk": 47.54,
+      "main_stat": "CRIT Rate",
+      "version_added": "7.0"
+    },
+    {
+      "slug": "windblume-ode",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Bow_Fleurfair.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "1.4"
+    },
+    {
+      "slug": "wine-and-song",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Catalyst_Outlaw.png",
+      "rarity": 4,
+      "base_atk": 43.73,
+      "main_stat": "Energy Recharge",
+      "version_added": "1.4"
+    },
+    {
+      "slug": "winters-heavy-heart",
+      "name_ru": null,
+      "icon_url": null,
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT DMG",
+      "version_added": "7.1"
+    },
+    {
+      "slug": "wolf-fang",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Boreas.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "CRIT Rate",
+      "version_added": "4.0"
+    },
+    {
+      "slug": "wolfs-gravestone",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Claymore_Wolfmound.png",
+      "rarity": 5,
+      "base_atk": 45.94,
+      "main_stat": "ATK",
+      "version_added": "1.0"
+    },
+    {
+      "slug": "xiphos-moonlight",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_EquipIcon_Sword_Pleroma.png",
+      "rarity": 4,
+      "base_atk": 42.4,
+      "main_stat": "Elemental Mastery",
+      "version_added": "3.1"
+    }
+  ],
+  "artifact_sets": [
+    {
+      "slug": "a-day-carved-from-rising-winds",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "adventurer",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10010_4.png"
+    },
+    {
+      "slug": "archaic-petra",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15014_4.png"
+    },
+    {
+      "slug": "aubade-of-morningstar-and-moon",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "berserker",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10005_4.png"
+    },
+    {
+      "slug": "blizzard-strayer",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_14001_4.png"
+    },
+    {
+      "slug": "bloodstained-chivalry",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15008_4.png"
+    },
+    {
+      "slug": "brave-heart",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10002_4.png"
+    },
+    {
+      "slug": "celestial-gift",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "crimson-witch-of-flames",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15006_4.png"
+    },
+    {
+      "slug": "deepwood-memories",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15025_4.png"
+    },
+    {
+      "slug": "defenders-will",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10003_4.png"
+    },
+    {
+      "slug": "desert-pavilion-chronicle",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15027_4.png"
+    },
+    {
+      "slug": "disenchantment-in-deep-shadow",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "echoes-of-an-offering",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15024_4.png"
+    },
+    {
+      "slug": "emblem-of-severed-fate",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15020_4.png"
+    },
+    {
+      "slug": "finale-of-the-deep-galleries",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "flower-of-paradise-lost",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15028_4.png"
+    },
+    {
+      "slug": "fragment-of-harmonic-whimsy",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "gambler",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10008_4.png"
+    },
+    {
+      "slug": "gilded-dreams",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15026_4.png"
+    },
+    {
+      "slug": "gladiators-finale",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15001_4.png"
+    },
+    {
+      "slug": "golden-troupe",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15032_4.png"
+    },
+    {
+      "slug": "heart-of-depth",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15016_4.png"
+    },
+    {
+      "slug": "heart-of-the-furnace",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "husk-of-opulent-dreams",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15021_4.png"
+    },
+    {
+      "slug": "instructor",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10007_4.png"
+    },
+    {
+      "slug": "lavawalker",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_14003_4.png"
+    },
+    {
+      "slug": "long-nights-oath",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "lucky-dog",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10011_4.png"
+    },
+    {
+      "slug": "maiden-beloved",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_14004_4.png"
+    },
+    {
+      "slug": "marechaussee-hunter",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15031_4.png"
+    },
+    {
+      "slug": "martial-artist",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10006_4.png"
+    },
+    {
+      "slug": "night-of-the-skys-unveiling",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "nighttime-whispers-in-the-echoing-woods",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "noblesse-oblige",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15007_4.png"
+    },
+    {
+      "slug": "nymphs-dream",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15029_4.png"
+    },
+    {
+      "slug": "obsidian-codex",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "ocean-hued-clam",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15022_4.png"
+    },
+    {
+      "slug": "pale-flame",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15018_4.png"
+    },
+    {
+      "slug": "prayers-for-destiny",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15010_3.png"
+    },
+    {
+      "slug": "prayers-for-illumination",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15009_3.png"
+    },
+    {
+      "slug": "prayers-for-wisdom",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15011_3.png"
+    },
+    {
+      "slug": "prayers-to-springtime",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15013_3.png"
+    },
+    {
+      "slug": "resolution-of-sojourner",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10001_4.png"
+    },
+    {
+      "slug": "retracing-bolide",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15015_4.png"
+    },
+    {
+      "slug": "scarlet-proof",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "scholar",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10012_4.png"
+    },
+    {
+      "slug": "scroll-of-the-hero-of-cinder-city",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "shimenawas-reminiscence",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15019_4.png"
+    },
+    {
+      "slug": "silken-moons-serenade",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "song-of-days-past",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "tenacity-of-the-millelith",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15017_4.png"
+    },
+    {
+      "slug": "the-exile",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10009_4.png"
+    },
+    {
+      "slug": "thundering-fury",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15005_4.png"
+    },
+    {
+      "slug": "thundersoother",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_14002_4.png"
+    },
+    {
+      "slug": "tiny-miracle",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10004_4.png"
+    },
+    {
+      "slug": "traveling-doctor",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_10013_4.png"
+    },
+    {
+      "slug": "unfinished-reverie",
+      "name_ru": null,
+      "icon_url": null
+    },
+    {
+      "slug": "vermillion-hereafter",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15023_4.png"
+    },
+    {
+      "slug": "viridescent-venerer",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15002_4.png"
+    },
+    {
+      "slug": "vourukashas-glow",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15030_4.png"
+    },
+    {
+      "slug": "wanderers-troupe",
+      "name_ru": null,
+      "icon_url": "https://upload-os-bbs.mihoyo.com/game_record/genshin/equip/UI_RelicIcon_15003_4.png"
+    }
+  ]
+}

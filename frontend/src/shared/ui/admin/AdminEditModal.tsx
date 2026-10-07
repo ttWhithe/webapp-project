@@ -63,12 +63,7 @@ export default function AdminEditModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
       <form
         onSubmit={handleSubmit}
         className="bg-slate-800 rounded-xl border border-slate-700 w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto"

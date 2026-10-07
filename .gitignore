@@ -43,3 +43,6 @@ frontend/.vite/
 # Local test artifacts
 cookies.txt
 *.cookies
+
+backups/
+*.sql

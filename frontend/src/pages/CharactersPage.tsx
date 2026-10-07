@@ -34,13 +34,19 @@ export default function CharactersPage() {
   const progressMap = useMemo(() => {
     const map = new Map<
       string,
-      { progress: number; level: number; crowns: number }
+      {
+        progress: number
+        level: number
+        crowns: number
+        constellation: number
+      }
     >()
     for (const item of mineQuery.data ?? []) {
       map.set(item.character.id, {
         progress: item.progress,
         level: item.level,
         crowns: item.crowns_used,
+        constellation: item.constellation,
       })
     }
     return map
@@ -93,6 +99,7 @@ export default function CharactersPage() {
                   progress={mine?.progress}
                   level={mine?.level}
                   crowns={mine?.crowns}
+                  constellation={mine?.constellation}
                 />
               )
             })}
