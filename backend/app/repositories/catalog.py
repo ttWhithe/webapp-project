@@ -68,6 +68,12 @@ class CharacterRepository:
         count_stmt = select(func.count()).select_from(stmt.subquery())
         return await self._session.scalar(count_stmt) or 0
 
+    async def commit(self) -> None:
+        await self._session.commit()
+
+    async def refresh(self, instance: Character) -> None:
+        await self._session.refresh(instance)
+
 
 class WeaponRepository:
     def __init__(self, session: AsyncSession) -> None:
@@ -104,6 +110,12 @@ class WeaponRepository:
         count_stmt = select(func.count()).select_from(stmt.subquery())
         return await self._session.scalar(count_stmt) or 0
 
+    async def commit(self) -> None:
+        await self._session.commit()
+
+    async def refresh(self, instance: Weapon) -> None:
+        await self._session.refresh(instance)
+
 
 class ArtifactSetRepository:
     def __init__(self, session: AsyncSession) -> None:
@@ -126,3 +138,9 @@ class ArtifactSetRepository:
 
     async def get_by_id(self, set_id: uuid.UUID) -> ArtifactSet | None:
         return await self._session.get(ArtifactSet, set_id)
+
+    async def commit(self) -> None:
+        await self._session.commit()
+
+    async def refresh(self, instance: ArtifactSet) -> None:
+        await self._session.refresh(instance)

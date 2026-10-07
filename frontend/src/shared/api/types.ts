@@ -88,3 +88,26 @@ export interface CharacterListParams {
   limit?: number
   offset?: number
 }
+
+// Tracker types (mirror of backend tracker schemas)
+
+export interface UserCharacterListItem {
+  id: string
+  character: {
+    id: string
+    slug: string
+    name: string
+    name_ru: string | null
+    element: Element
+    weapon_type: WeaponType
+    rarity: number
+    icon_url: string | null
+    portrait_url: string | null
+  }
+  level: number
+  level_cap: number
+  constellation: number
+  friendship: number
+  crowns_used: number
+  progress: number
+}
