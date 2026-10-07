@@ -4,6 +4,8 @@ import Layout from './Layout'
 import ProtectedRoute from './ProtectedRoute'
 
 import AuthPage from '@/pages/AuthPage'
+import CharacterDetailPage from '@/pages/CharacterDetailPage'
+import CharactersPage from '@/pages/CharactersPage'
 import Dashboard from '@/pages/Dashboard'
 
 export const router = createBrowserRouter([
@@ -25,6 +27,14 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <Dashboard />,
+          },
+          {
+            path: 'characters',
+            element: <CharactersPage />,
+          },
+          {
+            path: 'characters/:slug',
+            element: <CharacterDetailPage />,
           },
         ],
       },

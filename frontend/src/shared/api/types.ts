@@ -19,3 +19,72 @@ export interface RegisterPayload {
   username: string
   password: string
 }
+
+// Catalog types
+
+export type Element =
+  | 'pyro'
+  | 'hydro'
+  | 'anemo'
+  | 'electro'
+  | 'dendro'
+  | 'cryo'
+  | 'geo'
+
+export type WeaponType = 'sword' | 'claymore' | 'polearm' | 'bow' | 'catalyst'
+
+export interface Character {
+  id: string
+  external_id: number
+  slug: string
+  name: string
+  name_ru: string | null
+  title: string | null
+  element: Element
+  weapon_type: WeaponType
+  rarity: number
+  region: string | null
+  birthday: string | null
+  icon_url: string | null
+  portrait_url: string | null
+  version_added: string | null
+}
+
+export interface Weapon {
+  id: string
+  external_id: number
+  slug: string
+  name: string
+  name_ru: string | null
+  weapon_type: WeaponType
+  rarity: number
+  base_atk: number | null
+  main_stat: string | null
+  icon_url: string | null
+  version_added: string | null
+}
+
+export interface ArtifactSet {
+  id: string
+  external_id: number | null
+  slug: string
+  name: string
+  name_ru: string | null
+  icon_url: string | null
+}
+
+export interface Page<T> {
+  items: T[]
+  total: number
+  limit: number
+  offset: number
+}
+
+export interface CharacterListParams {
+  element?: Element
+  weapon_type?: WeaponType
+  rarity?: number
+  sort?: 'name_asc' | 'rarity_desc' | 'version_desc'
+  limit?: number
+  offset?: number
+}
