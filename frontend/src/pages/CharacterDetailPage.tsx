@@ -67,9 +67,9 @@ export default function CharacterDetailPage() {
           onToggleOwned={handleToggleOwned}
           isOwned={!!tracked}
         />
-        <ZoneStats character={character} detail={detail} />
+        <ZoneStats detail={detail} />
         <ZoneWeaponArtifacts detail={detail} />
-        <ZoneConstellations character={character} detail={detail} />
+        <ZoneConstellations detail={detail} />
       </div>
     </div>
   )
@@ -328,10 +328,8 @@ function HeroActionArc({
 /* ---------- Zone 2: Stats ---------- */
 
 function ZoneStats({
-  character,
   detail,
 }: {
-  character: { name_ru: string | null; name: string }
   detail: UserCharacterDetail | undefined
 }) {
   if (!detail) {
@@ -472,10 +470,8 @@ function ZoneWeaponArtifacts({ detail }: { detail: UserCharacterDetail | undefin
 /* ---------- Zone 4: Constellations (placeholder) ---------- */
 
 function ZoneConstellations({
-  character,
   detail,
 }: {
-  character: { name_ru: string | null; name: string }
   detail: UserCharacterDetail | undefined
 }) {
   return (

@@ -137,7 +137,7 @@ export default function RadialProgress({
               <CircularProgress
                 value={outerValue}
                 size={outerSize}
-                strokeWidth={Math.max(4, Math.round(outerSize * 0.09))}
+                strokeWidth={12}
                 fillColor={colors.secondary}
                 emptyColor={colors.main}
                 innerColor={colors.main}
