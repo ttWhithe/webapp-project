@@ -1,19 +1,19 @@
 interface Props {
-  value: number // 0-100
+  value: number
   size?: number
   strokeWidth?: number
-  /** Color of the filled (progress) portion */
   fillColor?: string
-  /** Color of the empty (background) portion */
   emptyColor?: string
-  /** Inner circle color (same as empty by default) */
   innerColor?: string
-  /** Border color around inner circle */
   borderColor?: string
-  /** Text color */
   textColor?: string
-  showLabel?: boolean
+  /** SVG stroke around the text (thickness 2) */
+  textStroke?: string
+  /** Hide the built-in % label (render your own) */
+  hideLabel?: boolean
   className?: string
+  /** Thickness of the border around the inner circle (default 1) */
+  borderWidth?: number
 }
 
 export default function CircularProgress({
@@ -25,7 +25,9 @@ export default function CircularProgress({
   innerColor,
   borderColor,
   textColor,
-  showLabel = true,
+  textStroke,
+  hideLabel = false,
+  borderWidth = 1,
   className,
 }: Props) {
   const clamped = Math.max(0, Math.min(100, value))
@@ -53,17 +55,19 @@ export default function CircularProgress({
           right: strokeWidth,
           bottom: strokeWidth,
           backgroundColor: inner,
-          border: `1px solid ${border}`,
+          border: `${borderWidth}px solid ${border}`,
         }}
       >
-        {showLabel && (
+        {!hideLabel && (
           <span
             className="font-bold leading-none"
             style={{
               color: text,
               fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
               fontSize: size * 0.32,
-              textShadow: `0 0 4px ${text}`,
+              textShadow: textStroke
+                ? `0 0 2px ${textStroke}, 0 0 4px ${textStroke}66`
+                : `0 0 4px ${text}`,
             }}
           >
             {Math.round(clamped)}%

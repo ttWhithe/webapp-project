@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { authApi } from '@/shared/api/auth'
 import { useAuthStore } from '@/shared/lib/auth-store'
@@ -7,6 +7,11 @@ export default function Layout() {
   const user = useAuthStore((s) => s.user)
   const reset = useAuthStore((s) => s.reset)
   const navigate = useNavigate()
+  const location = useLocation()
+
+  // Character detail page uses full viewport width (no max-w wrapper).
+  // Pattern: /characters/<slug> — but NOT /characters (list) itself.
+  const isFullWidth = /^\/characters\/[^/]+\/?$/.test(location.pathname)
 
   async function handleLogout() {
     try {
@@ -19,7 +24,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
-      <header className="border-b border-slate-800 bg-slate-950 sticky top-0 z-10">
+      <header className="border-b border-slate-800 bg-slate-950 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link to="/" className="font-bold text-lg">
             Genshin Tracker
@@ -27,9 +32,7 @@ export default function Layout() {
           <nav className="flex items-center gap-4 text-sm">
             <NavItem to="/characters">Каталог</NavItem>
             <NavItem to="/me/characters">Мои персонажи</NavItem>
-            {user?.role === 'admin' && (
-              <NavItem to="/admin/catalog">Админка</NavItem>
-            )}
+            {user?.role === 'admin' && <NavItem to="/admin/catalog">Админка</NavItem>}
             {user && (
               <>
                 <span className="text-slate-500">|</span>
@@ -45,7 +48,8 @@ export default function Layout() {
           </nav>
         </div>
       </header>
-      <main className="max-w-6xl mx-auto px-4 py-8">
+
+      <main className={isFullWidth ? 'w-full' : 'max-w-6xl mx-auto px-4 py-8'}>
         <Outlet />
       </main>
     </div>

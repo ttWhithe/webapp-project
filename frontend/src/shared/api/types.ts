@@ -180,3 +180,73 @@ export interface AdminArtifactSetUpdate {
   name_ru?: string | null
   icon_url?: string | null
 }
+
+export interface UserArtifact {
+  id: string
+  slot: 'flower' | 'plume' | 'sands' | 'goblet' | 'circlet'
+  set_id: string
+  set_slug: string
+  set_name: string
+  rarity: number
+  level: number
+  main_stat: string | null
+  substats: Array<Record<string, unknown>> | null
+}
+
+export interface ProgressBreakdown {
+  total: number
+  level: number
+  talents: number
+  weapon: number
+  artifacts: number
+  friendship: number
+}
+
+export interface UserCharacterDetail {
+  id: string
+  character: {
+    id: string
+    slug: string
+    name: string
+    name_ru: string | null
+    element: Element
+    weapon_type: WeaponType
+    rarity: number
+    icon_url: string | null
+    portrait_url: string | null
+  }
+  level: number
+  level_cap: number
+  friendship: number
+  constellation: number
+  crowns_used: number
+  masterless_stella_fortuna: number
+  talent_normal: number
+  talent_skill: number
+  talent_burst: number
+  weapon: {
+    id: string
+    slug: string
+    name: string
+    weapon_type: WeaponType
+    rarity: number
+    icon_url: string | null
+  } | null
+  weapon_level: number | null
+  weapon_refinement: number | null
+  artifacts: UserArtifact[]
+  custom_icon_url: string | null
+  custom_portrait_url: string | null
+  custom_background_url: string | null
+  custom_hp: number | null
+  custom_atk: number | null
+  custom_def: number | null
+  custom_em: number | null
+  custom_crit_rate: number | null
+  custom_crit_dmg: number | null
+  custom_energy_recharge: number | null
+  custom_elemental_dmg_bonus: number | null
+  progress: ProgressBreakdown
+  created_at: string
+  updated_at: string
+}

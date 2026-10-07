@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { UserCharacterListItem } from './types'
+import type { UserCharacterDetail, UserCharacterListItem } from './types'
 
 export const trackerApi = {
   async listMine(): Promise<UserCharacterListItem[]> {
@@ -8,4 +8,12 @@ export const trackerApi = {
     )
     return data
   },
+
+  async getMine(id: string): Promise<UserCharacterDetail> {
+    const { data } = await apiClient.get<UserCharacterDetail>(
+      `/me/characters/${id}`,
+    )
+    return data
+  },
+
 }
