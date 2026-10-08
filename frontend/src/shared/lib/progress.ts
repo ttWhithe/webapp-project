@@ -27,6 +27,8 @@ export interface ProgressBreakdown {
   friendship: number
 }
 
+export const PROGRESS_LEVEL_CAP = 90
+
 const WEIGHTS = {
   level: 0.2,
   talents: 0.2,
@@ -58,7 +60,8 @@ function clamp01(v: number): number {
 
 function levelFraction(level: number, cap: number): number {
   if (cap <= 0) return 0
-  return clamp01(level / cap)
+  const effectiveCap = Math.min(cap, PROGRESS_LEVEL_CAP)
+  return clamp01(level / effectiveCap)
 }
 
 function talentFraction(t: number): number {

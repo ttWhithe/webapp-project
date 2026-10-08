@@ -59,14 +59,15 @@ class TestLevel:
         result = _calc(level=100, level_cap=100)
         assert result.level == 20.0
 
-    def test_level_90_with_cap_100(self) -> None:
-        # 90/100 * 20 = 18.0
+    def test_level_90_with_cap_100_counts_as_maxed(self) -> None:
+        # 90/90 = 100% — cap above 90 doesn't reduce progress
         result = _calc(level=90, level_cap=100)
-        assert result.level == pytest.approx(18.0, abs=0.01)
+        assert result.level == 20.0
 
-    def test_level_95_with_cap_100(self) -> None:
+    def test_level_95_with_cap_100_is_clamped(self) -> None:
+        # 95/90 → clamped to 100%
         result = _calc(level=95, level_cap=100)
-        assert result.level == pytest.approx(19.0, abs=0.01)
+        assert result.level == 20.0
 
     def test_level_above_cap_is_clamped(self) -> None:
         # level 100 with cap 90 → still full (no over-credit)

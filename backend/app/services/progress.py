@@ -85,10 +85,24 @@ def _clamp01(value: float) -> float:
     return max(0.0, min(1.0, value))
 
 
+PROGRESS_LEVEL_CAP = 90
+"""Fixed 90-level target for the progress formula.
+
+Levels 91-100 require Masterless Stella Fortuna (rare), so they don't push
+the progress percentage above 100% and are tracked separately in the UI.
+"""
+
+
 def _level_fraction(level: int, level_cap: int) -> float:
+    """Progress toward the standard 90-level cap.
+
+    `level_cap` above 90 is clamped to 90 — extra levels are bonus achievements,
+    not part of the base progression target.
+    """
     if level_cap <= 0:
         return 0.0
-    return _clamp01(level / level_cap)
+    effective_cap = min(level_cap, PROGRESS_LEVEL_CAP)
+    return _clamp01(level / effective_cap)
 
 
 def _talent_fraction(talent: int) -> float:

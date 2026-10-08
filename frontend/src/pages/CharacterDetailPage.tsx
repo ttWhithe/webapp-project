@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 
 import { catalogApi } from '@/shared/api/catalog'
@@ -13,11 +13,16 @@ import RadialProgress, {
   type OuterSlotConfig,
   type RadialItem,
 } from '@/shared/ui/RadialProgress'
+import { useCharacterDraft } from '@/shared/lib/useCharacterDraft'
+import ProgressSlider from '@/shared/ui/ProgressSlider'
+import StatInput from '@/shared/ui/StatInput'
+import { PROGRESS_LEVEL_CAP } from '@/shared/lib/progress'
 
 const ZONES = 4
 
 export default function CharacterDetailPage() {
   const { slug } = useParams<{ slug: string }>()
+  const qc = useQueryClient()
 
   const catalogQuery = useQuery({
     queryKey: ['character', slug],
@@ -38,10 +43,25 @@ export default function CharacterDetailPage() {
     enabled: !!tracked,
   })
 
+  const detail = detailQuery.data
+
+  // Save handler passed into the draft hook
+  const handleSave = async (
+    patch: Parameters<typeof trackerApi.updateMine>[1],
+  ) => {
+    if (!tracked) return
+    await trackerApi.updateMine(tracked.id, patch)
+    qc.invalidateQueries({ queryKey: ['me', 'characters', 'detail', tracked.id] })
+    qc.invalidateQueries({ queryKey: ['me', 'characters'] })
+  }
+
+  const { draft, progress, isSaving, lastSaved, update } = useCharacterDraft({
+    detail,
+    onSave: handleSave,
+  })
+
   const { current, goTo } = useSectionScroll(ZONES)
 
-  // --- Toggle owned (add/remove from tracker) ---
-  // TODO: wire to POST/DELETE /me/characters + invalidate queries + cooldown.
   const handleToggleOwned = () => {
     console.log('toggle owned clicked', { isOwned: !!tracked })
   }
@@ -51,11 +71,9 @@ export default function CharacterDetailPage() {
     return <ErrorState message="Персонаж не найден" />
 
   const character = catalogQuery.data
-  const detail = detailQuery.data
 
   return (
     <div className="relative">
-      {/* Vertical scroller */}
       <div
         className="transition-transform duration-700 ease-in-out"
         style={{ transform: `translateY(-${current * 100}vh)` }}
@@ -66,8 +84,17 @@ export default function CharacterDetailPage() {
           goTo={goTo}
           onToggleOwned={handleToggleOwned}
           isOwned={!!tracked}
+          totalOverride={progress?.total}
         />
-        <ZoneStats detail={detail} />
+        <ZoneStats
+          character={character}
+          detail={detail}
+          draft={draft}
+          progress={progress}
+          onUpdate={update}
+          isSaving={isSaving}
+          lastSaved={lastSaved}
+        />
         <ZoneWeaponArtifacts detail={detail} />
         <ZoneConstellations detail={detail} />
       </div>
@@ -83,6 +110,7 @@ function ZoneHero({
   goTo,
   onToggleOwned,
   isOwned,
+  totalOverride,
 }: {
   character: {
     name: string
@@ -97,6 +125,7 @@ function ZoneHero({
   goTo: (i: number) => void
   onToggleOwned: () => void
   isOwned: boolean
+  totalOverride?: number
 }) {
   const colors = ELEMENT_HEX[character.element]
 
@@ -132,7 +161,7 @@ function ZoneHero({
     }
   }
 
-  const total = detail?.progress.total ?? 0
+  const total = totalOverride ?? detail?.progress.total ?? 0
 
   // Per-slot config for 14 outer circles
   // 0, 11 — hidden
@@ -328,11 +357,30 @@ function HeroActionArc({
 /* ---------- Zone 2: Stats ---------- */
 
 function ZoneStats({
+  character,
   detail,
+  draft,
+  progress,
+  onUpdate,
+  isSaving,
+  lastSaved,
 }: {
+  character: {
+    name: string
+    name_ru: string | null
+    element: keyof typeof ELEMENT_HEX
+    icon_url: string | null
+  }
   detail: UserCharacterDetail | undefined
+  draft: ReturnType<typeof useCharacterDraft>['draft']
+  progress: ReturnType<typeof useCharacterDraft>['progress']
+  onUpdate: ReturnType<typeof useCharacterDraft>['update']
+  isSaving: boolean
+  lastSaved: Date | null
 }) {
-  if (!detail) {
+  const colors = ELEMENT_HEX[character.element]
+
+  if (!detail || !draft || !progress) {
     return (
       <section className="h-screen flex items-center justify-center px-4">
         <div className="text-center max-w-md">
@@ -348,50 +396,223 @@ function ZoneStats({
   }
 
   return (
-    <section className="h-screen flex items-center justify-center px-4 py-24 overflow-y-auto">
-      <div className="w-full max-w-3xl space-y-6">
-        <h2 className="text-3xl font-bold">Прокачка</h2>
+    <section
+      className="h-screen flex items-center justify-center px-4 relative overflow-hidden"
+      style={{
+        background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)`,
+      }}
+    >
+      {/* === 3-column grid === */}
+      <div className="w-full max-w-[1800px] grid grid-cols-1 lg:grid-cols-[320px_1fr_500px] gap-6 px-6">
+        {/* LEFT: name centered + portrait + 8 stats */}
+        <div className="flex flex-col gap-4 -translate-y-[40px]">
+          {/* Name + subtitle, centered */}
+          <div className="text-center">
+            <h2 className="text-2xl font-bold">
+              {character.name_ru || character.name}
+            </h2>
+            <p className="text-sm text-slate-400">Характеристики</p>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatCard label="Уровень" value={`${detail.level} / ${detail.level_cap}`} />
-          <StatCard label="Дружба" value={`${detail.friendship} / 10`} />
-          <StatCard label="Созвездия" value={`C${detail.constellation}`} />
+          {/* Large portrait: fills column width minus 10px each side */}
+          {character.icon_url && (
+            <div
+              className="mx-[10px] rounded-xl overflow-hidden"
+              style={{
+                border: `2px solid ${colors.secondary}`,
+                boxShadow: `0 0 28px ${colors.main}66`,
+                aspectRatio: '1 / 1',
+              }}
+            >
+              <img
+                src={character.icon_url}
+                alt={character.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
+          {/* 8 stats */}
+          <div className="grid grid-cols-2 gap-3">
+            <StatInput
+              label="HP"
+              value={draft.custom_hp}
+              onChange={(v) => onUpdate('custom_hp', v)}
+              colors={colors}
+              min={0}
+            />
+            <StatInput
+              label="ATK"
+              value={draft.custom_atk}
+              onChange={(v) => onUpdate('custom_atk', v)}
+              colors={colors}
+              min={0}
+            />
+            <StatInput
+              label="DEF"
+              value={draft.custom_def}
+              onChange={(v) => onUpdate('custom_def', v)}
+              colors={colors}
+              min={0}
+            />
+            <StatInput
+              label="EM"
+              value={draft.custom_em}
+              onChange={(v) => onUpdate('custom_em', v)}
+              colors={colors}
+              min={0}
+            />
+            <StatInput
+              label="CRIT Rate"
+              value={draft.custom_crit_rate}
+              onChange={(v) => onUpdate('custom_crit_rate', v)}
+              suffix="%"
+              colors={colors}
+              min={0}
+              max={200}
+              step={0.1}
+            />
+            <StatInput
+              label="CRIT DMG"
+              value={draft.custom_crit_dmg}
+              onChange={(v) => onUpdate('custom_crit_dmg', v)}
+              suffix="%"
+              colors={colors}
+              min={0}
+              max={500}
+              step={0.1}
+            />
+            <StatInput
+              label="Energy Recharge"
+              value={draft.custom_energy_recharge}
+              onChange={(v) => onUpdate('custom_energy_recharge', v)}
+              suffix="%"
+              colors={colors}
+              min={0}
+              max={500}
+              step={0.1}
+            />
+            <StatInput
+              label="Elem. DMG Bonus"
+              value={draft.custom_elemental_dmg_bonus}
+              onChange={(v) => onUpdate('custom_elemental_dmg_bonus', v)}
+              suffix="%"
+              colors={colors}
+              min={0}
+              max={500}
+              step={0.1}
+            />
+          </div>
         </div>
 
-        <h3 className="text-xl font-bold pt-4">Таланты</h3>
-        <div className="grid grid-cols-3 gap-4">
-          <StatCard label="Обычная атака" value={`${detail.talent_normal} / 13`} />
-          <StatCard label="Элементарный навык" value={`${detail.talent_skill} / 13`} />
-          <StatCard label="Взрыв стихии" value={`${detail.talent_burst} / 13`} />
-        </div>
+        {/* CENTER: 5 sliders + separator. px-[50px] on both sides = 100px narrower. */}
+        <div className="flex flex-col justify-center gap-3 px-[50px]">
+          <ProgressSlider
+            label="Уровень персонажа"
+            value={draft.level}
+            min={1}
+            max={draft.level_cap}
+            onChange={(v) => onUpdate('level', v)}
+            icon="📊"
+            colors={colors}
+            crownAt={PROGRESS_LEVEL_CAP + 1}
+            ringCap={PROGRESS_LEVEL_CAP}
+          />
+          <ProgressSlider
+            label="Уровень дружбы"
+            value={draft.friendship}
+            min={1}
+            max={10}
+            onChange={(v) => onUpdate('friendship', v)}
+            icon="💚"
+            colors={colors}
+          />
 
-        <h3 className="text-xl font-bold pt-4">Кастомные статы</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="HP" value={detail.custom_hp?.toString() ?? '—'} />
-          <StatCard label="ATK" value={detail.custom_atk?.toString() ?? '—'} />
-          <StatCard label="DEF" value={detail.custom_def?.toString() ?? '—'} />
-          <StatCard label="EM" value={detail.custom_em?.toString() ?? '—'} />
-          <StatCard label="CRIT Rate" value={detail.custom_crit_rate != null ? `${detail.custom_crit_rate}%` : '—'} />
-          <StatCard label="CRIT DMG" value={detail.custom_crit_dmg != null ? `${detail.custom_crit_dmg}%` : '—'} />
-          <StatCard label="Energy Recharge" value={detail.custom_energy_recharge != null ? `${detail.custom_energy_recharge}%` : '—'} />
-          <StatCard label="Elem. DMG Bonus" value={detail.custom_elemental_dmg_bonus != null ? `${detail.custom_elemental_dmg_bonus}%` : '—'} />
-        </div>
+          <div className="flex items-center gap-3 my-2">
+            <div
+              className="flex-1 h-[2px] rounded-full"
+              style={{ backgroundColor: colors.secondary }}
+            />
+            <span
+              className="text-xs uppercase tracking-widest font-semibold"
+              style={{ color: colors.accent }}
+            >
+              Таланты
+            </span>
+            <div
+              className="flex-1 h-[2px] rounded-full"
+              style={{ backgroundColor: colors.secondary }}
+            />
+          </div>
 
-        <div className="pt-6 flex justify-center">
-          <CircularProgress
-            value={detail.progress.total}
-            size={120}
-            strokeWidth={10}
-            fillColor="#818cf8"
-            emptyColor="#334155"
-            innerColor="#1e293b"
-            borderColor="#6366f1"
-            textColor="#c7d2fe"
+          <ProgressSlider
+            label="Обычная атака"
+            value={draft.talent_normal}
+            min={1}
+            max={10}
+            onChange={(v) => onUpdate('talent_normal', v)}
+            icon="⚔️"
+            colors={colors}
+            crownAt={10}
+            ringCap={9}
+          />
+          <ProgressSlider
+            label="Элементарный навык"
+            value={draft.talent_skill}
+            min={1}
+            max={10}
+            onChange={(v) => onUpdate('talent_skill', v)}
+            icon="⚡"
+            colors={colors}
+            crownAt={10}
+            ringCap={9}
+          />
+          <ProgressSlider
+            label="Взрыв стихии"
+            value={draft.talent_burst}
+            min={1}
+            max={10}
+            onChange={(v) => onUpdate('talent_burst', v)}
+            icon="💥"
+            colors={colors}
+            crownAt={10}
+            ringCap={9}
           />
         </div>
-        <p className="text-center text-slate-400 text-sm">
-          Общий прогресс: {detail.progress.total}%
-        </p>
+
+        {/* RIGHT: total progress (static for now, will fly-in in D8d) */}
+        <div className="hidden lg:flex items-center justify-center">
+          <div className="relative" style={{ width: 400, height: 400 }}>
+            <CircularProgress
+              value={progress.total}
+              size={400}
+              strokeWidth={26}
+              fillColor={colors.secondary}
+              emptyColor={colors.main}
+              innerColor={colors.main}
+              borderColor={colors.secondary}
+              textColor={colors.accent}
+              textStroke={colors.accent}
+              borderWidth={6}
+            />
+          </div>
+        </div>
+      </div>
+      {/* === end grid === */}
+
+      {/* Saving indicator */}
+      <div className="absolute top-6 right-6 text-xs text-slate-400 flex items-center gap-2">
+        {isSaving ? (
+          <span className="text-yellow-400">● Сохранение...</span>
+        ) : lastSaved ? (
+          <span className="text-green-400">
+            ✓ Сохранено {lastSaved.toLocaleTimeString().slice(0, 5)}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-slate-400 text-xs animate-pulse pointer-events-none">
+        Прокрути колёсиком или свайпни ↓
       </div>
     </section>
   )
@@ -495,14 +716,6 @@ function ZoneConstellations({
 
 /* ---------- Shared UI ---------- */
 
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-slate-800 rounded-lg p-3 border border-slate-700">
-      <div className="text-xs text-slate-400">{label}</div>
-      <div className="text-lg font-bold mt-1">{value}</div>
-    </div>
-  )
-}
 
 function AddToTrackerButton() {
   return (

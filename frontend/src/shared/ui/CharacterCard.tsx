@@ -127,8 +127,8 @@ export default function CharacterCard({
           </div>
         )}
 
-        {/* Bottom-left: crowns (owned and > 0) */}
-        {owned && crowns > 0 && (
+        {/* Bottom-left: crowns (always when owned) */}
+        {owned && (
           <div className="absolute bottom-0 left-0 w-12 h-12 flex items-center justify-center">
             <img
               src={CROWN_ICON_URL}

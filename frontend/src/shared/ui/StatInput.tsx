@@ -4,12 +4,11 @@ interface Props {
   onChange: (next: number | null) => void
   /** Suffix displayed on the right (%, nothing, etc.) */
   suffix?: string
-  /** Min value; empty string clears to null */
   min?: number
   max?: number
   step?: number
-  /** Accent color for focus border */
-  accentColor?: string
+  /** Element palette: main = input bg, secondary = border + label + text */
+  colors?: { main: string; secondary: string; accent: string }
   disabled?: boolean
   className?: string
 }
@@ -22,13 +21,20 @@ export default function StatInput({
   min,
   max,
   step = 1,
-  accentColor = '#818cf8',
+  colors,
   disabled,
   className,
 }: Props) {
+  const bg = colors?.main ?? '#1e293b'      // slate-800
+  const fg = colors?.secondary ?? '#cbd5e1' // slate-300
+  const border = colors?.secondary ?? '#334155' // slate-700
+
   return (
     <label className={`block ${className ?? ''}`}>
-      <span className="block text-[11px] uppercase tracking-wide text-slate-400 mb-1">
+      <span
+        className="block text-[11px] uppercase tracking-wide font-semibold mb-1"
+        style={{ color: fg }}
+      >
         {label}
       </span>
       <div className="relative">
@@ -47,16 +53,19 @@ export default function StatInput({
           max={max}
           step={step}
           disabled={disabled}
-          className="w-full px-3 py-2 pr-8 rounded-lg bg-slate-800 border border-slate-700 outline-none text-slate-100 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-3 py-2 pr-8 rounded-lg outline-none text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
-            // @ts-expect-error CSS custom prop
-            '--accent-color': accentColor,
+            backgroundColor: bg,
+            border: `2px solid ${border}`,
+            color: fg,
+            fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
           }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = accentColor)}
-          onBlur={(e) => (e.currentTarget.style.borderColor = '')}
         />
         {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 pointer-events-none">
+          <span
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none"
+            style={{ color: fg, opacity: 0.7 }}
+          >
             {suffix}
           </span>
         )}
