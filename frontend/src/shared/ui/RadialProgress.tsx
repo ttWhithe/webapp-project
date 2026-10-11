@@ -19,6 +19,10 @@ interface OuterSlotConfig {
   label?: string
   /** Отключён (неактивен, но видим) */
   disabled?: boolean
+  /** Value to display inside the circle (raw number) */
+  value?: number
+  /** 0-100 for the progress ring fill */
+  ringPercent?: number
 }
 
 interface Props {
@@ -112,7 +116,8 @@ export default function RadialProgress({
         }
 
         // Default: progress variant
-        const outerValue = 0
+        const outerValue = cfg.value ?? 0
+        const outerRingPct = cfg.ringPercent ?? 0
         return (
           <button
             key={`outer-${i}`}
@@ -135,9 +140,9 @@ export default function RadialProgress({
           >
             <div className="relative" style={{ width: outerSize, height: outerSize }}>
               <CircularProgress
-                value={outerValue}
+                value={outerRingPct}
                 size={outerSize}
-                strokeWidth={12}
+                strokeWidth={Math.max(4, Math.round(outerSize * 0.09))}
                 fillColor={colors.secondary}
                 emptyColor={colors.main}
                 innerColor={colors.main}

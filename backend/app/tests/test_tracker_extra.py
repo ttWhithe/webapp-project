@@ -207,7 +207,7 @@ class TestLevelCap:
         assert data["level_cap"] == 90
         assert data["progress"]["level"] == 20.0  # 90/90 * 20
 
-    async def test_level_cap_100_extends_range(
+    async def test_level_cap_100_does_not_reduce_progress(
         self,
         auth_client: httpx.AsyncClient,
         catalog_entities: dict[str, uuid.UUID],
@@ -218,8 +218,8 @@ class TestLevelCap:
             level=90,
             level_cap=100,
         )
-        # 90/100 * 20 = 18.0
-        assert data["progress"]["level"] == 18.0
+        # 90 is capped at PROGRESS_LEVEL_CAP (90), so it's 100% for the component
+        assert data["progress"]["level"] == 20.0
 
     async def test_level_100_at_cap_100(
         self,

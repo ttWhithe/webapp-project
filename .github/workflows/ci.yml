@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    name: Lint (ruff)
+    name: Lint (ruff + mypy)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,6 +27,8 @@ jobs:
         run: ruff check app
       - name: Ruff format check
         run: ruff format --check app
+      - name: Mypy
+        run: mypy app
 
   test:
     name: Tests (pytest)

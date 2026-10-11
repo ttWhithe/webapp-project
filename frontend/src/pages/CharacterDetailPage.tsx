@@ -94,6 +94,8 @@ export default function CharacterDetailPage() {
           onUpdate={update}
           isSaving={isSaving}
           lastSaved={lastSaved}
+          goTo={goTo}
+          current={current}
         />
         <ZoneWeaponArtifacts detail={detail} />
         <ZoneConstellations detail={detail} />
@@ -177,13 +179,38 @@ function ZoneHero({
     { variant: 'plain', icon: '🌟', label: 'Созвездия' },   // 4
     { variant: 'plain', icon: '🌟', label: 'Созвездия' },   // 5
     { variant: 'plain', icon: '🌟', label: 'Созвездия' },   // 6
-    { icon: '💥', label: 'Взрыв стихии' },                  // 7
-    { icon: '⚡', label: 'Элем. навык' },                    // 8
-    { icon: '⚔️', label: 'Обычная атака' },                 // 9
+    {
+      icon: '💥',
+      label: 'Взрыв стихии',
+      value: detail?.talent_burst ?? 1,
+      ringPercent: Math.min(100, ((detail?.talent_burst ?? 1) / 9) * 100),
+    },                                                       // 7
+    {
+      icon: '⚡',
+      label: 'Элем. навык',
+      value: detail?.talent_skill ?? 1,
+      ringPercent: Math.min(100, ((detail?.talent_skill ?? 1) / 9) * 100),
+    },                                                       // 8
+    {
+      icon: '⚔️',
+      label: 'Обычная атака',
+      value: detail?.talent_normal ?? 1,
+      ringPercent: Math.min(100, ((detail?.talent_normal ?? 1) / 9) * 100),
+    },                                                       // 9
     { icon: isOwned ? '👤' : '➕', label: isOwned ? 'Убрать из трекера' : 'Добавить в трекер' }, // 10
     { hidden: true },                                       // 11
-    { icon: '📊', label: 'Уровень' },                        // 12
-    { icon: '💚', label: 'Дружба' },                         // 13
+    {
+      icon: '📊',
+      label: 'Уровень',
+      value: detail?.level ?? 1,
+      ringPercent: Math.min(100, ((detail?.level ?? 1) / 90) * 100),
+    },                                                       // 12
+    {
+      icon: '💚',
+      label: 'Дружба',
+      value: detail?.friendship ?? 1,
+      ringPercent: Math.min(100, ((detail?.friendship ?? 1) / 10) * 100),
+    },                                                       // 13
   ]
 
   function handleOuterClick(i: number) {
@@ -364,6 +391,8 @@ function ZoneStats({
   onUpdate,
   isSaving,
   lastSaved,
+  goTo,
+  current,
 }: {
   character: {
     name: string
@@ -377,6 +406,8 @@ function ZoneStats({
   onUpdate: ReturnType<typeof useCharacterDraft>['update']
   isSaving: boolean
   lastSaved: Date | null
+  goTo: (i: number) => void
+  current: number
 }) {
   const colors = ELEMENT_HEX[character.element]
 
@@ -403,7 +434,10 @@ function ZoneStats({
       }}
     >
       {/* === 3-column grid === */}
-      <div className="w-full max-w-[1800px] grid grid-cols-1 lg:grid-cols-[320px_1fr_500px] gap-6 px-6">
+      <div
+        className="w-full max-w-[1800px] grid grid-cols-1 lg:grid-cols-[320px_1fr_500px] gap-6 px-6 transition-opacity duration-700 ease-out"
+        style={{ opacity: current === 1 ? 1 : 0 }}
+      >
         {/* LEFT: name centered + portrait + 8 stats */}
         <div className="flex flex-col gap-4 -translate-y-[40px]">
           {/* Name + subtitle, centered */}
@@ -580,9 +614,15 @@ function ZoneStats({
           />
         </div>
 
-        {/* RIGHT: total progress (static for now, will fly-in in D8d) */}
+        {/* RIGHT: total progress — clickable, returns to zone 1 */}
         <div className="hidden lg:flex items-center justify-center">
-          <div className="relative" style={{ width: 400, height: 400 }}>
+          <button
+            type="button"
+            onClick={() => goTo(0)}
+            title="Вернуться к персонажу"
+            className="relative transition-transform duration-300 hover:scale-105 cursor-pointer"
+            style={{ width: 400, height: 400, background: 'transparent', border: 'none', padding: 0 }}
+          >
             <CircularProgress
               value={progress.total}
               size={400}
@@ -595,7 +635,7 @@ function ZoneStats({
               textStroke={colors.accent}
               borderWidth={6}
             />
-          </div>
+          </button>
         </div>
       </div>
       {/* === end grid === */}

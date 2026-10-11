@@ -9,13 +9,9 @@ interface Props {
   icon?: string
   colors: { main: string; secondary: string; accent: string }
   disabled?: boolean
-  /** Total module height, px */
   height?: number
-  /** If value >= this threshold, show a crown + yellow number. */
   crownAt?: number
-  /** Value at which the ring reaches 100%. Defaults to `max` (min→max scale). */
   ringCap?: number
-  /** Color of the crown icon + digits when value >= crownAt. Defaults to #fde047. */
   crownColor?: string
 }
 
@@ -33,7 +29,19 @@ export default function ProgressSlider({
   ringCap,
   crownColor = '#fde047',
 }: Props) {
-  // Ring: progress toward the "cap" (where 100% is reached). Used only for the circular ring.
+  // ----- geometry -----
+  const moduleBorder = 4
+  const circleOuterBorder = 5
+  const ringStroke = 14
+  const innerBorder = 4
+
+  const contentHeight = height - moduleBorder * 2 // = circle diameter
+  const svgSize = contentHeight - circleOuterBorder * 2
+  const ringRadius = (svgSize - ringStroke) / 2
+  const circumference = 2 * Math.PI * ringRadius
+  const innerCircleSize = svgSize - ringStroke * 2
+
+  // ----- progress fractions -----
   const ringPercent =
     ringCap != null && ringCap > 0
       ? Math.max(0, Math.min(1, value / ringCap)) * 100
@@ -41,32 +49,16 @@ export default function ProgressSlider({
         ? ((value - min) / (max - min)) * 100
         : 0
 
-  // Slider fill: always maps min..max → 0..100%. Matches the native thumb position.
   const sliderPercent = max > min ? ((value - min) / (max - min)) * 100 : 0
-
-  // --- Layered geometry, from outside in -------------------------------
-  const moduleBorder = 4          // module pill outline
-  const contentHeight = height - moduleBorder * 2 // inner height = circle size
-
-  const circleOuterBorder = 5     // thin secondary outline around the whole circle
-  const ringStroke = 14           // progress ring — 2x previous (was 5)
-  const innerBorder = 4           // border of the inner (main) circle
-
-  // SVG occupies the space inside the circle's outer outline
-  const svgSize = contentHeight - circleOuterBorder * 2
-  const ringRadius = (svgSize - ringStroke) / 2
-  const circumference = 2 * Math.PI * ringRadius
   const dashOffset = circumference * (1 - ringPercent / 100)
 
-  // Inner circle — much smaller now (ring is fat)
-  const innerCircleSize = svgSize - ringStroke * 2
-
-  // Slider track: filled = secondary, empty = accent. Uses sliderPercent, NOT ringPercent.
   const sliderBg = `linear-gradient(to right,
     ${colors.secondary} 0%,
     ${colors.secondary} ${sliderPercent}%,
     ${colors.accent} ${sliderPercent}%,
     ${colors.accent} 100%)`
+
+  const isCrowned = crownAt != null && value >= crownAt
 
   return (
     <div
@@ -80,7 +72,7 @@ export default function ProgressSlider({
         boxShadow: `0 0 24px ${colors.main}66`,
       }}
     >
-      {/* Circle — outer thin secondary outline, then fat ring, then inner circle */}
+      {/* ----- left: circle ----- */}
       <div
         className="relative shrink-0 rounded-full"
         style={{
@@ -90,7 +82,7 @@ export default function ProgressSlider({
           border: `${circleOuterBorder}px solid ${colors.secondary}`,
         }}
       >
-        {/* Progress ring: empty = main, filled = secondary */}
+        {/* progress ring */}
         <svg
           width={svgSize}
           height={svgSize}
@@ -120,7 +112,7 @@ export default function ProgressSlider({
           />
         </svg>
 
-        {/* Inner circle: main bg + secondary border, hugs the ring's inner edge */}
+        {/* inner circle with icon */}
         <div
           className="absolute rounded-full"
           style={{
@@ -133,7 +125,6 @@ export default function ProgressSlider({
             border: `${innerBorder}px solid ${colors.secondary}`,
           }}
         >
-          {/* Icon — upper area */}
           <div
             className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
             style={{ paddingBottom: innerCircleSize * 0.2 }}
@@ -147,33 +138,28 @@ export default function ProgressSlider({
           </div>
         </div>
 
-        {/* Value — absolutely positioned inside the WHOLE circle, can sit on the ring */}
-        {(() => {
-          const isCrowned = crownAt != null && value >= crownAt
-          return (
-            <div
-              className="absolute left-1/2 -translate-x-1/2 font-bold leading-none pointer-events-none flex items-center gap-1"
-              style={{
-                bottom: 4,
-                color: isCrowned ? crownColor : colors.accent,
-                fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
-                fontSize: contentHeight * 0.24,
-                textShadow: `0 0 4px ${colors.secondary}`,
-              }}
-            >
-              {isCrowned && <span style={{ fontSize: '1.1em' }}>👑</span>}
-              <span>{value}</span>
-            </div>
-          )
-        })()}
+        {/* value label + crown */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2 font-bold leading-none pointer-events-none flex items-center gap-1"
+          style={{
+            bottom: 4,
+            color: isCrowned ? crownColor : colors.secondary,
+            fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
+            fontSize: contentHeight * 0.24,
+            textShadow: `0 0 4px ${colors.secondary}`,
+          }}
+        >
+          {isCrowned && <span style={{ fontSize: '1.1em' }}>👑</span>}
+          <span>{value}</span>
+        </div>
       </div>
 
-      {/* Right: label + slider */}
+      {/* ----- right: label + slider ----- */}
       <div className="flex-1 min-w-0 flex flex-col justify-center pt-1 pb-4">
         <div
           className="text-2xl font-semibold mb-4 text-center truncate"
           style={{
-            color: colors.accent,
+            color: colors.secondary,
             fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
           }}
         >
