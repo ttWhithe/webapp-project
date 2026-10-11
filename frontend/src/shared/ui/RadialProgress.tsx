@@ -8,13 +8,12 @@ interface OuterSlotConfig {
   value?: number
   /** 0-100 for the ring fill */
   ringPercent?: number
+  /** Custom angle in degrees (0 = top, 90 = right, 180 = left). Overrides default slot formula. */
+  angle?: number
   /** If value >= crownAt, show crown + yellow digit */
   crownAt?: number
   /** Crown color (defaults to #fde047) */
   crownColor?: string
-  /** Custom angle in degrees. Overrides the default formula.
-    0 = top, 90 = right, 180 = left, 270 = bottom. */
-  angle?: number
 }
 
 export interface RadialItem {
@@ -22,6 +21,10 @@ export interface RadialItem {
   label: string
   value: number
   icon: string
+  /** If set, shows this instead of "N%" — e.g. weapon level "90" */
+  rawValue?: string | number
+  /** Optional stars shown as superscript next to rawValue (e.g. refinement) */
+  stars?: number
 }
 
 interface Props {
@@ -211,7 +214,7 @@ export default function RadialProgress({
             key={item.key}
             type="button"
             onClick={() => onMiddleClick?.(item.key, i)}
-            title={`${item.label}: ${item.value}%`}
+            title={item.label}
             className="absolute transition-transform duration-300 hover:scale-110 cursor-pointer"
             style={{
               width: middleSize,
@@ -257,7 +260,7 @@ export default function RadialProgress({
                 {item.icon}
               </div>
               <div
-                className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none"
+                className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none flex items-start"
                 style={{
                   bottom: middleSize * 0.06,
                   fontSize: middleSize * 0.22,
@@ -267,7 +270,25 @@ export default function RadialProgress({
                   lineHeight: 1,
                 }}
               >
-                {Math.round(item.value)}%
+                {item.rawValue != null ? (
+                  <>
+                    <span>{item.rawValue}</span>
+                    {item.stars != null && item.stars > 0 && (
+                      <span
+                        style={{
+                          fontSize: '0.6em',
+                          color: '#fde047',
+                          marginLeft: 2,
+                          marginTop: -2,
+                        }}
+                      >
+                        ★{item.stars}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span>{Math.round(item.value)}%</span>
+                )}
               </div>
             </div>
             <div

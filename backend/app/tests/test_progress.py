@@ -112,24 +112,24 @@ class TestWeapon:
         result = _calc(weapon_level=None, weapon_refinement=None)
         assert result.weapon == 0.0
 
-    def test_only_level_no_refinement(self) -> None:
+    def test_only_level_no_refinement_still_counts(self) -> None:
+        # Refinement doesn't affect progress, only level matters
         result = _calc(weapon_level=90, weapon_refinement=None)
-        assert result.weapon == 0.0
+        assert result.weapon == 20.0
 
     def test_max_weapon_is_full(self) -> None:
         result = _calc(weapon_level=90, weapon_refinement=5)
         assert result.weapon == 20.0
 
-    def test_half_level_max_refinement(self) -> None:
-        # level 45/90 = 0.5 * 0.7 = 0.35; ref 5/5 = 1 * 0.3 = 0.3
-        # total = 0.65 → * 20 = 13.0
+    def test_half_level(self) -> None:
+        # 45/90 = 0.5 → * 20 = 10.0
         result = _calc(weapon_level=45, weapon_refinement=5)
-        assert result.weapon == pytest.approx(13.0, abs=0.01)
+        assert result.weapon == pytest.approx(10.0, abs=0.01)
 
-    def test_refinement_only(self) -> None:
-        # level 0, ref 5 → 0 * 0.7 + 1 * 0.3 = 0.3 → * 20 = 6.0
-        result = _calc(weapon_level=0, weapon_refinement=5)
-        assert result.weapon == pytest.approx(6.0, abs=0.01)
+    def test_refinement_does_not_affect_progress(self) -> None:
+        r1 = _calc(weapon_level=45, weapon_refinement=1)
+        r5 = _calc(weapon_level=45, weapon_refinement=5)
+        assert r1.weapon == r5.weapon
 
 
 class TestArtifacts:

@@ -29,10 +29,7 @@ CROWN_THRESHOLD = 10
 FRIENDSHIP_MAX = 10
 
 WEAPON_MAX_LEVEL = 90
-WEAPON_MAX_REFINEMENT = 5
-# Weapon splits into level (70%) + refinement (30%)
-WEAPON_LEVEL_SHARE = 0.7
-WEAPON_REFINEMENT_SHARE = 0.3
+WEAPON_MAX_REFINEMENT = 5  # kept for UI, not used in progress formula
 
 # Artifact max level depends on rarity.
 ARTIFACT_MAX_LEVEL_BY_RARITY: dict[int, int] = {
@@ -115,12 +112,11 @@ def _talents_fraction(normal: int, skill: int, burst: int) -> float:
     return (_talent_fraction(normal) + _talent_fraction(skill) + _talent_fraction(burst)) / 3
 
 
-def _weapon_fraction(level: int | None, refinement: int | None) -> float:
-    if level is None or refinement is None:
+def _weapon_fraction(level: int | None) -> float:
+    """Weapon progress = level / 90. Refinement doesn't affect progress."""
+    if level is None:
         return 0.0
-    level_part = _clamp01(level / WEAPON_MAX_LEVEL) * WEAPON_LEVEL_SHARE
-    ref_part = _clamp01(refinement / WEAPON_MAX_REFINEMENT) * WEAPON_REFINEMENT_SHARE
-    return level_part + ref_part
+    return _clamp01(level / WEAPON_MAX_LEVEL)
 
 
 def _artifact_fraction(level: int, rarity: int) -> float:
@@ -184,7 +180,7 @@ def calculate_progress(
         talents=WEIGHTS["talents"]
         * 100
         * _talents_fraction(talent_normal, talent_skill, talent_burst),
-        weapon=WEIGHTS["weapon"] * 100 * _weapon_fraction(weapon_level, weapon_refinement),
+        weapon=WEIGHTS["weapon"] * 100 * _weapon_fraction(weapon_level),
         artifacts=WEIGHTS["artifacts"] * 100 * _artifacts_fraction(artifacts),
         friendship=WEIGHTS["friendship"] * 100 * _friendship_fraction(friendship),
     )

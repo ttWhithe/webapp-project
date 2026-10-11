@@ -41,8 +41,6 @@ const TALENT_PROGRESS_CAP = 9
 const FRIENDSHIP_MAX = 10
 const WEAPON_MAX_LEVEL = 90
 const WEAPON_MAX_REFINEMENT = 5
-const WEAPON_LEVEL_SHARE = 0.7
-const WEAPON_REFINEMENT_SHARE = 0.3
 
 const ARTIFACT_MAX_LEVEL: Record<number, number> = {
   1: 4,
@@ -74,11 +72,9 @@ function talentsFraction(n: number, s: number, b: number): number {
   return (talentFraction(n) + talentFraction(s) + talentFraction(b)) / 3
 }
 
-function weaponFraction(level: number | null, refinement: number | null): number {
-  if (level == null || refinement == null) return 0
-  const l = clamp01(level / WEAPON_MAX_LEVEL) * WEAPON_LEVEL_SHARE
-  const r = clamp01(refinement / WEAPON_MAX_REFINEMENT) * WEAPON_REFINEMENT_SHARE
-  return l + r
+function weaponFraction(level: number | null): number {
+  if (level == null) return 0
+  return clamp01(level / WEAPON_MAX_LEVEL)
 }
 
 function artifactFraction(level: number, rarity: number): number {
@@ -104,7 +100,7 @@ export function calculateProgress(input: ProgressInputs): ProgressBreakdown {
     WEIGHTS.talents *
     100 *
     talentsFraction(input.talentNormal, input.talentSkill, input.talentBurst)
-  const weapon = WEIGHTS.weapon * 100 * weaponFraction(input.weaponLevel, input.weaponRefinement)
+  const weapon = WEIGHTS.weapon * 100 * weaponFraction(input.weaponLevel)
   const artifacts = WEIGHTS.artifacts * 100 * artifactsFraction(input.artifacts)
   const friendship = WEIGHTS.friendship * 100 * friendshipFraction(input.friendship)
 

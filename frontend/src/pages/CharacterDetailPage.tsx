@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 
@@ -17,6 +19,7 @@ import { useCharacterDraft } from '@/shared/lib/useCharacterDraft'
 import ProgressSlider from '@/shared/ui/ProgressSlider'
 import StatInput from '@/shared/ui/StatInput'
 import { PROGRESS_LEVEL_CAP } from '@/shared/lib/progress'
+import EquipmentSlotButton from '@/shared/ui/EquipmentSlotButton'
 
 const ZONES = 4
 
@@ -97,7 +100,16 @@ export default function CharacterDetailPage() {
           lastSaved={lastSaved}
           goTo={goTo}
         />
-        <ZoneWeaponArtifacts detail={detail} />
+        <ZoneWeaponArtifacts
+          character={character}
+          detail={detail}
+          draft={draft}
+          progress={progress}
+          onUpdate={update}
+          goTo={goTo}
+          isSaving={isSaving}
+          lastSaved={lastSaved}
+        />
         <ZoneConstellations detail={detail} />
       </div>
     </div>
@@ -139,8 +151,20 @@ function ZoneHero({
     character.icon_url ??
     ''
 
+  // Per-slot progress (0-100) computed directly from draft/detail
+  const weaponPct = draft?.weapon_level
+    ? Math.min(100, (draft.weapon_level / 90) * 100)
+    : 0
+
   const items: RadialItem[] = [
-    { key: 'weapon', label: 'Оружие', value: detail?.progress.weapon ?? 0, icon: '⚔️' },
+    {
+      key: 'weapon',
+      label: 'Оружие',
+      value: weaponPct,
+      icon: '⚔️',
+      rawValue: draft?.weapon_level ?? 0,
+      stars: draft?.weapon_refinement ?? 0,
+    },
     { key: 'flower', label: 'Цветок', value: 0, icon: '🌸' },
     { key: 'plume', label: 'Перо', value: 0, icon: '🪶' },
     { key: 'sands', label: 'Часы', value: 0, icon: '⏳' },
@@ -668,8 +692,50 @@ function ZoneStats({
 
 /* ---------- Zone 3: Weapon + Artifacts ---------- */
 
-function ZoneWeaponArtifacts({ detail }: { detail: UserCharacterDetail | undefined }) {
-  if (!detail) {
+type EquipmentSlotKey = 'weapon' | 'flower' | 'plume' | 'sands' | 'goblet' | 'circlet'
+
+const EQUIPMENT_SLOTS: { key: EquipmentSlotKey; icon: string; label: string }[] = [
+  { key: 'weapon', icon: '⚔️', label: 'Оружие' },
+  { key: 'flower', icon: '🌸', label: 'Цветок' },
+  { key: 'plume', icon: '🪶', label: 'Перо' },
+  { key: 'sands', icon: '⏳', label: 'Часы' },
+  { key: 'goblet', icon: '🏺', label: 'Кубок' },
+  { key: 'circlet', icon: '👑', label: 'Шапка' },
+]
+
+const ARTIFACT_MAX_LEVEL: Record<number, number> = { 1: 4, 2: 4, 3: 12, 4: 16, 5: 20 }
+
+function ZoneWeaponArtifacts({
+  character,
+  detail,
+  draft,
+  progress,
+  onUpdate,
+  goTo,
+  isSaving,
+  lastSaved,
+}: {
+  character: {
+    name: string
+    name_ru: string | null
+    element: keyof typeof ELEMENT_HEX
+    icon_url: string | null
+  }
+  detail: UserCharacterDetail | undefined
+  draft: ReturnType<typeof useCharacterDraft>['draft']
+  progress: ReturnType<typeof useCharacterDraft>['progress']
+  onUpdate: ReturnType<typeof useCharacterDraft>['update']
+  goTo: (i: number) => void
+  isSaving: boolean
+  lastSaved: Date | null
+}) {
+  const [selectedSlot, setSelectedSlot] = useState<EquipmentSlotKey>('weapon')
+  const [refinement, setRefinement] = useState<number>(
+    draft?.weapon_refinement ?? 1,
+  )
+  const colors = ELEMENT_HEX[character.element]
+
+  if (!detail || !draft || !progress) {
     return (
       <section className="h-screen flex items-center justify-center text-slate-500">
         Нет данных об экипировке
@@ -677,59 +743,309 @@ function ZoneWeaponArtifacts({ detail }: { detail: UserCharacterDetail | undefin
     )
   }
 
-  return (
-    <section className="h-screen flex items-center justify-center px-4 py-24 overflow-y-auto">
-      <div className="w-full max-w-3xl space-y-6">
-        <h2 className="text-3xl font-bold">Оружие и артефакты</h2>
+  // === Per-slot progress (0-100) computed from draft/detail, not weighted components ===
+  const weaponPct = draft.weapon_level
+    ? Math.min(100, (draft.weapon_level / 90) * 100)
+    : 0
 
-        <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-          <h3 className="text-lg font-semibold mb-3">Оружие</h3>
-          {detail.weapon ? (
-            <div className="flex items-center gap-4">
-              {detail.weapon.icon_url && (
+  function artifactSlotPct(slot: string): number {
+    const a = detail!.artifacts.find((x) => x.slot === slot)
+    if (!a) return 0
+    const maxLevel = ARTIFACT_MAX_LEVEL[a.rarity] ?? 20
+    return Math.min(100, (a.level / maxLevel) * 100)
+  }
+
+  function slotProgress(key: EquipmentSlotKey): number {
+    if (key === 'weapon') return weaponPct
+    return artifactSlotPct(key)
+  }
+
+  function slotFilled(key: EquipmentSlotKey): boolean {
+    if (key === 'weapon') return detail!.weapon != null
+    return detail!.artifacts.some((a) => a.slot === key)
+  }
+
+  function slotBadge(key: EquipmentSlotKey): string | undefined {
+    if (key === 'weapon') {
+      if (draft.weapon_level == null) return undefined
+      return `${draft.weapon_level}★${refinement}`
+    }
+    const a = detail!.artifacts.find((x) => x.slot === key)
+    if (!a) return undefined
+    return `+${a.level}`
+  }
+
+  const selectedMeta = EQUIPMENT_SLOTS.find((s) => s.key === selectedSlot)!
+  const selectedPct =
+    selectedSlot === 'weapon' ? weaponPct : artifactSlotPct(selectedSlot)
+
+  return (
+    <section
+      className="h-screen relative overflow-hidden"
+      style={{
+        background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)`,
+      }}
+    >
+      <div className="h-full w-full max-w-[1800px] mx-auto px-6 py-6 flex flex-col gap-5">
+        {/* === Header: icon + name (left) | 6 slots + total (center) | saving (right) === */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: icon + name */}
+          <div className="flex items-center gap-4 shrink-0">
+            {character.icon_url && (
+              <div
+                className="w-16 h-16 rounded-xl overflow-hidden shrink-0"
+                style={{
+                  border: `2px solid ${colors.secondary}`,
+                  boxShadow: `0 0 20px ${colors.main}66`,
+                }}
+              >
                 <img
-                  src={detail.weapon.icon_url}
-                  alt={detail.weapon.name}
-                  className="w-16 h-16 rounded bg-slate-900 object-cover"
+                  src={character.icon_url}
+                  alt={character.name}
+                  className="w-full h-full object-cover"
                 />
-              )}
-              <div>
-                <div className="font-medium">{detail.weapon.name}</div>
-                <div className="text-sm text-slate-400">
-                  {WEAPON_TYPE_LABELS[detail.weapon.weapon_type]} • ★
-                  {detail.weapon.rarity}
-                </div>
-                <div className="text-sm text-slate-300 mt-1">
-                  Lv. {detail.weapon_level ?? '—'} • R{detail.weapon_refinement ?? '—'}
-                </div>
               </div>
+            )}
+            <div>
+              <h2
+                className="text-2xl font-bold whitespace-nowrap"
+                style={{ fontFamily: "'Comic Sans MS', 'Comic Sans', cursive" }}
+              >
+                {character.name_ru || character.name}
+              </h2>
+              <p className="text-sm text-slate-400">Экипировка</p>
             </div>
-          ) : (
-            <p className="text-slate-500">Не задано</p>
-          )}
+          </div>
+
+          {/* Center: weapon | separator | artifacts | separator | total */}
+          <div className="flex items-center gap-2">
+            {/* Weapon slot */}
+            <EquipmentSlotButton
+              icon={EQUIPMENT_SLOTS[0].icon}
+              label={EQUIPMENT_SLOTS[0].label}
+              selected={selectedSlot === 'weapon'}
+              filled={slotFilled('weapon')}
+              progress={slotProgress('weapon')}
+              levelText={
+                draft.weapon_level != null ? String(draft.weapon_level) : undefined
+              }
+              stars={refinement}
+              colors={colors}
+              onClick={() => setSelectedSlot('weapon')}
+            />
+
+            {/* Separator 1 */}
+            <div
+              className="h-16 w-[3px] rounded-full"
+              style={{ backgroundColor: colors.secondary }}
+            />
+
+            {/* 5 artifact slots */}
+            {EQUIPMENT_SLOTS.slice(1).map((slot) => {
+              const a = detail!.artifacts.find((x) => x.slot === slot.key)
+              return (
+                <EquipmentSlotButton
+                  key={slot.key}
+                  icon={slot.icon}
+                  label={slot.label}
+                  selected={selectedSlot === slot.key}
+                  filled={slotFilled(slot.key)}
+                  progress={slotProgress(slot.key)}
+                  levelText={a ? String(a.level) : undefined}
+                  colors={colors}
+                  onClick={() => setSelectedSlot(slot.key)}
+                />
+              )
+            })}
+
+            {/* Separator 2 */}
+            <div
+              className="h-16 w-[3px] rounded-full"
+              style={{ backgroundColor: colors.secondary }}
+            />
+
+            {/* Total */}
+            <button
+              type="button"
+              onClick={() => goTo(0)}
+              title="Вернуться к персонажу"
+              className="relative shrink-0 rounded-full transition-transform duration-200 hover:scale-110 cursor-pointer"
+              style={{ width: 128, height: 128 }}
+            >
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: `conic-gradient(${colors.secondary} 0deg ${Math.min(100, progress.total) * 3.6}deg, ${colors.main} ${Math.min(100, progress.total) * 3.6}deg 360deg)`,
+                  border: `5px solid ${colors.secondary}`,
+                  boxSizing: 'border-box',
+                  boxShadow: `0 0 26px ${colors.accent}66, 0 0 12px ${colors.main}`,
+                }}
+              />
+              <div
+                className="absolute rounded-full flex items-center justify-center"
+                style={{
+                  top: '18%',
+                  left: '18%',
+                  right: '18%',
+                  bottom: '18%',
+                  backgroundColor: colors.main,
+                  border: `3px solid ${colors.secondary}`,
+                  boxSizing: 'border-box',
+                }}
+              >
+                <span
+                  className="font-bold leading-none"
+                  style={{
+                    color: colors.accent,
+                    fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
+                    fontSize: 26,
+                    textShadow: `0 0 4px ${colors.secondary}`,
+                  }}
+                >
+                  {Math.round(progress.total)}%
+                </span>
+              </div>
+            </button>
+          </div>
+
+          {/* Right: saving indicator */}
+          <div className="text-xs text-slate-400 shrink-0 min-w-[140px] text-right">
+            {isSaving ? (
+              <span className="text-yellow-400">● Сохранение...</span>
+            ) : lastSaved ? (
+              <span className="text-green-400">
+                ✓ Сохранено {lastSaved.toLocaleTimeString().slice(0, 5)}
+              </span>
+            ) : null}
+          </div>
         </div>
 
-        <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-          <h3 className="text-lg font-semibold mb-3">
-            Артефакты ({detail.artifacts.length} / 5)
-          </h3>
-          {detail.artifacts.length === 0 ? (
-            <p className="text-slate-500">Не задано</p>
-          ) : (
-            <div className="grid grid-cols-5 gap-3">
-              {detail.artifacts.map((a) => (
-                <div
-                  key={a.id}
-                  className="bg-slate-900 rounded-lg p-2 text-center text-xs space-y-1"
-                  title={a.set_name}
-                >
-                  <div className="text-slate-400 capitalize">{a.slot}</div>
-                  <div className="text-yellow-300">★{a.rarity}</div>
-                  <div className="text-slate-200">+{a.level}</div>
-                </div>
-              ))}
+        {/* === Main content: left panel + right grid === */}
+        <div className="flex-1 min-h-0 grid grid-cols-[380px_1fr] gap-6">
+          {/* LEFT: big circle + refinement arc + level slider */}
+          <div className="flex flex-col items-center gap-4 relative">
+            <div
+              className="relative flex items-center justify-center"
+              style={{ width: 400, height: 400 }}
+            >
+            <div className="relative" style={{ width: 260, height: 260 }}>
+              <CircularProgress
+                value={selectedPct}
+                size={260}
+                strokeWidth={26}
+                fillColor={colors.secondary}
+                emptyColor={colors.main}
+                innerColor={colors.main}
+                borderColor={colors.secondary}
+                hideLabel
+                borderWidth={5}
+              />
+              {/* Icon — upper area */}
+              <span
+                className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+                style={{
+                  fontSize: 96,
+                  lineHeight: 1,
+                  paddingBottom: 40,
+                }}
+              >
+                {selectedMeta.icon}
+              </span>
+
+              {/* Level + stars at the bottom of the circle */}
+              <div
+                className="absolute left-1/2 -translate-x-1/2 flex items-start font-bold pointer-events-none"
+                style={{
+                  bottom: 10,
+                  color: colors.accent,
+                  fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
+                  fontSize: 42,
+                  textShadow: `0 0 5px ${colors.secondary}`,
+                  lineHeight: 1,
+                }}
+              >
+                {selectedSlot === 'weapon' ? (
+                  <>
+                    <span>{draft.weapon_level ?? 0}</span>
+                    {refinement > 0 && (
+                      <span
+                        style={{
+                          fontSize: '0.5em',
+                          color: '#fde047',
+                          marginLeft: 3,
+                          marginTop: -4,
+                        }}
+                      >
+                        ★{refinement}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span>
+                    {detail.artifacts.find((a) => a.slot === selectedSlot)?.level ?? 0}
+                  </span>
+                )}
+              </div>
+
+              {/* Refinement arc — only for weapon */}
+              {selectedSlot === 'weapon' && (
+                <RefinementArc
+                  value={refinement}
+                  colors={colors}
+                  size={260}
+                  onChange={(v) => {
+                    setRefinement(v)
+                    onUpdate('weapon_refinement' as never, v as never)
+                  }}
+                />
+              )}
             </div>
-          )}
+            </div>
+
+            {/* Level slider for weapon */}
+            {selectedSlot === 'weapon' ? (
+              <div className="w-full">
+                <SimpleSlider
+                  label="Уровень оружия"
+                  value={draft.weapon_level ?? 1}
+                  min={1}
+                  max={90}
+                  onChange={(v) => onUpdate('weapon_level' as never, v as never)}
+                  colors={colors}
+                />
+              </div>
+            ) : (
+              <p className="text-slate-400 text-sm text-center">
+                Артефакт «{selectedMeta.label}» — детали в D9e
+              </p>
+            )}
+          </div>
+
+          {/* RIGHT: grid of available items */}
+          <div className="relative rounded-xl border border-slate-700 bg-slate-900/40 overflow-hidden">
+            <div className="h-full overflow-y-auto p-4">
+              {selectedSlot === 'weapon' ? (
+                <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                  {Array.from({ length: 24 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="aspect-square rounded-lg border-2 border-dashed flex items-center justify-center text-xs text-slate-500"
+                      style={{
+                        borderColor: `${colors.secondary}66`,
+                        backgroundColor: `${colors.main}22`,
+                      }}
+                    >
+                      ⚔️
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+                  Выбор артефактов появится в D9e
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -773,5 +1089,159 @@ function AddToTrackerButton() {
     >
       Перейти в трекер
     </Link>
+  )
+}
+
+/**
+ * 5 round buttons arranged in an arc (1 o'clock → 5 o'clock).
+ * Represents weapon refinement ranks R1..R5.
+ * Non-selected buttons are dimmed but still clickable.
+ */
+function RefinementArc({
+  value,
+  colors,
+  size,
+  onChange,
+}: {
+  value: number
+  colors: { main: string; secondary: string; accent: string }
+  size: number
+  onChange: (v: number) => void
+}) {
+  const BTN = 80
+  const radius = size * 0.6 // ≈ 156 при size=260
+  const cx = size / 2
+  const cy = size / 2
+
+  return (
+    <>
+      {[1, 2, 3, 4, 5].map((rank) => {
+        const deg = 30 + (rank - 1) * 30
+        const rad = (deg * Math.PI) / 180
+        const x = cx + radius * Math.sin(rad)
+        const y = cy - radius * Math.cos(rad)
+        const active = value === rank
+
+        return (
+          <button
+            key={rank}
+            type="button"
+            onClick={() => onChange(rank)}
+            title={`Ранг пробуждения ${rank}`}
+            className="absolute rounded-full flex flex-col items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer"
+            style={{
+              width: BTN,
+              height: BTN,
+              left: x - BTN / 2,
+              top: y - BTN / 2,
+              backgroundColor: colors.main,
+              border: `3px solid ${colors.secondary}`,
+              boxShadow: active
+                ? `0 0 24px ${colors.accent}88, 0 0 10px ${colors.main}`
+                : `0 0 10px ${colors.main}55`,
+              opacity: active ? 1 : 0.5,
+              zIndex: active ? 10 : 5,
+            }}
+          >
+            <span
+              className="leading-none font-bold"
+              style={{
+                color: active ? '#fde047' : colors.accent,
+                fontSize: 30,
+                textShadow: active ? `0 0 4px #713f12` : 'none',
+                lineHeight: 1,
+              }}
+            >
+              ★
+            </span>
+            <span
+              className="leading-none font-bold"
+              style={{
+                color: active ? '#fde047' : colors.accent,
+                fontSize: 22,
+                fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
+                lineHeight: 1,
+                marginTop: 2,
+              }}
+            >
+              {rank}
+            </span>
+          </button>
+        )
+      })}
+    </>
+  )
+}
+
+/**
+ * Slider without the left circle — used for weapon level where the
+ * progress ring is already shown on the big circle.
+ */
+function SimpleSlider({
+  label,
+  value,
+  min,
+  max,
+  onChange,
+  colors,
+}: {
+  label: string
+  value: number
+  min: number
+  max: number
+  onChange: (v: number) => void
+  colors: { main: string; secondary: string; accent: string }
+}) {
+  const pct = max > min ? ((value - min) / (max - min)) * 100 : 0
+  const bg = `linear-gradient(to right,
+    ${colors.secondary} 0%,
+    ${colors.secondary} ${pct}%,
+    ${colors.accent} ${pct}%,
+    ${colors.accent} 100%)`
+
+  return (
+    <div
+      className="flex flex-col gap-2 px-4 py-3 rounded-2xl"
+      style={{
+        backgroundColor: colors.main,
+        border: `3px solid ${colors.secondary}`,
+        boxShadow: `0 0 16px ${colors.main}44`,
+      }}
+    >
+      <div
+        className="text-lg font-semibold text-center"
+        style={{
+          color: colors.accent,
+          fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
+        }}
+      >
+        {label}
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{
+          background: bg,
+          // @ts-expect-error custom prop
+          '--thumb-color': colors.secondary,
+        }}
+        className="w-full h-2 rounded-full appearance-none cursor-pointer
+          [&::-webkit-slider-thumb]:appearance-none
+          [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
+          [&::-webkit-slider-thumb]:rounded-full
+          [&::-webkit-slider-thumb]:bg-[var(--thumb-color)]
+          [&::-webkit-slider-thumb]:cursor-pointer
+          [&::-webkit-slider-thumb]:transition-transform
+          [&::-webkit-slider-thumb]:hover:scale-110
+          [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5
+          [&::-moz-range-thumb]:rounded-full
+          [&::-moz-range-thumb]:bg-[var(--thumb-color)]
+          [&::-moz-range-thumb]:border-0
+          [&::-moz-range-thumb]:cursor-pointer"
+      />
+    </div>
   )
 }

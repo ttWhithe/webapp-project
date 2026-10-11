@@ -19,6 +19,9 @@ type Draft = Pick<
   | 'custom_crit_dmg'
   | 'custom_energy_recharge'
   | 'custom_elemental_dmg_bonus'
+  | 'weapon_id'
+  | 'weapon_level'
+  | 'weapon_refinement'
 >
 
 export interface UseCharacterDraftResult {
@@ -77,6 +80,9 @@ export function useCharacterDraft({
       custom_crit_dmg: detail.custom_crit_dmg,
       custom_energy_recharge: detail.custom_energy_recharge,
       custom_elemental_dmg_bonus: detail.custom_elemental_dmg_bonus,
+      weapon_id: detail.weapon_id,
+      weapon_level: detail.weapon_level,
+      weapon_refinement: detail.weapon_refinement,
     })
   }, [detail])
 
