@@ -1,9 +1,9 @@
 # Software Requirements Specification
 ## Web Application "Genshin Progress Tracker"
 
-**Version:** 1.0
+**Version:** 1.2
 **Date:** 2026
-**Status:** Draft for MVP development
+**Status:** MVP backend + partial frontend delivered; UI refinements in progress
 
 ---
 
@@ -32,6 +32,7 @@ B2C — Genshin Impact players (RU/EN segments). Age 14+, interested in resource
 1. **Functional:** provide a convenient tool for managing progression resources.
 2. **Portfolio goal:** demonstrate proficiency in a Python Middle+/Senior- stack (FastAPI async, SQLAlchemy 2.0, Redis, OAuth, RBAC, payments, tests, Docker, CI/CD) and a modern frontend (React + TS).
 3. **Educational:** practice OAuth flows, cookies, Redis caching, and payment webhooks.
+4. **Interactive UI goal:** demonstrate advanced React techniques — custom scroll-based navigation, radial progress components, debounced autosave, optimistic updates.
 
 ### 1.5. Terms and Abbreviations
 
@@ -58,8 +59,8 @@ B2C — Genshin Impact players (RU/EN segments). Age 14+, interested in resource
 
 ### 2.2. User Stories (MVP)
 
-- **US-01.** As a guest, I can sign up / sign in via Google OAuth to start using the app.
-- **US-02.** As a guest, I can sign in via Telegram Login Widget.
+- **US-01.** As a guest, I can register and sign in with email + password.
+- **US-02.** *(post-MVP)* As a guest, I can sign in via Google OAuth or Telegram Login Widget.
 - **US-03.** As a user, I can log out, and my refresh token is invalidated.
 - **US-04.** As a user, I see a list of all available characters with a progress percentage (0–100%).
 - **US-05.** As a user, I can open a character card and fill in: level (1–90), ascension (0–6), constellation (0–6), friendship (1–10), talents (1–10/13), weapon (id, level, refinement), 5 artifacts (slot, set, level, stats).
@@ -81,13 +82,21 @@ B2C — Genshin Impact players (RU/EN segments). Age 14+, interested in resource
 
 ### 2.4. Progress Formula (MVP)
 
-Final percentage = sum of weighted components:
+Final percentage = sum of weighted components (weights sum = 1.0):
 
-    progress = w_level      * (level / max_level)
-             + w_talents    * avg(talent_i / max_talent_i for i in {normal, skill, burst})
-             + w_weapon     * ((weapon_level / max_level) * 0.7 + (refinement / 5) * 0.3)
-             + w_artifacts  * avg(artifact_level / 20 for artifact in 5 slots)
-             + w_friendship * (friendship / 10)
+| Component | Weight | Cap rule |
+|---|---|---|
+| `w_level` | 0.20 | Level 90 = 100%. Levels 91-100 (Masterless Stella Fortuna) do **not** increase the percentage. |
+| `w_talents` | 0.20 | Talent level 9 = 100%. Talent 10+ requires Crown of Insight — displayed as a crown badge, does **not** increase the percentage. |
+| `w_weapon` | 0.20 | Weapon level 90 + refinement 5 = 100% (70% level + 30% refinement). |
+| `w_artifacts` | 0.20 | 5 slots × artifact level / max-by-rarity. Max level: 1★→4, 2★→4, 3★→12, 4★→16, 5★→20. |
+| `w_friendship` | 0.20 | Friendship 10 = 100%. |
+
+**Crown counter (display only):** number of talents at level ≥ 10 (0-3). Shown on cards and in zone 2.
+
+**Masterless Stella Fortuna (display only):** count of 0-3 items used to extend level cap beyond 90. Not part of the percentage.
+
+Weights stored in `progress_weights` table; the formula lives in `services/progress.py` (backend) and `shared/lib/progress.ts` (frontend, mirrored for live UI feedback).
 
 **MVP weights (equal, sum = 1.0):**
 
@@ -142,15 +151,34 @@ Weights are stored in the `progress_weights` table and editable by an admin. The
 - `id`, `set_id`, `slot`, `main_stat`, `rarity`
 
 **user_characters**
-- `id`, `user_id`, `character_id`
-- `level`, `ascension`, `constellation`, `friendship`
-- `talent_normal`, `talent_skill`, `talent_burst`
-- `weapon_id`, `weapon_level`, `weapon_refinement`
+- `id` (PK, UUID)
+- `user_id` (FK → users)
+- `character_id` (FK → characters)
+- `level` (int, 1-100)
+- `level_cap` (int, 90 | 95 | 100 — default 90)
+- `constellation` (int, 0-6)
+- `friendship` (int, 1-10)
+- `talent_normal`, `talent_skill`, `talent_burst` (int, 1-13)
+- `masterless_stella_fortuna` (int, 0-3)
+- `weapon_id` (FK → weapons, nullable)
+- `weapon_level` (int, nullable)
+- `weapon_refinement` (int, nullable)
+- `custom_icon_url`, `custom_portrait_url`, `custom_background_url` (nullable)
+- `custom_hp`, `custom_atk`, `custom_def`, `custom_em` (int, nullable)
+- `custom_crit_rate`, `custom_crit_dmg`, `custom_energy_recharge`, `custom_elemental_dmg_bonus` (numeric(5,2), nullable)
 - `created_at`, `updated_at`
 - UNIQUE (`user_id`, `character_id`)
 
 **user_artifacts**
-- `id`, `user_character_id`, `slot`, `set_id`, `level`, `main_stat`, `substats` (JSONB)
+- `id` (PK, UUID)
+- `user_character_id` (FK → user_characters, CASCADE)
+- `slot` (enum: flower/plume/sands/goblet/circlet)
+- `set_id` (FK → artifact_sets, RESTRICT)
+- `rarity` (int, 1-5, CHECK)
+- `level` (int, 0-20, CHECK ≤ max-by-rarity: 1★→4, 2★→4, 3★→12, 4★→16, 5★→20)
+- `main_stat` (str, nullable)
+- `substats` (JSONB, nullable — list of {stat, value})
+- UNIQUE (`user_character_id`, `slot`)
 
 **progress_weights**
 - `id`, `w_level`, `w_talents`, `w_weapon`, `w_artifacts`, `w_friendship`, `updated_at`
@@ -244,12 +272,11 @@ Weights are stored in the `progress_weights` table and editable by an admin. The
 
 ## 5. Auth, Security, Caching Requirements
 
-### 5.1. OAuth Providers (MVP)
+### 5.1. OAuth Providers
 
-- **Google** — OpenID Connect, `authlib`.
-- **Telegram** — Login Widget + HMAC-SHA256 signature verification on the backend.
+**MVP:** email + password only (Argon2id hashed).
 
-Architecture: abstract class `OAuthProvider` with methods `get_authorize_url()`, `exchange_code()`, `get_user_info()`. Adding a new provider = new class + registration in the registry (Open/Closed Principle).
+**Post-MVP:** abstract `OAuthProvider` interface (`get_authorize_url()`, `exchange_code()`, `get_user_info()`) with implementations for Google (OpenID Connect, `authlib`), Telegram (Login Widget + HMAC-SHA256), VK, Yandex, Discord. Adding a new provider = new class + registry entry (Open/Closed Principle).
 
 ### 5.2. JWT and Cookies
 
@@ -351,11 +378,10 @@ Abstraction: `PaymentProvider` (Strategy pattern) with methods:
 
 ### 8.1. External Catalog Sources
 
-- **genshin.dev API** — primary source (characters, weapons, artifacts).
+- **genshin-db-api** (`https://genshin-db-api.vercel.app/api/v5`) — primary source. Maintained by the genshin-db community, updates within 1-2 days of new patches, returns localized data for characters, weapons, artifacts.
+- **genshin.jmp.blue** — legacy fallback (English-only, lags behind patches).
 - **Enka.Network** — optional (post-MVP) for importing player data by UID.
-- The parser is implemented as a separate module `services/catalog_sync.py`, triggered:
-  - manually via `POST /admin/catalog/sync`;
-  - by cron (APScheduler or Celery beat, post-MVP).
+- **Fandom Wiki** — planned post-MVP parser for RU localization (name_ru fields already in schema).
 
 ### 8.2. Parser Requirements
 
@@ -493,17 +519,21 @@ Principles: layered architecture, DI via FastAPI `Depends`, separation of ORM mo
 
 ## 14. Development Roadmap
 
-| Stage | Content | Artifact |
+| Stage | Content | Status |
 |---|---|---|
-| 0 | Spec, ER diagram, Figma mockups, repo structure | `docs/`, Figma |
-| 1 | Boilerplate: Docker Compose, FastAPI skeleton, Alembic, CI, pre-commit | working `docker compose up` |
-| 2 | Auth: email + OAuth (Google, Telegram), JWT in cookies, Redis, RBAC | end-to-end login flow |
-| 3 | Catalog: genshin.dev parser, models, Redis cache | characters in DB |
-| 4 | Tracker: CRUD + formula + filters | percentages on backend |
-| 5 | Frontend MVP: login, list, card | end-to-end UI |
-| 6 | Payments: Stripe + YooKassa, webhooks, subscription | donation works |
-| 7 | Tests, deployment, README | public link |
-| 8 | (post-MVP) VK / Yandex / Discord OAuth, PWA, Enka import, Celery | — |
+| 0 | Spec, ER diagram, repo structure | ✅ Done |
+| 1 | Boilerplate: Docker Compose, FastAPI, Alembic, CI, pre-commit | ✅ Done |
+| 2 | Auth: email/password, JWT in cookies, Redis refresh tokens, RBAC | ✅ Done |
+| 3 | Catalog: genshin-db-api sync, models, Redis cache, public API | ✅ Done |
+| 4 | Tracker backend: CRUD, progress formula, /me/characters | ✅ Done |
+| 5 | Frontend scaffold: Vite, React, Tailwind, auth pages | ✅ Done |
+| 6 | Frontend catalog: character cards, filters, detail page | ✅ Done |
+| 7 | Frontend zone 1 (hero, radial progress) | ✅ Done |
+| 8 | Frontend zone 2 (stats, sliders, debounced autosave) | ✅ Done |
+| 9 | Frontend zones 3-4 (weapon+artifacts, constellations) | 🚧 In progress |
+| 10 | Payments: Stripe + YooKassa, webhook handling | ⏳ Planned |
+| 11 | Deployment (Fly.io / Render / Neon / Upstash) | ⏳ Planned |
+| 12 | Post-MVP: OAuth, PWA, Enka import, Fandom parser, animations | 📋 Backlog |
 
 ---
 
@@ -519,10 +549,10 @@ Principles: layered architecture, DI via FastAPI `Depends`, separation of ORM mo
 
 ## 16. MVP Acceptance Criteria
 
-1. User can sign in via Google and Telegram.
+1. User can register and sign in with email + password.
 2. User sees a list of all characters with a percentage 0–100%.
 3. User can fill in and save data for a character.
-4. Percentage is computed correctly using equal weights **20 / 20 / 20 / 20 / 20** for level, talents, weapon, artifacts, and friendship.
+4. Percentage uses cap-based formula: level 90 = 100%, talent 9 = 100%, crown/Stella counted separately.
 5. Filters and sorting work.
 6. Donation works via Stripe and YooKassa (sandbox).
 7. RBAC works (admin / user / guest).
@@ -540,3 +570,65 @@ Principles: layered architecture, DI via FastAPI `Depends`, separation of ORM mo
 - No payment information is stored — only transaction IDs.
 - Catalog may lag behind the current patch until synchronized.
 - Legally: donations / subscription are "project support", without in-game advantages.
+
+---
+
+## 18. Changelog
+
+### v1.2 (current)
+- Progress formula: level 90 cap, talent 9 cap, crown counter, Masterless Stella Fortuna (0-3)
+- Tracker: added custom stats (HP/ATK/DEF/EM/CR/CD/ER/ElemDMG), custom image URLs, level_cap field
+- Catalog source switched to genshin-db-api (better freshness + localization)
+- Auth: OAuth postponed to post-MVP, email/password only for MVP
+- Frontend: full auth flow, catalog with filters/pagination, character detail page with 4 zones (zones 1-2 done)
+- Admin: PATCH endpoints for manual editing of catalog entries (name_ru, icons, etc.)
+- Artifacts: rarity 1-5 supported with per-rarity level caps
+- Crown badge now always shown for owned characters (including 0)
+
+### v1.0
+- Initial spec
+
+---
+
+## 19. Post-MVP Backlog
+
+### Auth & Users
+- OAuth providers: Google, Telegram, VK, Yandex, Discord (abstract provider pattern)
+- Email verification
+- Password reset flow
+- Rate limiting on auth endpoints (slowapi + Redis)
+
+### Catalog & Data
+- Local image storage (S3-compatible) instead of hotlinking Wikia/HoYo URLs
+- Fandom parser for Russian localization (auto-fill name_ru, descriptions)
+- Fandom parser as fallback for new characters not yet in genshin-db-api
+- Enka.Network import: paste UID → auto-fill character progression
+- Artifact set bonus calculation (2pc / 2+2 / 4pc) from equipped artifacts
+
+### Tracker
+- Full constellation data per character (stat bonuses, talent +3 which boosts cap from 10 to 13)
+- Unlocked constellation-colored digits (#38ffff for active, #ffff00 for crowned)
+- Character recommendations ("this character has 12% HP leftover to 100%")
+- Team compositions, share builds
+- Artifact recommendations
+
+### UI/UX
+- Shared element transitions between zones (Framer Motion layoutId)
+- Dark / light theme toggle
+- Mobile-first responsive polish
+- PWA installation
+- Icon library (SVG) replacing emoji placeholders
+- Skeleton loaders everywhere
+- Optimistic UI on all mutations
+
+### Payments
+- Stripe + YooKassa providers (Strategy pattern)
+- Donation flow + cosmetic `premium_visual` subscription
+- Webhook handlers with idempotency
+- `webhook_logs` table
+
+### Infra & Quality
+- Deployment to free hosting (Fly.io / Render + Neon + Upstash)
+- E2E tests (Playwright)
+- Prometheus metrics + Grafana dashboards
+- Background tasks (Celery / APScheduler) for scheduled catalog sync
