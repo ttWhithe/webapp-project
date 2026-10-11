@@ -7,13 +7,12 @@ interface Props {
   innerColor?: string
   borderColor?: string
   textColor?: string
-  /** SVG stroke around the text (thickness 2) */
   textStroke?: string
-  /** Hide the built-in % label (render your own) */
+  /** If true, the built-in % label is not rendered */
   hideLabel?: boolean
-  className?: string
-  /** Thickness of the border around the inner circle (default 1) */
+  /** Thickness of the border around the inner circle */
   borderWidth?: number
+  className?: string
 }
 
 export default function CircularProgress({
@@ -58,7 +57,7 @@ export default function CircularProgress({
           border: `${borderWidth}px solid ${border}`,
         }}
       >
-        {!hideLabel && (
+        {hideLabel ? null : (
           <span
             className="font-bold leading-none"
             style={{

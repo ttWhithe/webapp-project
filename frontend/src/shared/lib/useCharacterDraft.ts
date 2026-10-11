@@ -36,12 +36,6 @@ interface Options {
   debounceMs?: number
 }
 
-/**
- * Local editing state for a tracked character.
- * - Keeps a "draft" copy of the editable fields.
- * - Recomputes progress client-side on every change (instant UI feedback).
- * - Debounces PATCH to the server (default 800ms after last change).
- */
 export function useCharacterDraft({
   detail,
   onSave,
@@ -55,9 +49,13 @@ export function useCharacterDraft({
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingPatch = useRef<Partial<Draft>>({})
 
-  // Hydrate draft when detail arrives / changes externally.
-  // setState inside effect is the intended pattern here — syncing local edit
-  // state from a prop that arrives asynchronously.
+  // Stable onSave reference — parent recreates the function every render,
+  // and without a ref we'd trigger the unmount effect on every render → loop.
+  const onSaveRef = useRef(onSave)
+  useEffect(() => {
+    onSaveRef.current = onSave
+  }, [onSave])
+
   useEffect(() => {
     if (!detail) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -82,20 +80,22 @@ export function useCharacterDraft({
     })
   }, [detail])
 
-  // Progress — recompute on every draft change (client-side formula)
-  const progress = draft && detail
-    ? calculateProgress({
-        level: draft.level,
-        levelCap: draft.level_cap,
-        friendship: draft.friendship,
-        talentNormal: draft.talent_normal,
-        talentSkill: draft.talent_skill,
-        talentBurst: draft.talent_burst,
-        weaponLevel: detail.weapon_level,
-        weaponRefinement: detail.weapon_refinement,
-        artifacts: detail.artifacts.map((a) => [a.level, a.rarity] as [number, number]),
-      })
-    : null
+  const progress =
+    draft && detail
+      ? calculateProgress({
+          level: draft.level,
+          levelCap: draft.level_cap,
+          friendship: draft.friendship,
+          talentNormal: draft.talent_normal,
+          talentSkill: draft.talent_skill,
+          talentBurst: draft.talent_burst,
+          weaponLevel: detail.weapon_level,
+          weaponRefinement: detail.weapon_refinement,
+          artifacts: detail.artifacts.map(
+            (a) => [a.level, a.rarity] as [number, number],
+          ),
+        })
+      : null
 
   const update = useCallback(
     <K extends keyof Draft>(key: K, value: Draft[K]) => {
@@ -115,7 +115,7 @@ export function useCharacterDraft({
 
         setIsSaving(true)
         try {
-          await onSave(patch)
+          await onSaveRef.current(patch)
           setIsDirty(false)
           setLastSaved(new Date())
         } finally {
@@ -123,22 +123,22 @@ export function useCharacterDraft({
         }
       }, debounceMs)
     },
-    [onSave, debounceMs],
+    [debounceMs],
   )
 
-  // Cleanup on unmount: flush pending save immediately
+  // Flush pending save on unmount only
   useEffect(() => {
     return () => {
       if (saveTimer.current) {
         clearTimeout(saveTimer.current)
         const patch = { ...pendingPatch.current }
+        pendingPatch.current = {}
         if (Object.keys(patch).length > 0) {
-          // best-effort flush
-          void onSave(patch)
+          void onSaveRef.current(patch)
         }
       }
     }
-  }, [onSave])
+  }, [])
 
   return { draft, progress, isDirty, isSaving, lastSaved, update }
 }

@@ -81,6 +81,7 @@ export default function CharacterDetailPage() {
         <ZoneHero
           character={character}
           detail={detail}
+          draft={draft}
           goTo={goTo}
           onToggleOwned={handleToggleOwned}
           isOwned={!!tracked}
@@ -95,7 +96,6 @@ export default function CharacterDetailPage() {
           isSaving={isSaving}
           lastSaved={lastSaved}
           goTo={goTo}
-          current={current}
         />
         <ZoneWeaponArtifacts detail={detail} />
         <ZoneConstellations detail={detail} />
@@ -109,6 +109,7 @@ export default function CharacterDetailPage() {
 function ZoneHero({
   character,
   detail,
+  draft,
   goTo,
   onToggleOwned,
   isOwned,
@@ -124,6 +125,7 @@ function ZoneHero({
     portrait_url: string | null
   }
   detail: UserCharacterDetail | undefined
+  draft: ReturnType<typeof useCharacterDraft>['draft']
   goTo: (i: number) => void
   onToggleOwned: () => void
   isOwned: boolean
@@ -182,34 +184,43 @@ function ZoneHero({
     {
       icon: '💥',
       label: 'Взрыв стихии',
-      value: detail?.talent_burst ?? 1,
-      ringPercent: Math.min(100, ((detail?.talent_burst ?? 1) / 9) * 100),
+      value: draft?.talent_burst ?? 1,
+      ringPercent: Math.min(100, ((draft?.talent_burst ?? 1) / 9) * 100),
+      crownAt: 10,
     },                                                       // 7
     {
       icon: '⚡',
       label: 'Элем. навык',
-      value: detail?.talent_skill ?? 1,
-      ringPercent: Math.min(100, ((detail?.talent_skill ?? 1) / 9) * 100),
+      value: draft?.talent_skill ?? 1,
+      ringPercent: Math.min(100, ((draft?.talent_skill ?? 1) / 9) * 100),
+      crownAt: 10,
     },                                                       // 8
     {
       icon: '⚔️',
       label: 'Обычная атака',
-      value: detail?.talent_normal ?? 1,
-      ringPercent: Math.min(100, ((detail?.talent_normal ?? 1) / 9) * 100),
+      value: draft?.talent_normal ?? 1,
+      ringPercent: Math.min(100, ((draft?.talent_normal ?? 1) / 9) * 100),
+      crownAt: 10,
     },                                                       // 9
-    { icon: isOwned ? '👤' : '➕', label: isOwned ? 'Убрать из трекера' : 'Добавить в трекер' }, // 10
-    { hidden: true },                                       // 11
+    { hidden: true },                                        // 10
+    {
+      variant: 'plain',
+      icon: isOwned ? '👤' : '➕',
+      label: isOwned ? 'Убрать из трекера' : 'Добавить в трекер',
+      angle: 180,
+    },                                                       // 11
     {
       icon: '📊',
       label: 'Уровень',
-      value: detail?.level ?? 1,
-      ringPercent: Math.min(100, ((detail?.level ?? 1) / 90) * 100),
+      value: draft?.level ?? 1,
+      ringPercent: Math.min(100, ((draft?.level ?? 1) / 90) * 100),
+      crownAt: 91,
     },                                                       // 12
     {
       icon: '💚',
       label: 'Дружба',
-      value: detail?.friendship ?? 1,
-      ringPercent: Math.min(100, ((detail?.friendship ?? 1) / 10) * 100),
+      value: draft?.friendship ?? 1,
+      ringPercent: Math.min(100, ((draft?.friendship ?? 1) / 10) * 100),
     },                                                       // 13
   ]
 
@@ -392,7 +403,6 @@ function ZoneStats({
   isSaving,
   lastSaved,
   goTo,
-  current,
 }: {
   character: {
     name: string
@@ -434,10 +444,7 @@ function ZoneStats({
       }}
     >
       {/* === 3-column grid === */}
-      <div
-        className="w-full max-w-[1800px] grid grid-cols-1 lg:grid-cols-[320px_1fr_500px] gap-6 px-6 transition-opacity duration-700 ease-out"
-        style={{ opacity: current === 1 ? 1 : 0 }}
-      >
+      <div className="w-full max-w-[1800px] grid grid-cols-1 lg:grid-cols-[320px_1fr_500px] gap-6 px-6">
         {/* LEFT: name centered + portrait + 8 stats */}
         <div className="flex flex-col gap-4 -translate-y-[40px]">
           {/* Name + subtitle, centered */}
@@ -560,6 +567,7 @@ function ZoneStats({
             onChange={(v) => onUpdate('friendship', v)}
             icon="💚"
             colors={colors}
+            ringCap={10}
           />
 
           <div className="flex items-center gap-3 my-2">
@@ -631,7 +639,7 @@ function ZoneStats({
               emptyColor={colors.main}
               innerColor={colors.main}
               borderColor={colors.secondary}
-              textColor={colors.accent}
+              textColor={colors.secondary}
               textStroke={colors.accent}
               borderWidth={6}
             />

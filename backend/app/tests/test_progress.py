@@ -45,14 +45,15 @@ class TestPerfectCharacter:
 
 
 class TestLevel:
-    def test_level_one_gives_minimal_score(self) -> None:
+    def test_level_one_gives_zero(self) -> None:
+        # Level 1 = 0% by design (min state = 0%)
         result = _calc(level=1, level_cap=90)
-        # 1/90 * 20 ≈ 0.22
-        assert 0.0 < result.level < 0.5
+        assert result.level == 0.0
 
     def test_half_level(self) -> None:
+        # (45 - 1) / (90 - 1) = 44/89 ≈ 0.4944 → * 20 ≈ 9.89
         result = _calc(level=45, level_cap=90)
-        assert result.level == pytest.approx(10.0, abs=0.01)
+        assert result.level == pytest.approx(9.89, abs=0.02)
 
     def test_level_at_cap_100(self) -> None:
         # level 100, cap 100 → full
@@ -89,15 +90,15 @@ class TestTalents:
         result = _calc(talent_normal=13, talent_skill=13, talent_burst=13)
         assert result.talents == 20.0
 
-    def test_one_one_one_is_low(self) -> None:
+    def test_one_one_one_is_zero(self) -> None:
+        # Talent 1 = 0% by design
         result = _calc(talent_normal=1, talent_skill=1, talent_burst=1)
-        # 1/9 ≈ 0.111; 3 * 0.111 / 3 = 0.111; * 20 = 2.22
-        assert result.talents == pytest.approx(2.22, abs=0.02)
+        assert result.talents == 0.0
 
     def test_mixed_talents(self) -> None:
-        # 9/9/1 → (1 + 1 + 1/9) / 3 = 0.7037; * 20 = 14.07
+        # 9/9/1 → (1 + 1 + 0) / 3 = 0.6667; * 20 ≈ 13.33
         result = _calc(talent_normal=9, talent_skill=9, talent_burst=1)
-        assert result.talents == pytest.approx(14.07, abs=0.02)
+        assert result.talents == pytest.approx(13.33, abs=0.02)
 
     def test_ten_counts_as_nine(self) -> None:
         """A crowned talent (10) is worth the same as 9 for progress."""
@@ -174,12 +175,14 @@ class TestFriendship:
         assert result.friendship == 20.0
 
     def test_friendship_five_half(self) -> None:
+        # (5 - 1) / (10 - 1) = 4/9 ≈ 0.4444 → * 20 ≈ 8.89
         result = _calc(friendship=5)
-        assert result.friendship == pytest.approx(10.0, abs=0.01)
+        assert result.friendship == pytest.approx(8.89, abs=0.02)
 
-    def test_friendship_one_low(self) -> None:
+    def test_friendship_one_is_zero(self) -> None:
+        # Friendship 1 = 0% by design
         result = _calc(friendship=1)
-        assert result.friendship == pytest.approx(2.0, abs=0.01)
+        assert result.friendship == 0.0
 
 
 class TestTotal:
@@ -203,8 +206,8 @@ class TestTotal:
             weapon_refinement=None,
             artifacts=[],
         )
-        # level ~0.22, talents 2.22, weapon 0, artifacts 0, friendship 2.0
-        assert result.total == pytest.approx(4.44, abs=0.05)
+        # All components at minimum → 0%
+        assert result.total == 0.0
 
     def test_to_dict_shape(self) -> None:
         result = _calc()

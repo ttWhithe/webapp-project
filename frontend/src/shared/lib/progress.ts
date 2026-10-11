@@ -61,11 +61,13 @@ function clamp01(v: number): number {
 function levelFraction(level: number, cap: number): number {
   if (cap <= 0) return 0
   const effectiveCap = Math.min(cap, PROGRESS_LEVEL_CAP)
-  return clamp01(level / effectiveCap)
+  if (effectiveCap <= 1) return 0
+  return clamp01((level - 1) / (effectiveCap - 1))
 }
 
 function talentFraction(t: number): number {
-  return clamp01(Math.min(t, TALENT_PROGRESS_CAP) / TALENT_PROGRESS_CAP)
+  if (TALENT_PROGRESS_CAP <= 1) return 0
+  return clamp01((Math.min(t, TALENT_PROGRESS_CAP) - 1) / (TALENT_PROGRESS_CAP - 1))
 }
 
 function talentsFraction(n: number, s: number, b: number): number {
@@ -92,7 +94,8 @@ function artifactsFraction(arts: Array<[number, number]>): number {
 }
 
 function friendshipFraction(f: number): number {
-  return clamp01(f / FRIENDSHIP_MAX)
+  if (FRIENDSHIP_MAX <= 1) return 0
+  return clamp01((f - 1) / (FRIENDSHIP_MAX - 1))
 }
 
 export function calculateProgress(input: ProgressInputs): ProgressBreakdown {

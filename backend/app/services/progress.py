@@ -94,21 +94,21 @@ the progress percentage above 100% and are tracked separately in the UI.
 
 
 def _level_fraction(level: int, level_cap: int) -> float:
-    """Progress toward the standard 90-level cap.
-
-    `level_cap` above 90 is clamped to 90 — extra levels are bonus achievements,
-    not part of the base progression target.
-    """
     if level_cap <= 0:
         return 0.0
     effective_cap = min(level_cap, PROGRESS_LEVEL_CAP)
-    return _clamp01(level / effective_cap)
+    # Level 1 = 0%, level 90 = 100%
+    if effective_cap <= 1:
+        return 0.0
+    return _clamp01((level - 1) / (effective_cap - 1))
 
 
 def _talent_fraction(talent: int) -> float:
-    """0-9 counts linearly, 10+ is treated as fully maxed (no over-credit)."""
     capped = min(talent, TALENT_PROGRESS_CAP)
-    return _clamp01(capped / TALENT_PROGRESS_CAP)
+    # Talent 1 = 0%, talent 9 = 100%
+    if TALENT_PROGRESS_CAP <= 1:
+        return 0.0
+    return _clamp01((capped - 1) / (TALENT_PROGRESS_CAP - 1))
 
 
 def _talents_fraction(normal: int, skill: int, burst: int) -> float:
@@ -139,7 +139,10 @@ def _artifacts_fraction(artifacts: list[tuple[int, int]]) -> float:
 
 
 def _friendship_fraction(friendship: int) -> float:
-    return _clamp01(friendship / FRIENDSHIP_MAX)
+    # Friendship 1 = 0%, friendship 10 = 100%
+    if FRIENDSHIP_MAX <= 1:
+        return 0.0
+    return _clamp01((friendship - 1) / (FRIENDSHIP_MAX - 1))
 
 
 # --- Public API ------------------------------------------------------------

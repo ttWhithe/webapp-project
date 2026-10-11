@@ -78,7 +78,8 @@ class TestCreate:
         data = resp.json()
         assert data["character"]["slug"] == "hu-tao"
         assert data["level"] == 1
-        assert data["progress"]["total"] > 0  # 1/90 * 20 + 1/9/3 * 20 + 1/10 * 20 ≈ 4.4
+        # Fresh character (level 1, talents 1/1/1, friendship 1) = 0%
+        assert data["progress"]["total"] == 0.0
 
     async def test_create_full(
         self,
