@@ -63,4 +63,35 @@ export const adminApi = {
     )
     return data
   },
+
+  // --- catalog sync + backup ---
+  async syncCatalog(): Promise<{
+    added: number
+    updated: number
+    failed: number
+    errors: string[]
+  }> {
+    const { data } = await apiClient.post('/admin/catalog/sync')
+    return data
+  },
+
+  async downloadBackup(): Promise<Blob> {
+    const { data } = await apiClient.get('/admin/catalog/backup', {
+      responseType: 'blob',
+    })
+    return data
+  },
+
+  async uploadBackup(file: File): Promise<{
+    characters: number
+    weapons: number
+    artifact_sets: number
+  }> {
+    const form = new FormData()
+    form.append('file', file)
+    const { data } = await apiClient.post('/admin/catalog/backup', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
+  },
 }

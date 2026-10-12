@@ -1,11 +1,5 @@
 import { apiClient } from './client'
-import type {
-  ArtifactSet,
-  Character,
-  CharacterListParams,
-  Page,
-  Weapon,
-} from './types'
+import type { ArtifactSet, Character, CharacterListParams, Page, Weapon, WeaponType } from './types'
 
 export const catalogApi = {
   async listCharacters(params: CharacterListParams = {}): Promise<Page<Character>> {
@@ -18,7 +12,15 @@ export const catalogApi = {
     return data
   },
 
-  async listWeapons(params: { limit?: number; offset?: number } = {}): Promise<Page<Weapon>> {
+  async listWeapons(
+    params: {
+      weapon_type?: WeaponType
+      rarity?: number
+      sort?: 'name_asc' | 'rarity_desc' | 'version_desc'
+      limit?: number
+      offset?: number
+    } = {},
+  ): Promise<Page<Weapon>> {
     const { data } = await apiClient.get<Page<Weapon>>('/weapons', { params })
     return data
   },

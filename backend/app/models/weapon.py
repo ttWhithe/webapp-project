@@ -48,6 +48,7 @@ class Weapon(Base):
     base_atk: Mapped[float | None] = mapped_column(Numeric(6, 2), nullable=True)
     main_stat: Mapped[str | None] = mapped_column(String(80), nullable=True)
     icon_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    icon_awakened_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     version_added: Mapped[str | None] = mapped_column(String(10), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

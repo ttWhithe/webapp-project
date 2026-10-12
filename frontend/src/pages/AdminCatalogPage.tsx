@@ -31,6 +31,47 @@ export default function AdminCatalogPage() {
 
   const qc = useQueryClient()
 
+  const [syncDialog, setSyncDialog] = useState(false)
+
+  const syncMutation = useMutation({
+    mutationFn: () => adminApi.syncCatalog(),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin'] })
+      qc.invalidateQueries({ queryKey: ['characters'] })
+      qc.invalidateQueries({ queryKey: ['weapons'] })
+      qc.invalidateQueries({ queryKey: ['artifact-sets'] })
+      setSyncDialog(false)
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
+  async function handleDownloadBackup() {
+    try {
+      const blob = await adminApi.downloadBackup()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'catalog_backup.json'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      setError(extractError(e))
+    }
+  }
+
+  async function handleUploadBackup(file: File) {
+    try {
+      const stats = await adminApi.uploadBackup(file)
+      alert(
+        `Загружено: ${stats.characters} персонажей, ` +
+          `${stats.weapons} оружия, ${stats.artifact_sets} сетов`,
+      )
+      qc.invalidateQueries({ queryKey: ['admin'] })
+    } catch (e) {
+      setError(extractError(e))
+    }
+  }
+
   const charactersQuery = useQuery({
     queryKey: ['admin', 'characters'],
     queryFn: () => adminApi.listCharacters(200, 0),
@@ -98,6 +139,37 @@ export default function AdminCatalogPage() {
         </p>
       </div>
 
+      {/* Action buttons */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setSyncDialog(true)}
+          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium"
+        >
+          ↻ Синхронизировать
+        </button>
+        <button
+          type="button"
+          onClick={handleDownloadBackup}
+          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium"
+        >
+          ↓ Скачать backup
+        </button>
+        <label className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium cursor-pointer">
+          ↑ Загрузить backup
+          <input
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              if (f) handleUploadBackup(f)
+              e.target.value = ''
+            }}
+          />
+        </label>
+      </div>
+
       {/* Tabs */}
       <div className="flex gap-1 bg-slate-800 rounded-lg p-1 max-w-md border border-slate-700">
         <TabButton active={tab === 'characters'} onClick={() => setTab('characters')}>
@@ -133,20 +205,35 @@ export default function AdminCatalogPage() {
                 {
                   key: 'icon',
                   label: '',
-                  className: 'w-12',
-                  render: (r) =>
-                    r.icon_url ? (
-                      <img
-                        src={r.icon_url}
-                        alt={r.name}
-                        className="w-9 h-9 rounded object-cover bg-slate-900"
-                        onError={(e) => {
-                          ;(e.target as HTMLImageElement).style.opacity = '0.2'
-                        }}
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded bg-slate-700" />
-                    ),
+                  className: 'w-24',
+                  render: (r) => (
+                    <div className="flex gap-1">
+                      {r.icon_url ? (
+                        <img
+                          src={r.icon_url}
+                          alt={`${r.name} icon`}
+                          className="w-9 h-9 rounded object-cover bg-slate-900"
+                          onError={(e) => {
+                            ;(e.target as HTMLImageElement).style.opacity = '0.2'
+                          }}
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded bg-slate-700" title="нет иконки" />
+                      )}
+                      {r.portrait_url ? (
+                        <img
+                          src={r.portrait_url}
+                          alt={`${r.name} portrait`}
+                          className="w-9 h-9 rounded object-cover bg-slate-900"
+                          onError={(e) => {
+                            ;(e.target as HTMLImageElement).style.opacity = '0.2'
+                          }}
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded bg-slate-700" title="нет портрета" />
+                      )}
+                    </div>
+                  ),
                 },
                 {
                   key: 'name',
@@ -213,20 +300,31 @@ export default function AdminCatalogPage() {
                 {
                   key: 'icon',
                   label: '',
-                  className: 'w-12',
-                  render: (r) =>
-                    r.icon_url ? (
-                      <img
-                        src={r.icon_url}
-                        alt={r.name}
-                        className="w-9 h-9 rounded object-cover bg-slate-900"
-                        onError={(e) => {
-                          ;(e.target as HTMLImageElement).style.opacity = '0.2'
-                        }}
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded bg-slate-700" />
-                    ),
+                  className: 'w-24',
+                  render: (r) => (
+                    <div className="flex gap-1">
+                      {r.icon_url && (
+                        <img
+                          src={r.icon_url}
+                          alt={r.name}
+                          className="w-9 h-9 rounded object-cover bg-slate-900"
+                          onError={(e) => {
+                            ;(e.target as HTMLImageElement).style.opacity = '0.2'
+                          }}
+                        />
+                      )}
+                      {r.icon_awakened_url && (
+                        <img
+                          src={r.icon_awakened_url}
+                          alt={`${r.name} awakened`}
+                          className="w-9 h-9 rounded object-cover bg-slate-900"
+                          onError={(e) => {
+                            ;(e.target as HTMLImageElement).style.opacity = '0.2'
+                          }}
+                        />
+                      )}
+                    </div>
+                  ),
                 },
                 {
                   key: 'name',
@@ -281,20 +379,33 @@ export default function AdminCatalogPage() {
                 {
                   key: 'icon',
                   label: '',
-                  className: 'w-12',
-                  render: (r) =>
-                    r.icon_url ? (
-                      <img
-                        src={r.icon_url}
-                        alt={r.name}
-                        className="w-9 h-9 rounded object-cover bg-slate-900"
-                        onError={(e) => {
-                          ;(e.target as HTMLImageElement).style.opacity = '0.2'
-                        }}
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded bg-slate-700" />
-                    ),
+                  className: 'w-40',
+                  render: (r) => (
+                    <div className="flex gap-1">
+                      {(
+                        [
+                          r.icon_url,
+                          r.icon_plume_url,
+                          r.icon_sands_url,
+                          r.icon_goblet_url,
+                          r.icon_circlet_url,
+                        ] as (string | null)[]
+                      ).map((url, i) => (
+                        <div key={i} className="w-8 h-8 rounded bg-slate-900">
+                          {url && (
+                            <img
+                              src={url}
+                              alt=""
+                              className="w-full h-full object-cover rounded"
+                              onError={(e) => {
+                                ;(e.target as HTMLImageElement).style.opacity = '0.2'
+                              }}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ),
                 },
                 {
                   key: 'name',
@@ -367,6 +478,7 @@ export default function AdminCatalogPage() {
           initialValues={{
             name_ru: editing.row.name_ru,
             icon_url: editing.row.icon_url,
+            icon_awakened_url: editing.row.icon_awakened_url,
             rarity: editing.row.rarity,
             base_atk: editing.row.base_atk,
             main_stat: editing.row.main_stat,
@@ -374,7 +486,8 @@ export default function AdminCatalogPage() {
           }}
           fields={[
             { key: 'name_ru', label: 'Русское имя' },
-            { key: 'icon_url', label: 'URL иконки' },
+            { key: 'icon_url', label: 'URL иконки (базовая)' },
+            { key: 'icon_awakened_url', label: 'URL иконки (пробуждённая)' },
             { key: 'rarity', label: 'Редкость (1–5)', type: 'number' },
             { key: 'base_atk', label: 'Базовый ATK', type: 'number' },
             { key: 'main_stat', label: 'Основная характеристика' },
@@ -401,10 +514,18 @@ export default function AdminCatalogPage() {
           initialValues={{
             name_ru: editing.row.name_ru,
             icon_url: editing.row.icon_url,
+            icon_plume_url: editing.row.icon_plume_url,
+            icon_sands_url: editing.row.icon_sands_url,
+            icon_goblet_url: editing.row.icon_goblet_url,
+            icon_circlet_url: editing.row.icon_circlet_url,
           }}
           fields={[
             { key: 'name_ru', label: 'Русское имя' },
-            { key: 'icon_url', label: 'URL иконки' },
+            { key: 'icon_url', label: 'URL иконки (Цветок)' },
+            { key: 'icon_plume_url', label: 'URL иконки (Перо)' },
+            { key: 'icon_sands_url', label: 'URL иконки (Часы)' },
+            { key: 'icon_goblet_url', label: 'URL иконки (Кубок)' },
+            { key: 'icon_circlet_url', label: 'URL иконки (Шапка)' },
           ]}
           onSave={(values) =>
             updateSet.mutate({
@@ -417,6 +538,44 @@ export default function AdminCatalogPage() {
             setError(null)
           }}
         />
+      )}
+
+      {/* Sync confirmation dialog */}
+      {syncDialog && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-slate-800 border border-slate-700 p-6 rounded-xl max-w-md">
+            <h2 className="text-lg font-bold">
+              ⚠ Sync перезапишет ручные правки
+            </h2>
+            <p className="text-slate-400 mt-2 text-sm">
+              Рекомендуем сначала скачать backup. Продолжить?
+            </p>
+            <div className="flex gap-2 mt-4">
+              <button
+                type="button"
+                onClick={handleDownloadBackup}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm"
+              >
+                Скачать
+              </button>
+              <button
+                type="button"
+                onClick={() => syncMutation.mutate()}
+                disabled={syncMutation.isPending}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg text-sm"
+              >
+                {syncMutation.isPending ? 'Синхронизация...' : 'Продолжить'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSyncDialog(false)}
+                className="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded-lg text-sm"
+              >
+                Отмена
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

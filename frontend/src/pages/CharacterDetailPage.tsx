@@ -5,21 +5,21 @@ import { Link, useParams } from 'react-router-dom'
 
 import { catalogApi } from '@/shared/api/catalog'
 import { trackerApi } from '@/shared/api/tracker'
-import type { UserCharacterDetail } from '@/shared/api/types'
+import type { UserCharacterDetail, WeaponType } from '@/shared/api/types'
 import { ELEMENT_HEX, WEAPON_TYPE_LABELS } from '@/shared/lib/catalog-meta'
+import { PROGRESS_LEVEL_CAP } from '@/shared/lib/progress'
+import { useCharacterDraft } from '@/shared/lib/useCharacterDraft'
 import { useSectionScroll } from '@/shared/lib/useSectionScroll'
 import CircularProgress from '@/shared/ui/CircularProgress'
+import EquipmentSlotButton from '@/shared/ui/EquipmentSlotButton'
 import ErrorState from '@/shared/ui/ErrorState'
 import LoadingSpinner from '@/shared/ui/LoadingSpinner'
+import ProgressSlider from '@/shared/ui/ProgressSlider'
 import RadialProgress, {
   type OuterSlotConfig,
   type RadialItem,
 } from '@/shared/ui/RadialProgress'
-import { useCharacterDraft } from '@/shared/lib/useCharacterDraft'
-import ProgressSlider from '@/shared/ui/ProgressSlider'
 import StatInput from '@/shared/ui/StatInput'
-import { PROGRESS_LEVEL_CAP } from '@/shared/lib/progress'
-import EquipmentSlotButton from '@/shared/ui/EquipmentSlotButton'
 
 const ZONES = 4
 
@@ -48,7 +48,6 @@ export default function CharacterDetailPage() {
 
   const detail = detailQuery.data
 
-  // Save handler passed into the draft hook
   const handleSave = async (
     patch: Parameters<typeof trackerApi.updateMine>[1],
   ) => {
@@ -116,7 +115,7 @@ export default function CharacterDetailPage() {
   )
 }
 
-/* ---------- Zone 1: Hero + portrait + dot navigation ---------- */
+/* ---------- Zone 1: Hero ---------- */
 
 function ZoneHero({
   character,
@@ -151,7 +150,6 @@ function ZoneHero({
     character.icon_url ??
     ''
 
-  // Per-slot progress (0-100) computed directly from draft/detail
   const weaponPct = draft?.weapon_level
     ? Math.min(100, (draft.weapon_level / 90) * 100)
     : 0
@@ -191,66 +189,60 @@ function ZoneHero({
 
   const total = totalOverride ?? detail?.progress.total ?? 0
 
-  // Per-slot config for 14 outer circles
-  // 0, 11 — hidden
-  // 1-6 — constellations (plain, no progress)
-  // 7-9 — talents (ult/skill/atk) → zone 2
-  // 10 — toggle owned
-  // 12-13 — level/friendship → zone 2
   const OUTER_CONFIG: OuterSlotConfig[] = [
-    { hidden: true },                                       // 0
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },   // 1
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },   // 2
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },   // 3
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },   // 4
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },   // 5
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },   // 6
+    { hidden: true },
+    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
+    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
+    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
+    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
+    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
+    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
     {
       icon: '💥',
       label: 'Взрыв стихии',
       value: draft?.talent_burst ?? 1,
       ringPercent: Math.min(100, ((draft?.talent_burst ?? 1) / 9) * 100),
       crownAt: 10,
-    },                                                       // 7
+    },
     {
       icon: '⚡',
       label: 'Элем. навык',
       value: draft?.talent_skill ?? 1,
       ringPercent: Math.min(100, ((draft?.talent_skill ?? 1) / 9) * 100),
       crownAt: 10,
-    },                                                       // 8
+    },
     {
       icon: '⚔️',
       label: 'Обычная атака',
       value: draft?.talent_normal ?? 1,
       ringPercent: Math.min(100, ((draft?.talent_normal ?? 1) / 9) * 100),
       crownAt: 10,
-    },                                                       // 9
-    { hidden: true },                                        // 10
+    },
+    { hidden: true },
     {
       variant: 'plain',
       icon: isOwned ? '👤' : '➕',
       label: isOwned ? 'Убрать из трекера' : 'Добавить в трекер',
       angle: 180,
-    },                                                       // 11
+    },
     {
       icon: '📊',
       label: 'Уровень',
       value: draft?.level ?? 1,
       ringPercent: Math.min(100, ((draft?.level ?? 1) / 90) * 100),
       crownAt: 91,
-    },                                                       // 12
+    },
     {
       icon: '💚',
       label: 'Дружба',
       value: draft?.friendship ?? 1,
       ringPercent: Math.min(100, ((draft?.friendship ?? 1) / 10) * 100),
-    },                                                       // 13
+    },
   ]
 
   function handleOuterClick(i: number) {
-    if (i >= 1 && i <= 6) goTo(3)         // constellations zone
-    else if (i >= 7 && i <= 9) goTo(1)    // stats/talents zone
+    if (i >= 1 && i <= 6) goTo(3)
+    else if (i >= 7 && i <= 9) goTo(1)
     else if (i === 10) onToggleOwned()
     else if (i === 12 || i === 13) goTo(1)
   }
@@ -262,9 +254,7 @@ function ZoneHero({
         background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)`,
       }}
     >
-      {/* Portrait + radial — centered vertically across FULL height, no padding-top */}
       <div className="h-full w-full flex items-center justify-center gap-6 md:gap-12 lg:gap-24 px-6 pt-4 pb-20">
-        {/* Portrait */}
         <div
           className="relative shrink-0 rounded-2xl overflow-hidden"
           style={{
@@ -287,7 +277,6 @@ function ZoneHero({
           <HeroActionArc colors={colors} />
         </div>
 
-        {/* Radial progress */}
         <RadialProgress
           total={total}
           items={items}
@@ -296,18 +285,16 @@ function ZoneHero({
           outerSlotsConfig={OUTER_CONFIG}
           onOuterClick={handleOuterClick}
           onMiddleClick={(key) => {
-            // Center (total) — placeholder, will be wired later.
-            // 6 equipment slots (weapon + 5 artifacts) → Zone 3
             if (key === 'total') {
               console.log('center circle clicked — action TBD')
             } else {
               goTo(2)
             }
           }}
+          hideCenter
         />
       </div>
 
-      {/* Name + title — ABSOLUTE, over the whole section, above portrait, centered horizontally */}
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none text-center max-w-[70vw]">
         <h1
           className="text-3xl md:text-4xl font-bold leading-tight drop-shadow-[0_2px_12px_rgba(0,0,0,1)]"
@@ -328,17 +315,9 @@ function ZoneHero({
     </section>
   )
 }
-/**
- * Square glass container anchored to the bottom-left corner of the portrait.
- * 5 buttons distributed evenly along a quarter-circle arc (90° → 180°),
- * occupying the whole container surface.
- *
- *   index 0 — 90°   (bottom-center of arc)   → placeholder (disabled)
- *   index 1 — 112.5°                         → placeholder (disabled)
- *   index 2 — 135°   (diagonal)              → BACK to catalog
- *   index 3 — 157.5°                         → placeholder (disabled)
- *   index 4 — 180°   (left-center of arc)    → placeholder (disabled)
- */
+
+/* ---------- Hero action arc (bottom-left of portrait) ---------- */
+
 function HeroActionArc({
   colors,
 }: {
@@ -349,7 +328,6 @@ function HeroActionArc({
   const cx = CONTAINER - BTN / 2 - 6
   const cy = BTN / 2 + 6
   const radius = CONTAINER - BTN - 6
-  // Quarter-circle: 90° (bottom) → 180° (left), y grows downward
   const angles = [90, 112.5, 135, 157.5, 180]
 
   return (
@@ -441,7 +419,6 @@ function ZoneStats({
   isSaving: boolean
   lastSaved: Date | null
   goTo: (i: number) => void
-  current: number
 }) {
   const colors = ELEMENT_HEX[character.element]
 
@@ -467,11 +444,8 @@ function ZoneStats({
         background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)`,
       }}
     >
-      {/* === 3-column grid === */}
       <div className="w-full max-w-[1800px] grid grid-cols-1 lg:grid-cols-[320px_1fr_500px] gap-6 px-6">
-        {/* LEFT: name centered + portrait + 8 stats */}
         <div className="flex flex-col gap-4 -translate-y-[40px]">
-          {/* Name + subtitle, centered */}
           <div className="text-center">
             <h2 className="text-2xl font-bold">
               {character.name_ru || character.name}
@@ -479,7 +453,6 @@ function ZoneStats({
             <p className="text-sm text-slate-400">Характеристики</p>
           </div>
 
-          {/* Large portrait: fills column width minus 10px each side */}
           {character.icon_url && (
             <div
               className="mx-[10px] rounded-xl overflow-hidden"
@@ -497,7 +470,6 @@ function ZoneStats({
             </div>
           )}
 
-          {/* 8 stats */}
           <div className="grid grid-cols-2 gap-3">
             <StatInput
               label="HP"
@@ -570,7 +542,6 @@ function ZoneStats({
           </div>
         </div>
 
-        {/* CENTER: 5 sliders + separator. px-[50px] on both sides = 100px narrower. */}
         <div className="flex flex-col justify-center gap-3 px-[50px]">
           <ProgressSlider
             label="Уровень персонажа"
@@ -646,7 +617,6 @@ function ZoneStats({
           />
         </div>
 
-        {/* RIGHT: total progress — clickable, returns to zone 1 */}
         <div className="hidden lg:flex items-center justify-center">
           <button
             type="button"
@@ -670,9 +640,7 @@ function ZoneStats({
           </button>
         </div>
       </div>
-      {/* === end grid === */}
 
-      {/* Saving indicator */}
       <div className="absolute top-6 right-6 text-xs text-slate-400 flex items-center gap-2">
         {isSaving ? (
           <span className="text-yellow-400">● Сохранение...</span>
@@ -703,7 +671,13 @@ const EQUIPMENT_SLOTS: { key: EquipmentSlotKey; icon: string; label: string }[] 
   { key: 'circlet', icon: '👑', label: 'Шапка' },
 ]
 
-const ARTIFACT_MAX_LEVEL: Record<number, number> = { 1: 4, 2: 4, 3: 12, 4: 16, 5: 20 }
+const ARTIFACT_MAX_LEVEL: Record<number, number> = {
+  1: 4,
+  2: 4,
+  3: 12,
+  4: 16,
+  5: 20,
+}
 
 function ZoneWeaponArtifacts({
   character,
@@ -720,6 +694,7 @@ function ZoneWeaponArtifacts({
     name_ru: string | null
     element: keyof typeof ELEMENT_HEX
     icon_url: string | null
+    weapon_type: WeaponType
   }
   detail: UserCharacterDetail | undefined
   draft: ReturnType<typeof useCharacterDraft>['draft']
@@ -730,10 +705,19 @@ function ZoneWeaponArtifacts({
   lastSaved: Date | null
 }) {
   const [selectedSlot, setSelectedSlot] = useState<EquipmentSlotKey>('weapon')
-  const [refinement, setRefinement] = useState<number>(
-    draft?.weapon_refinement ?? 1,
-  )
   const colors = ELEMENT_HEX[character.element]
+
+  const weaponsQuery = useQuery({
+    queryKey: ['weapons', character.weapon_type],
+    queryFn: () =>
+      catalogApi.listWeapons({
+        weapon_type: character.weapon_type,
+        sort: 'rarity_desc',
+        limit: 200,
+      }),
+    enabled: selectedSlot === 'weapon' && !!detail && !!draft,
+    staleTime: 5 * 60_000,
+  })
 
   if (!detail || !draft || !progress) {
     return (
@@ -743,7 +727,8 @@ function ZoneWeaponArtifacts({
     )
   }
 
-  // === Per-slot progress (0-100) computed from draft/detail, not weighted components ===
+  const refinement = draft.weapon_refinement ?? 1
+
   const weaponPct = draft.weapon_level
     ? Math.min(100, (draft.weapon_level / 90) * 100)
     : 0
@@ -765,19 +750,14 @@ function ZoneWeaponArtifacts({
     return detail!.artifacts.some((a) => a.slot === key)
   }
 
-  function slotBadge(key: EquipmentSlotKey): string | undefined {
-    if (key === 'weapon') {
-      if (draft.weapon_level == null) return undefined
-      return `${draft.weapon_level}★${refinement}`
-    }
-    const a = detail!.artifacts.find((x) => x.slot === key)
-    if (!a) return undefined
-    return `+${a.level}`
-  }
-
   const selectedMeta = EQUIPMENT_SLOTS.find((s) => s.key === selectedSlot)!
   const selectedPct =
     selectedSlot === 'weapon' ? weaponPct : artifactSlotPct(selectedSlot)
+
+  const selectedWeapon =
+    selectedSlot === 'weapon' && draft.weapon_id
+      ? weaponsQuery.data?.items.find((w) => w.id === draft.weapon_id)
+      : null
 
   return (
     <section
@@ -787,9 +767,8 @@ function ZoneWeaponArtifacts({
       }}
     >
       <div className="h-full w-full max-w-[1800px] mx-auto px-6 py-6 flex flex-col gap-5">
-        {/* === Header: icon + name (left) | 6 slots + total (center) | saving (right) === */}
+        {/* === Header row: icon+name | slots | total | saving === */}
         <div className="flex items-center justify-between gap-4">
-          {/* Left: icon + name */}
           <div className="flex items-center gap-4 shrink-0">
             {character.icon_url && (
               <div
@@ -817,32 +796,26 @@ function ZoneWeaponArtifacts({
             </div>
           </div>
 
-          {/* Center: weapon | separator | artifacts | separator | total */}
           <div className="flex items-center gap-2">
-            {/* Weapon slot */}
             <EquipmentSlotButton
               icon={EQUIPMENT_SLOTS[0].icon}
               label={EQUIPMENT_SLOTS[0].label}
               selected={selectedSlot === 'weapon'}
               filled={slotFilled('weapon')}
               progress={slotProgress('weapon')}
-              levelText={
-                draft.weapon_level != null ? String(draft.weapon_level) : undefined
-              }
+              levelText={draft.weapon_level != null ? String(draft.weapon_level) : undefined}
               stars={refinement}
               colors={colors}
               onClick={() => setSelectedSlot('weapon')}
             />
 
-            {/* Separator 1 */}
             <div
               className="h-16 w-[3px] rounded-full"
               style={{ backgroundColor: colors.secondary }}
             />
 
-            {/* 5 artifact slots */}
             {EQUIPMENT_SLOTS.slice(1).map((slot) => {
-              const a = detail!.artifacts.find((x) => x.slot === slot.key)
+              const a = detail.artifacts.find((x) => x.slot === slot.key)
               return (
                 <EquipmentSlotButton
                   key={slot.key}
@@ -858,13 +831,11 @@ function ZoneWeaponArtifacts({
               )
             })}
 
-            {/* Separator 2 */}
             <div
               className="h-16 w-[3px] rounded-full"
               style={{ backgroundColor: colors.secondary }}
             />
 
-            {/* Total */}
             <button
               type="button"
               onClick={() => goTo(0)}
@@ -908,7 +879,6 @@ function ZoneWeaponArtifacts({
             </button>
           </div>
 
-          {/* Right: saving indicator */}
           <div className="text-xs text-slate-400 shrink-0 min-w-[140px] text-right">
             {isSaving ? (
               <span className="text-yellow-400">● Сохранение...</span>
@@ -920,7 +890,7 @@ function ZoneWeaponArtifacts({
           </div>
         </div>
 
-        {/* === Main content: left panel + right grid === */}
+        {/* === Main content === */}
         <div className="flex-1 min-h-0 grid grid-cols-[380px_1fr] gap-6">
           {/* LEFT: big circle + refinement arc + level slider */}
           <div className="flex flex-col items-center gap-4 relative">
@@ -928,81 +898,90 @@ function ZoneWeaponArtifacts({
               className="relative flex items-center justify-center"
               style={{ width: 400, height: 400 }}
             >
-            <div className="relative" style={{ width: 260, height: 260 }}>
-              <CircularProgress
-                value={selectedPct}
-                size={260}
-                strokeWidth={26}
-                fillColor={colors.secondary}
-                emptyColor={colors.main}
-                innerColor={colors.main}
-                borderColor={colors.secondary}
-                hideLabel
-                borderWidth={5}
-              />
-              {/* Icon — upper area */}
-              <span
-                className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-                style={{
-                  fontSize: 96,
-                  lineHeight: 1,
-                  paddingBottom: 40,
-                }}
-              >
-                {selectedMeta.icon}
-              </span>
+              <div className="relative" style={{ width: 260, height: 260 }}>
+                <CircularProgress
+                  value={selectedPct}
+                  size={260}
+                  strokeWidth={26}
+                  fillColor={colors.secondary}
+                  emptyColor={colors.main}
+                  innerColor={colors.main}
+                  borderColor={colors.secondary}
+                  hideLabel
+                  borderWidth={5}
+                />
 
-              {/* Level + stars at the bottom of the circle */}
-              <div
-                className="absolute left-1/2 -translate-x-1/2 flex items-start font-bold pointer-events-none"
-                style={{
-                  bottom: 10,
-                  color: colors.accent,
-                  fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
-                  fontSize: 42,
-                  textShadow: `0 0 5px ${colors.secondary}`,
-                  lineHeight: 1,
-                }}
-              >
-                {selectedSlot === 'weapon' ? (
-                  <>
-                    <span>{draft.weapon_level ?? 0}</span>
-                    {refinement > 0 && (
-                      <span
-                        style={{
-                          fontSize: '0.5em',
-                          color: '#fde047',
-                          marginLeft: 3,
-                          marginTop: -4,
-                        }}
-                      >
-                        ★{refinement}
-                      </span>
-                    )}
-                  </>
+                {/* Selected item — image or emoji */}
+                {selectedWeapon?.icon_url ? (
+                  <img
+                    src={selectedWeapon.icon_url}
+                    alt={selectedWeapon.name}
+                    className="absolute rounded-full object-cover pointer-events-none"
+                    style={{
+                      top: '18%',
+                      left: '18%',
+                      width: '64%',
+                      height: '64%',
+                    }}
+                  />
                 ) : (
-                  <span>
-                    {detail.artifacts.find((a) => a.slot === selectedSlot)?.level ?? 0}
+                  <span
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+                    style={{ fontSize: 96, lineHeight: 1, paddingBottom: 40 }}
+                  >
+                    {selectedMeta.icon}
                   </span>
                 )}
-              </div>
 
-              {/* Refinement arc — only for weapon */}
-              {selectedSlot === 'weapon' && (
-                <RefinementArc
-                  value={refinement}
-                  colors={colors}
-                  size={260}
-                  onChange={(v) => {
-                    setRefinement(v)
-                    onUpdate('weapon_refinement' as never, v as never)
+                {/* Level + stars at the bottom of the circle */}
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 flex items-start font-bold pointer-events-none"
+                  style={{
+                    bottom: 10,
+                    color: colors.accent,
+                    fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
+                    fontSize: 42,
+                    textShadow: `0 0 5px ${colors.secondary}`,
+                    lineHeight: 1,
                   }}
-                />
-              )}
-            </div>
+                >
+                  {selectedSlot === 'weapon' ? (
+                    <>
+                      <span>{draft.weapon_level ?? 0}</span>
+                      {refinement > 0 && (
+                        <span
+                          style={{
+                            fontSize: '0.5em',
+                            color: '#fde047',
+                            marginLeft: 3,
+                            marginTop: -4,
+                          }}
+                        >
+                          ★{refinement}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span>
+                      {detail.artifacts.find((a) => a.slot === selectedSlot)?.level ?? 0}
+                    </span>
+                  )}
+                </div>
+
+                {/* Refinement arc — only for weapon */}
+                {selectedSlot === 'weapon' && (
+                  <RefinementArc
+                    value={refinement}
+                    colors={colors}
+                    size={260}
+                    onChange={(v) => {
+                      onUpdate('weapon_refinement' as never, v as never)
+                    }}
+                  />
+                )}
+              </div>
             </div>
 
-            {/* Level slider for weapon */}
             {selectedSlot === 'weapon' ? (
               <div className="w-full">
                 <SimpleSlider
@@ -1021,24 +1000,68 @@ function ZoneWeaponArtifacts({
             )}
           </div>
 
-          {/* RIGHT: grid of available items */}
+          {/* RIGHT: grid */}
           <div className="relative rounded-xl border border-slate-700 bg-slate-900/40 overflow-hidden">
             <div className="h-full overflow-y-auto p-4">
               {selectedSlot === 'weapon' ? (
-                <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                  {Array.from({ length: 24 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="aspect-square rounded-lg border-2 border-dashed flex items-center justify-center text-xs text-slate-500"
-                      style={{
-                        borderColor: `${colors.secondary}66`,
-                        backgroundColor: `${colors.main}22`,
-                      }}
-                    >
-                      ⚔️
-                    </div>
-                  ))}
-                </div>
+                weaponsQuery.isLoading ? (
+                  <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+                    Загрузка оружия...
+                  </div>
+                ) : weaponsQuery.isError ? (
+                  <div className="h-full flex items-center justify-center text-red-400 text-sm">
+                    Не удалось загрузить оружие
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                    {(weaponsQuery.data?.items ?? []).map((w) => {
+                      const isSelected = draft.weapon_id === w.id
+                      return (
+                        <button
+                          key={w.id}
+                          type="button"
+                          onClick={() => {
+                            const switching = draft.weapon_id !== w.id
+                            onUpdate('weapon_id' as never, w.id as never)
+                            if (switching) {
+                              onUpdate('weapon_level' as never, 1 as never)
+                              onUpdate('weapon_refinement' as never, 1 as never)
+                            }
+                          }}
+                          title={`${w.name} · ${WEAPON_TYPE_LABELS[w.weapon_type]} · ★${w.rarity}`}
+                          className={`relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer ${
+                            isSelected ? 'scale-105' : 'hover:scale-105'
+                          }`}
+                          style={{
+                            border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`,
+                            boxShadow: isSelected
+                              ? `0 0 20px ${colors.accent}88`
+                              : `0 0 6px ${colors.main}44`,
+                            backgroundColor: colors.main,
+                          }}
+                        >
+                          {w.icon_url && (
+                            <img
+                              src={w.icon_url}
+                              alt={w.name}
+                              loading="lazy"
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                          )}
+                          <span
+                            className="absolute top-1 right-1 px-1 rounded text-[10px] font-bold"
+                            style={{
+                              backgroundColor: colors.secondary,
+                              color: '#fde047',
+                            }}
+                          >
+                            ★{w.rarity}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )
               ) : (
                 <div className="h-full flex items-center justify-center text-slate-500 text-sm">
                   Выбор артефактов появится в D9e
@@ -1065,7 +1088,8 @@ function ZoneConstellations({
         <h2 className="text-3xl font-bold mb-4">Созвездия</h2>
         {detail ? (
           <p className="text-slate-400">
-            Уровень созвездий: <span className="text-yellow-300 font-bold">C{detail.constellation}</span>
+            Уровень созвездий:{' '}
+            <span className="text-yellow-300 font-bold">C{detail.constellation}</span>
           </p>
         ) : (
           <p className="text-slate-500">Добавьте персонажа в трекер</p>
@@ -1080,7 +1104,6 @@ function ZoneConstellations({
 
 /* ---------- Shared UI ---------- */
 
-
 function AddToTrackerButton() {
   return (
     <Link
@@ -1092,11 +1115,6 @@ function AddToTrackerButton() {
   )
 }
 
-/**
- * 5 round buttons arranged in an arc (1 o'clock → 5 o'clock).
- * Represents weapon refinement ranks R1..R5.
- * Non-selected buttons are dimmed but still clickable.
- */
 function RefinementArc({
   value,
   colors,
@@ -1109,7 +1127,7 @@ function RefinementArc({
   onChange: (v: number) => void
 }) {
   const BTN = 80
-  const radius = size * 0.6 // ≈ 156 при size=260
+  const radius = size * 0.6
   const cx = size / 2
   const cy = size / 2
 
@@ -1148,7 +1166,6 @@ function RefinementArc({
               style={{
                 color: active ? '#fde047' : colors.accent,
                 fontSize: 30,
-                textShadow: active ? `0 0 4px #713f12` : 'none',
                 lineHeight: 1,
               }}
             >
@@ -1173,10 +1190,6 @@ function RefinementArc({
   )
 }
 
-/**
- * Slider without the left circle — used for weapon level where the
- * progress ring is already shown on the big circle.
- */
 function SimpleSlider({
   label,
   value,
@@ -1225,7 +1238,7 @@ function SimpleSlider({
         onChange={(e) => onChange(Number(e.target.value))}
         style={{
           background: bg,
-          // @ts-expect-error custom prop
+          // @ts-expect-error custom CSS variable
           '--thumb-color': colors.secondary,
         }}
         className="w-full h-2 rounded-full appearance-none cursor-pointer

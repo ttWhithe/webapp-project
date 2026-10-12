@@ -32,6 +32,10 @@ class ArtifactSet(Base):
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     name_ru: Mapped[str | None] = mapped_column(String(150), nullable=True)
     icon_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    icon_plume_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    icon_sands_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    icon_goblet_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    icon_circlet_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

@@ -142,6 +142,7 @@ export interface AdminWeapon {
   base_atk: number | null
   main_stat: string | null
   icon_url: string | null
+  icon_awakened_url: string | null
   version_added: string | null
 }
 
@@ -152,6 +153,10 @@ export interface AdminArtifactSet {
   name: string
   name_ru: string | null
   icon_url: string | null
+  icon_plume_url: string | null
+  icon_sands_url: string | null
+  icon_goblet_url: string | null
+  icon_circlet_url: string | null
 }
 
 export interface AdminCharacterUpdate {
@@ -174,11 +179,16 @@ export interface AdminWeaponUpdate {
   base_atk?: number | null
   main_stat?: string | null
   version_added?: string | null
+  icon_awakened_url?: string | null
 }
 
 export interface AdminArtifactSetUpdate {
   name_ru?: string | null
   icon_url?: string | null
+  icon_plume_url: string | null
+  icon_sands_url: string | null
+  icon_goblet_url: string | null
+  icon_circlet_url: string | null
 }
 
 export interface UserArtifact {

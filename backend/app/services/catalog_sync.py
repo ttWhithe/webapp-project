@@ -13,6 +13,7 @@ import asyncio
 import uuid
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
+from datetime import timedelta
 from typing import TypeVar
 
 from pydantic import ValidationError
@@ -35,6 +36,26 @@ from app.services.catalog_mappers import (
     to_weapon_type,
 )
 from app.services.genshin_db_client import GenshinDbClient, GenshinDbClientError
+
+# Поля, которые админ может править руками. Их не трогаем, если запись уже правили.
+CHARACTER_EDITABLE = {"name_ru", "title", "icon_url", "portrait_url", "region", "birthday"}
+WEAPON_EDITABLE = {"name_ru", "icon_url", "base_atk", "main_stat"}
+ARTIFACT_EDITABLE = {
+    "name_ru",
+    "icon_url",
+    "icon_plume_url",
+    "icon_sands_url",
+    "icon_goblet_url",
+    "icon_circlet_url",
+}
+
+
+def _was_edited(obj) -> bool:
+    """True, если запись правили вручную (updated_at позже created_at + 5 сек)."""
+    if not obj.created_at or not obj.updated_at:
+        return False
+    return (obj.updated_at - obj.created_at) > timedelta(seconds=5)
+
 
 T = TypeVar("T")
 
@@ -186,16 +207,20 @@ class CatalogSyncService:
                 )
             )
             return True
+        # Эти поля — системные, их обновляем всегда.
         existing.name = ext.name
-        existing.title = ext.title
         existing.element = to_element(ext.element_type)
         existing.weapon_type = to_weapon_type(ext.weapon_type)
         existing.rarity = ext.rarity
-        existing.region = ext.region
-        existing.birthday = ext.birthday_mmdd
-        existing.icon_url = ext.images.card or ext.images.icon
-        existing.portrait_url = ext.images.portrait
         existing.version_added = ext.version
+
+        # Если запись правили руками — не трогаем редактируемые поля.
+        if not _was_edited(existing):
+            existing.title = ext.title
+            existing.region = ext.region
+            existing.birthday = ext.birthday_mmdd
+            existing.icon_url = ext.images.card or ext.images.icon
+            existing.portrait_url = ext.images.portrait
         return False
 
     async def _upsert_weapon(self, ext: ExternalWeapon) -> bool:
@@ -219,6 +244,7 @@ class CatalogSyncService:
                     base_atk=ext.base_atk_value,
                     main_stat=ext.main_stat_text,
                     icon_url=ext.images.icon,
+                    icon_awakened_url=ext.images.awakened,
                     version_added=ext.version,
                 )
             )
@@ -226,17 +252,24 @@ class CatalogSyncService:
         existing.name = ext.name
         existing.weapon_type = wt
         existing.rarity = ext.rarity
-        existing.base_atk = ext.base_atk_value
-        existing.main_stat = ext.main_stat_text
-        existing.icon_url = ext.images.icon
         existing.version_added = ext.version
+
+        if not _was_edited(existing):
+            existing.base_atk = ext.base_atk_value
+            existing.main_stat = ext.main_stat_text
+            existing.icon_url = ext.images.icon
+            existing.icon_awakened_url = ext.images.awakened
         return False
 
     async def _upsert_artifact(self, ext: ExternalArtifactSet) -> bool:
         existing = await self._session.scalar(
             select(ArtifactSet).where(ArtifactSet.slug == to_slug(ext.name))
         )
-        icon = ext.images.flower or ext.images.circlet or None
+        icon_flower = ext.images.flower
+        icon_plume = ext.images.plume
+        icon_sands = ext.images.sands
+        icon_goblet = ext.images.goblet
+        icon_circlet = ext.images.circlet
         if existing is None:
             self._session.add(
                 ArtifactSet(
@@ -244,10 +277,20 @@ class CatalogSyncService:
                     external_id=ext.id,
                     slug=to_slug(ext.name),
                     name=ext.name,
-                    icon_url=icon,
+                    icon_url=icon_flower or icon_circlet,
+                    icon_plume_url=icon_plume,
+                    icon_sands_url=icon_sands,
+                    icon_goblet_url=icon_goblet,
+                    icon_circlet_url=icon_circlet,
                 )
             )
             return True
         existing.name = ext.name
-        existing.icon_url = icon
+
+        if not _was_edited(existing):
+            existing.icon_url = icon_flower or icon_circlet
+            existing.icon_plume_url = icon_plume
+            existing.icon_sands_url = icon_sands
+            existing.icon_goblet_url = icon_goblet
+            existing.icon_circlet_url = icon_circlet
         return False

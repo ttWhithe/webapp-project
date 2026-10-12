@@ -38,21 +38,22 @@ class AdminCharacterUpdate(BaseModel):
 
 
 class AdminWeaponUpdate(BaseModel):
-    """Editable fields on a Weapon."""
-
     name_ru: str | None = Field(None, max_length=150)
     rarity: int | None = Field(None, ge=1, le=5)
     icon_url: str | None = Field(None, max_length=500)
+    icon_awakened_url: str | None = Field(None, max_length=500)
     base_atk: float | None = Field(None, ge=0)
     main_stat: str | None = Field(None, max_length=80)
     version_added: str | None = Field(None, max_length=10)
 
 
 class AdminArtifactSetUpdate(BaseModel):
-    """Editable fields on an ArtifactSet."""
-
     name_ru: str | None = Field(None, max_length=150)
     icon_url: str | None = Field(None, max_length=500)
+    icon_plume_url: str | None = Field(None, max_length=500)
+    icon_sands_url: str | None = Field(None, max_length=500)
+    icon_goblet_url: str | None = Field(None, max_length=500)
+    icon_circlet_url: str | None = Field(None, max_length=500)
 
 
 class AdminCharacterRead(BaseModel):
@@ -89,6 +90,7 @@ class AdminWeaponRead(BaseModel):
     base_atk: float | None
     main_stat: str | None
     icon_url: str | None
+    icon_awakened_url: str | None
     version_added: str | None
 
 
@@ -101,3 +103,7 @@ class AdminArtifactSetRead(BaseModel):
     name: str
     name_ru: str | None
     icon_url: str | None
+    icon_plume_url: str | None
+    icon_sands_url: str | None
+    icon_goblet_url: str | None
+    icon_circlet_url: str | None

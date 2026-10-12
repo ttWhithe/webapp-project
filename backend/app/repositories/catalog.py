@@ -25,7 +25,7 @@ CHARACTER_SORTS: dict[str, Any] = {
 
 WEAPON_SORTS: dict[str, Any] = {
     "name_asc": Weapon.name.asc(),
-    "rarity_desc": Weapon.rarity.desc(),
+    "rarity_desc": [Weapon.rarity.desc(), Weapon.name.asc()],
     "version_desc": Weapon.version_added.desc().nulls_last(),
 }
 
