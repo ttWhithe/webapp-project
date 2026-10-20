@@ -46,3 +46,7 @@ cookies.txt
 
 backups/
 *.sql
+
+# Игнорируем результаты работы парсера и логи
+tools/parser_app/data/*.json
+tools/parser_app/log.txt

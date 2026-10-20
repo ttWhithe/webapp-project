@@ -3,3 +3,9 @@
 *.jpg binary
 *.pdf binary
 *.docx binary
+
+# Автоматически нормализовать все текстовые файлы в LF (стандарт для Linux/Docker)
+* text=auto eol=lf
+
+# Оставить CRLF для Windows-скриптов, чтобы .bat корректно работал
+*.bat text eol=crlf
