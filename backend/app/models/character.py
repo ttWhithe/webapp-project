@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, Uuid, func
+from sqlalchemy import JSON, DateTime, Integer, String, Uuid, func
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -62,6 +62,17 @@ class Character(Base):
     icon_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     portrait_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     version_added: Mapped[str | None] = mapped_column(String(10), nullable=True)
+
+    # Новые поля из парсера
+    release_date: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    namecard_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    constellation_icon_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    talents: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    constellations: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
+    # Fields for dropdowns (C3 and C5 increases)
+    c3_increases: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    c5_increases: Mapped[str | None] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
