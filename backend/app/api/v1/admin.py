@@ -29,7 +29,6 @@ from app.schemas.admin import (
     AdminArtifactSetRead,
     AdminArtifactSetUpdate,
     AdminCharacterRead,
-    AdminCharacterUpdate,
     AdminWeaponRead,
     AdminWeaponUpdate,
     SyncStatsSchema,
@@ -245,30 +244,76 @@ async def admin_list_characters(
     return [AdminCharacterRead.model_validate(c) for c in items]
 
 
-@router.patch("/characters/{character_id}", response_model=AdminCharacterRead)
-async def admin_update_character(
+@router.post("/characters/{character_id}/import-parser", response_model=AdminCharacterRead)
+async def import_character_from_parser(
     character_id: uuid.UUID,
-    payload: AdminCharacterUpdate,
     _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
-    repo: Annotated[CharacterRepository, Depends(get_character_repo)],
+    db: Annotated[AsyncSession, Depends(get_db)],
     cache: Annotated[CacheService, Depends(get_cache_service)],
+    file: UploadFile = File(...),
 ) -> AdminCharacterRead:
-    """Update editable fields on a character. Invalidates public catalog cache."""
-    character = await repo.get_by_id(character_id)
-    if character is None:
+    """Загружает JSON от парсера и обновляет данные конкретного персонажа."""
+    char = await db.get(Character, character_id)
+    if char is None:
         raise HTTPException(404, "Character not found")
 
-    update_data = payload.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(character, field, value)
+    try:
+        content = json.loads(await file.read())
+    except Exception as err:
+        raise HTTPException(400, "Invalid JSON file") from err
 
-    await repo.commit()
-    await repo.refresh(character)
+    # Ищем персонажа по имени (парсер использует имя как ключ)
+    char_data = content.get(char.name)
 
-    # Invalidate public catalog cache — the change may affect list/detail responses.
+    # Если вдруг имя чуть другое, ищем без учета регистра
+    if not char_data:
+        for k, v in content.items():
+            if k.lower() == char.name.lower():
+                char_data = v
+                break
+
+    if not char_data:
+        raise HTTPException(404, f"Персонаж {char.name} не найден в загруженном JSON")
+
+    # Мапим поля
+    if "title" in char_data:
+        char.title = char_data["title"]
+    if "release_date" in char_data:
+        char.release_date = char_data["release_date"]
+
+    if "images" in char_data:
+        img = char_data["images"]
+        if img.get("character_icon"):
+            char.icon_url = img["character_icon"]
+        if img.get("full_wish"):
+            char.portrait_url = img["full_wish"]
+        if img.get("namecard"):
+            char.namecard_url = img["namecard"]
+        if img.get("constellation"):
+            char.constellation_icon_url = img["constellation"]
+
+    if "talents" in char_data:
+        char.talents = char_data["talents"]
+
+    if "constellations" in char_data:
+        char.constellations = char_data["constellations"]
+        # Извлекаем C3 и C5
+        c3 = char_data["constellations"].get("3", {})
+        if "increases" in c3:
+            char.c3_increases = c3["increases"]
+
+        c5 = char_data["constellations"].get("5", {})
+        if "increases" in c5:
+            char.c5_increases = c5["increases"]
+
+    if "other_languages" in char_data and "Russian" in char_data["other_languages"]:
+        char.name_ru = char_data["other_languages"]["Russian"]
+
+    await db.commit()
+    await db.refresh(char)
     await cache.delete_pattern("*")
 
-    return AdminCharacterRead.model_validate(character)
+    return AdminCharacterRead.model_validate(char)
 
 
 # ---------- weapons ----------
@@ -343,3 +388,111 @@ async def admin_update_artifact_set(
     await cache.delete_pattern("*")
 
     return AdminArtifactSetRead.model_validate(artifact_set)
+
+
+@router.post("/weapons/{weapon_id}/import-parser", response_model=AdminWeaponRead)
+async def import_weapon_from_parser(
+    weapon_id: uuid.UUID,
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    cache: Annotated[CacheService, Depends(get_cache_service)],
+    file: UploadFile = File(...),
+) -> AdminWeaponRead:
+    weapon = await db.get(Weapon, weapon_id)
+    if weapon is None:
+        raise HTTPException(404, "Weapon not found")
+
+    try:
+        content = json.loads(await file.read())
+    except Exception as err:
+        raise HTTPException(400, "Invalid JSON file") from err
+
+    data = content.get(weapon.name)
+    if not data:
+        for k, v in content.items():
+            if k.lower() == weapon.name.lower():
+                data = v
+                break
+    if not data:
+        raise HTTPException(404, f"Оружие {weapon.name} не найдено в JSON")
+
+    if "base_atk" in data and isinstance(data["base_atk"], dict) and data["base_atk"].get("lvl_90"):
+        try:
+            val = str(data["base_atk"]["lvl_90"]).replace(",", "")
+            weapon.base_atk = float(val)
+        except ValueError:
+            pass
+
+    if (
+        "secondary_stat" in data
+        and isinstance(data["secondary_stat"], dict)
+        and data["secondary_stat"].get("name")
+    ):
+        weapon.main_stat = data["secondary_stat"]["name"]
+
+    if "passive" in data and isinstance(data["passive"], dict):
+        weapon.passive_name = data["passive"].get("name")
+        weapon.passive_desc = data["passive"].get("description")
+
+    if "images" in data and isinstance(data["images"], dict):
+        if data["images"].get("base"):
+            weapon.icon_url = data["images"]["base"]
+        if data["images"].get("awakened"):
+            weapon.icon_awakened_url = data["images"]["awakened"]
+
+    await db.commit()
+    await db.refresh(weapon)
+    await cache.delete_pattern("*")
+    return AdminWeaponRead.model_validate(weapon)
+
+
+@router.post("/artifact-sets/{set_id}/import-parser", response_model=AdminArtifactSetRead)
+async def import_artifact_from_parser(
+    set_id: uuid.UUID,
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    cache: Annotated[CacheService, Depends(get_cache_service)],
+    file: UploadFile = File(...),
+) -> AdminArtifactSetRead:
+    artifact = await db.get(ArtifactSet, set_id)
+    if artifact is None:
+        raise HTTPException(404, "ArtifactSet not found")
+
+    try:
+        content = json.loads(await file.read())
+    except Exception as err:
+        raise HTTPException(400, "Invalid JSON file") from err
+
+    data = content.get(artifact.name)
+    if not data:
+        for k, v in content.items():
+            if k.lower() == artifact.name.lower():
+                data = v
+                break
+    if not data:
+        raise HTTPException(404, f"Сет {artifact.name} не найден в JSON")
+
+    if "quality" in data and isinstance(data["quality"], list) and data["quality"]:
+        artifact.max_rarity = max(data["quality"])
+
+    if "bonuses" in data and isinstance(data["bonuses"], dict):
+        artifact.bonus_2pc = data["bonuses"].get("2pc")
+        artifact.bonus_4pc = data["bonuses"].get("4pc")
+
+    if "images" in data and isinstance(data["images"], dict):
+        img = data["images"]
+        if img.get("flower"):
+            artifact.icon_url = img["flower"]
+        if img.get("plume"):
+            artifact.icon_plume_url = img["plume"]
+        if img.get("sands"):
+            artifact.icon_sands_url = img["sands"]
+        if img.get("goblet"):
+            artifact.icon_goblet_url = img["goblet"]
+        if img.get("circlet"):
+            artifact.icon_circlet_url = img["circlet"]
+
+    await db.commit()
+    await db.refresh(artifact)
+    await cache.delete_pattern("*")
+    return AdminArtifactSetRead.model_validate(artifact)

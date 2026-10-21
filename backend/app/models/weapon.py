@@ -47,6 +47,8 @@ class Weapon(Base):
     rarity: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
     base_atk: Mapped[float | None] = mapped_column(Numeric(6, 2), nullable=True)
     main_stat: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    passive_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    passive_desc: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     icon_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     icon_awakened_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     version_added: Mapped[str | None] = mapped_column(String(10), nullable=True)

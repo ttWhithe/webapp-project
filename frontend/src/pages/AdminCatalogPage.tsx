@@ -126,8 +126,43 @@ export default function AdminCatalogPage() {
     onError: (e: unknown) => setError(extractError(e)),
   })
 
+  const importParser = useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) =>
+      adminApi.importParser(id, file),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'characters'] })
+      qc.invalidateQueries({ queryKey: ['characters'] })
+      setEditing(null)
+      alert('Данные успешно импортированы!')
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
+  const importWeaponParser = useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) => adminApi.importWeaponParser(id, file),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'weapons'] })
+      setEditing(null)
+      alert('Данные оружия обновлены!')
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
+  const importArtifactParser = useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) => adminApi.importArtifactParser(id, file),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'artifact-sets'] })
+      setEditing(null)
+      alert('Данные сета обновлены!')
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
   const submitting =
-    updateCharacter.isPending || updateWeapon.isPending || updateSet.isPending
+    updateCharacter.isPending ||
+    updateWeapon.isPending ||
+    updateSet.isPending ||
+    importParser.isPending
 
   return (
     <div className="space-y-6">
@@ -204,34 +239,29 @@ export default function AdminCatalogPage() {
               columns={[
                 {
                   key: 'icon',
-                  label: '',
-                  className: 'w-24',
+                  label: 'Картинки',
+                  className: 'w-44 shrink-0',
                   render: (r) => (
-                    <div className="flex gap-1">
+                    <div className="flex flex-nowrap gap-1">
+                      {/* Иконка */}
                       {r.icon_url ? (
-                        <img
-                          src={r.icon_url}
-                          alt={`${r.name} icon`}
-                          className="w-9 h-9 rounded object-cover bg-slate-900"
-                          onError={(e) => {
-                            ;(e.target as HTMLImageElement).style.opacity = '0.2'
-                          }}
-                        />
-                      ) : (
-                        <div className="w-9 h-9 rounded bg-slate-700" title="нет иконки" />
-                      )}
+                        <img src={r.icon_url} alt="icon" className="w-8 h-8 rounded object-cover bg-slate-900" />
+                      ) : <div className="w-8 h-8 rounded bg-slate-700" />}
+
+                      {/* Портрет */}
                       {r.portrait_url ? (
-                        <img
-                          src={r.portrait_url}
-                          alt={`${r.name} portrait`}
-                          className="w-9 h-9 rounded object-cover bg-slate-900"
-                          onError={(e) => {
-                            ;(e.target as HTMLImageElement).style.opacity = '0.2'
-                          }}
-                        />
-                      ) : (
-                        <div className="w-9 h-9 rounded bg-slate-700" title="нет портрета" />
-                      )}
+                        <img src={r.portrait_url} alt="portrait" className="w-8 h-8 rounded object-cover bg-slate-900" />
+                      ) : <div className="w-8 h-8 rounded bg-slate-700" />}
+
+                      {/* Namecard */}
+                      {r.namecard_url ? (
+                        <img src={r.namecard_url} alt="namecard" className="w-8 h-8 rounded object-cover bg-slate-900" />
+                      ) : <div className="w-8 h-8 rounded bg-slate-700" />}
+
+                      {/* Иконка созвездия */}
+                      {r.constellation_icon_url ? (
+                        <img src={r.constellation_icon_url} alt="constellation" className="w-8 h-8 rounded object-cover bg-slate-900" />
+                      ) : <div className="w-8 h-8 rounded bg-slate-700" />}
                     </div>
                   ),
                 },
@@ -240,42 +270,64 @@ export default function AdminCatalogPage() {
                   label: 'Имя',
                   render: (r) => (
                     <div>
-                      <div className="font-medium">{r.name}</div>
-                      {r.name_ru && (
-                        <div className="text-xs text-slate-400">{r.name_ru}</div>
-                      )}
+                      <div className="font-medium whitespace-nowrap">{r.name}</div>
+                      {r.name_ru && <div className="text-xs text-slate-400 whitespace-nowrap">{r.name_ru}</div>}
                     </div>
                   ),
                 },
                 {
-                  key: 'slug',
-                  label: 'Slug',
-                  className: 'text-slate-400 text-xs',
-                  render: (r) => r.slug,
+                  key: 'title',
+                  label: 'Титул',
+                  className: 'text-xs text-slate-400 max-w-[200px] truncate',
+                  render: (r) => r.title ?? '—',
                 },
                 {
                   key: 'element',
                   label: 'Элемент',
-                  className: 'text-xs',
+                  className: 'text-xs whitespace-nowrap',
                   render: (r) => ELEMENT_LABELS[r.element],
                 },
                 {
                   key: 'weapon_type',
                   label: 'Оружие',
-                  className: 'text-xs',
+                  className: 'text-xs whitespace-nowrap',
                   render: (r) => WEAPON_TYPE_LABELS[r.weapon_type],
                 },
                 {
                   key: 'rarity',
                   label: 'Ред.',
-                  className: 'w-16',
+                  className: 'w-16 text-center whitespace-nowrap',
                   render: (r) => `★${r.rarity}`,
                 },
                 {
                   key: 'region',
                   label: 'Регион',
-                  className: 'text-xs text-slate-400',
+                  className: 'text-xs text-slate-400 whitespace-nowrap',
                   render: (r) => r.region ?? '—',
+                },
+                {
+                  key: 'birthday',
+                  label: 'Д.Р.',
+                  className: 'text-xs text-slate-400 whitespace-nowrap',
+                  render: (r) => r.birthday ?? '—',
+                },
+                {
+                  key: 'release_date',
+                  label: 'Релиз',
+                  className: 'text-xs text-slate-400 whitespace-nowrap',
+                  render: (r) => r.release_date ?? '—',
+                },
+                {
+                  key: 'c35',
+                  label: 'C3 / C5',
+                  className: 'text-xs text-slate-400 whitespace-nowrap',
+                  sortable: false,
+                  render: (r) => (
+                    <div>
+                      <div>C3: {r.c3_increases ?? '—'}</div>
+                      <div>C5: {r.c5_increases ?? '—'}</div>
+                    </div>
+                  ),
                 },
               ]}
             />
@@ -299,30 +351,17 @@ export default function AdminCatalogPage() {
               columns={[
                 {
                   key: 'icon',
-                  label: '',
-                  className: 'w-24',
+                  label: 'Иконки',
+                  className: 'w-24 shrink-0',
                   render: (r) => (
-                    <div className="flex gap-1">
-                      {r.icon_url && (
-                        <img
-                          src={r.icon_url}
-                          alt={r.name}
-                          className="w-9 h-9 rounded object-cover bg-slate-900"
-                          onError={(e) => {
-                            ;(e.target as HTMLImageElement).style.opacity = '0.2'
-                          }}
-                        />
-                      )}
-                      {r.icon_awakened_url && (
-                        <img
-                          src={r.icon_awakened_url}
-                          alt={`${r.name} awakened`}
-                          className="w-9 h-9 rounded object-cover bg-slate-900"
-                          onError={(e) => {
-                            ;(e.target as HTMLImageElement).style.opacity = '0.2'
-                          }}
-                        />
-                      )}
+                    <div className="flex flex-nowrap gap-1">
+                      {r.icon_url ? (
+                        <img src={r.icon_url} alt="base" className="w-8 h-8 rounded object-cover bg-slate-900" />
+                      ) : <div className="w-8 h-8 rounded bg-slate-700" />}
+
+                      {r.icon_awakened_url ? (
+                        <img src={r.icon_awakened_url} alt="awakened" className="w-8 h-8 rounded object-cover bg-slate-900" />
+                      ) : <div className="w-8 h-8 rounded bg-slate-700" />}
                     </div>
                   ),
                 },
@@ -331,30 +370,40 @@ export default function AdminCatalogPage() {
                   label: 'Имя',
                   render: (r) => (
                     <div>
-                      <div className="font-medium">{r.name}</div>
-                      {r.name_ru && (
-                        <div className="text-xs text-slate-400">{r.name_ru}</div>
-                      )}
+                      <div className="font-medium whitespace-nowrap">{r.name}</div>
+                      {r.name_ru && <div className="text-xs text-slate-400 whitespace-nowrap">{r.name_ru}</div>}
                     </div>
                   ),
                 },
                 {
                   key: 'type',
                   label: 'Тип',
-                  className: 'text-xs',
+                  className: 'text-xs whitespace-nowrap',
                   render: (r) => WEAPON_TYPE_LABELS[r.weapon_type],
                 },
                 {
                   key: 'rarity',
                   label: 'Ред.',
-                  className: 'w-16',
+                  className: 'w-16 text-center whitespace-nowrap',
                   render: (r) => `★${r.rarity}`,
                 },
                 {
                   key: 'atk',
                   label: 'Base ATK',
-                  className: 'text-xs text-slate-400',
+                  className: 'text-xs text-slate-400 whitespace-nowrap',
                   render: (r) => r.base_atk ?? '—',
+                },
+                {
+                  key: 'main_stat',
+                  label: 'Main Stat',
+                  className: 'text-xs text-slate-400 whitespace-nowrap',
+                  render: (r) => r.main_stat ?? '—',
+                },
+                {
+                  key: 'passive',
+                  label: 'Пассивка',
+                  className: 'text-xs text-slate-400 max-w-[150px] truncate',
+                  render: (r) => r.passive_name ?? '—',
                 },
               ]}
             />
@@ -378,29 +427,16 @@ export default function AdminCatalogPage() {
               columns={[
                 {
                   key: 'icon',
-                  label: '',
-                  className: 'w-40',
+                  label: 'Иконки слотов',
+                  className: 'w-48 shrink-0',
                   render: (r) => (
-                    <div className="flex gap-1">
-                      {(
-                        [
-                          r.icon_url,
-                          r.icon_plume_url,
-                          r.icon_sands_url,
-                          r.icon_goblet_url,
-                          r.icon_circlet_url,
-                        ] as (string | null)[]
-                      ).map((url, i) => (
-                        <div key={i} className="w-8 h-8 rounded bg-slate-900">
-                          {url && (
-                            <img
-                              src={url}
-                              alt=""
-                              className="w-full h-full object-cover rounded"
-                              onError={(e) => {
-                                ;(e.target as HTMLImageElement).style.opacity = '0.2'
-                              }}
-                            />
+                    <div className="flex flex-nowrap gap-1">
+                      {[r.icon_url, r.icon_plume_url, r.icon_sands_url, r.icon_goblet_url, r.icon_circlet_url].map((url, i) => (
+                        <div key={i} className="w-8 h-8 rounded bg-slate-900 shrink-0">
+                          {url ? (
+                            <img src={url} alt="slot" className="w-full h-full object-cover rounded" />
+                          ) : (
+                            <div className="w-full h-full rounded bg-slate-700" />
                           )}
                         </div>
                       ))}
@@ -412,18 +448,26 @@ export default function AdminCatalogPage() {
                   label: 'Имя',
                   render: (r) => (
                     <div>
-                      <div className="font-medium">{r.name}</div>
-                      {r.name_ru && (
-                        <div className="text-xs text-slate-400">{r.name_ru}</div>
-                      )}
+                      <div className="font-medium whitespace-nowrap">{r.name}</div>
+                      {r.name_ru && <div className="text-xs text-slate-400 whitespace-nowrap">{r.name_ru}</div>}
                     </div>
                   ),
                 },
                 {
                   key: 'slug',
                   label: 'Slug',
-                  className: 'text-slate-400 text-xs',
+                  className: 'text-slate-400 text-xs whitespace-nowrap',
                   render: (r) => r.slug,
+                },
+                {
+                  key: 'bonuses',
+                  label: 'Бонусы',
+                  className: 'text-xs text-slate-400 max-w-[300px] truncate',
+                  render: (r) => (
+                    <div className="truncate" title={`2pc: ${r.bonus_2pc}\n4pc: ${r.bonus_4pc}`}>
+                      {r.bonus_2pc ? r.bonus_2pc : '—'}
+                    </div>
+                  ),
                 },
               ]}
             />
@@ -431,7 +475,7 @@ export default function AdminCatalogPage() {
         </>
       )}
 
-      {/* Edit modal */}
+      {/* Edit modals */}
       {editing?.kind === 'character' && (
         <AdminEditModal
           title={`Редактирование: ${editing.row.name}`}
@@ -446,6 +490,11 @@ export default function AdminCatalogPage() {
             region: editing.row.region,
             birthday: editing.row.birthday,
             version_added: editing.row.version_added,
+            release_date: editing.row.release_date,
+            namecard_url: editing.row.namecard_url,
+            constellation_icon_url: editing.row.constellation_icon_url,
+            c3_increases: editing.row.c3_increases,
+            c5_increases: editing.row.c5_increases,
           }}
           fields={[
             { key: 'name_ru', label: 'Русское имя' },
@@ -456,6 +505,29 @@ export default function AdminCatalogPage() {
             { key: 'region', label: 'Регион' },
             { key: 'birthday', label: 'День рождения' },
             { key: 'version_added', label: 'Версия добавления' },
+            { key: 'release_date', label: 'Дата релиза' },
+            { key: 'namecard_url', label: 'URL Namecard (карточка)' },
+            { key: 'constellation_icon_url', label: 'URL иконки созвездия' },
+            {
+              key: 'c3_increases',
+              label: '3-е созвездие повышает:',
+              type: 'select',
+              options: [
+                { value: 'Normal Attack', label: 'Обычная атака' },
+                { value: 'Elemental Skill', label: 'Элементальный навык' },
+                { value: 'Elemental Burst', label: 'Взрыв стихии' },
+              ],
+            },
+            {
+              key: 'c5_increases',
+              label: '5-е созвездие повышает:',
+              type: 'select',
+              options: [
+                { value: 'Normal Attack', label: 'Обычная атака' },
+                { value: 'Elemental Skill', label: 'Элементальный навык' },
+                { value: 'Elemental Burst', label: 'Взрыв стихии' },
+              ],
+            },
           ]}
           onSave={(values) =>
             updateCharacter.mutate({
@@ -467,6 +539,9 @@ export default function AdminCatalogPage() {
             setEditing(null)
             setError(null)
           }}
+          onImport={(file) =>
+            importParser.mutate({ id: editing.row.id, file })
+          }
         />
       )}
 
@@ -483,22 +558,22 @@ export default function AdminCatalogPage() {
             base_atk: editing.row.base_atk,
             main_stat: editing.row.main_stat,
             version_added: editing.row.version_added,
+            passive_name: editing.row.passive_name,
+            passive_desc: editing.row.passive_desc,
           }}
           fields={[
             { key: 'name_ru', label: 'Русское имя' },
             { key: 'icon_url', label: 'URL иконки (базовая)' },
             { key: 'icon_awakened_url', label: 'URL иконки (пробуждённая)' },
             { key: 'rarity', label: 'Редкость (1–5)', type: 'number' },
-            { key: 'base_atk', label: 'Базовый ATK', type: 'number' },
+            { key: 'base_atk', label: 'Базовый ATK (90 lvl)', type: 'number' },
             { key: 'main_stat', label: 'Основная характеристика' },
+            { key: 'passive_name', label: 'Название пассивки' },
+            { key: 'passive_desc', label: 'Описание пассивки' },
             { key: 'version_added', label: 'Версия добавления' },
           ]}
-          onSave={(values) =>
-            updateWeapon.mutate({
-              id: editing.row.id,
-              payload: values as AdminWeaponUpdate,
-            })
-          }
+          onSave={(values) => updateWeapon.mutate({ id: editing.row.id, payload: values as AdminWeaponUpdate })}
+          onImport={(file) => importWeaponParser.mutate({ id: editing.row.id, file })}
           onClose={() => {
             setEditing(null)
             setError(null)
@@ -518,6 +593,9 @@ export default function AdminCatalogPage() {
             icon_sands_url: editing.row.icon_sands_url,
             icon_goblet_url: editing.row.icon_goblet_url,
             icon_circlet_url: editing.row.icon_circlet_url,
+            max_rarity: editing.row.max_rarity,
+            bonus_2pc: editing.row.bonus_2pc,
+            bonus_4pc: editing.row.bonus_4pc,
           }}
           fields={[
             { key: 'name_ru', label: 'Русское имя' },
@@ -526,13 +604,12 @@ export default function AdminCatalogPage() {
             { key: 'icon_sands_url', label: 'URL иконки (Часы)' },
             { key: 'icon_goblet_url', label: 'URL иконки (Кубок)' },
             { key: 'icon_circlet_url', label: 'URL иконки (Шапка)' },
+            { key: 'max_rarity', label: 'Макс. редкость', type: 'number' },
+            { key: 'bonus_2pc', label: 'Бонус 2 предметов' },
+            { key: 'bonus_4pc', label: 'Бонус 4 предметов' },
           ]}
-          onSave={(values) =>
-            updateSet.mutate({
-              id: editing.row.id,
-              payload: values as AdminArtifactSetUpdate,
-            })
-          }
+          onSave={(values) => updateSet.mutate({ id: editing.row.id, payload: values as AdminArtifactSetUpdate })}
+          onImport={(file) => importArtifactParser.mutate({ id: editing.row.id, file })}
           onClose={() => {
             setEditing(null)
             setError(null)

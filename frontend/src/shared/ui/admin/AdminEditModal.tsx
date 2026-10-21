@@ -3,8 +3,9 @@ import { useEffect, useState } from 'react'
 interface FieldConfig {
   key: string
   label: string
-  type?: 'text' | 'number'
+  type?: 'text' | 'number' | 'select'
   placeholder?: string
+  options?: { value: string; label: string }[]
 }
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
   errorMessage: string | null
   onSave: (values: Record<string, unknown>) => void
   onClose: () => void
+  onImport?: (file: File) => void
 }
 
 export default function AdminEditModal({
@@ -25,6 +27,7 @@ export default function AdminEditModal({
   errorMessage,
   onSave,
   onClose,
+  onImport,
 }: Props) {
   const [values, setValues] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {}
@@ -79,17 +82,52 @@ export default function AdminEditModal({
         {fields.map((f) => (
           <label key={f.key} className="block">
             <span className="block text-xs text-slate-400 mb-1">{f.label}</span>
-            <input
-              type={f.type === 'number' ? 'number' : 'text'}
-              value={values[f.key] ?? ''}
-              onChange={(e) =>
-                setValues({ ...values, [f.key]: e.target.value })
-              }
-              placeholder={f.placeholder}
-              className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 focus:border-indigo-500 outline-none text-sm"
-            />
+            {f.type === 'select' ? (
+              <select
+                value={values[f.key] ?? ''}
+                onChange={(e) =>
+                  setValues({ ...values, [f.key]: e.target.value })
+                }
+                className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 focus:border-indigo-500 outline-none text-sm"
+              >
+                <option value="">— Не выбрано —</option>
+                {f.options?.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type={f.type === 'number' ? 'number' : 'text'}
+                value={values[f.key] ?? ''}
+                onChange={(e) =>
+                  setValues({ ...values, [f.key]: e.target.value })
+                }
+                placeholder={f.placeholder}
+                className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 focus:border-indigo-500 outline-none text-sm"
+              />
+            )}
           </label>
         ))}
+
+        {onImport && (
+          <div className="pt-2">
+            <label className="block w-full text-center px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded cursor-pointer text-sm font-medium transition-colors">
+              📥 Импорт из JSON парсера
+              <input
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0]
+                  if (f) onImport(f)
+                  e.target.value = ''
+                }}
+              />
+            </label>
+          </div>
+        )}
 
         <div className="flex justify-end gap-3 pt-2">
           <button

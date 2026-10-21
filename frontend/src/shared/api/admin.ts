@@ -94,4 +94,37 @@ export const adminApi = {
     })
     return data
   },
+
+  async importParser(id: string, file: File): Promise<AdminCharacter> {
+    const form = new FormData()
+    form.append('file', file)
+    const { data } = await apiClient.post<AdminCharacter>(
+      `/admin/characters/${id}/import-parser`,
+      form,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    )
+    return data
+  },
+
+  async importWeaponParser(id: string, file: File): Promise<AdminWeapon> {
+    const form = new FormData()
+    form.append('file', file)
+    const { data } = await apiClient.post<AdminWeapon>(
+      `/admin/weapons/${id}/import-parser`,
+      form,
+      { headers: { 'Content-Type': 'multipart/form-data' } } // <--- ВОТ ЭТОГО НЕ ХВАТАЛО
+    )
+    return data
+  },
+
+  async importArtifactParser(id: string, file: File): Promise<AdminArtifactSet> {
+    const form = new FormData()
+    form.append('file', file)
+    const { data } = await apiClient.post<AdminArtifactSet>(
+      `/admin/artifact-sets/${id}/import-parser`,
+      form,
+      { headers: { 'Content-Type': 'multipart/form-data' } } // <--- И ТУТ
+    )
+    return data
+  },
 }

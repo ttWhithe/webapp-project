@@ -59,6 +59,9 @@ class AdminArtifactSetUpdate(BaseModel):
     icon_sands_url: str | None = Field(None, max_length=500)
     icon_goblet_url: str | None = Field(None, max_length=500)
     icon_circlet_url: str | None = Field(None, max_length=500)
+    max_rarity: int | None = None
+    bonus_2pc: str | None = None
+    bonus_4pc: str | None = None
 
 
 class AdminCharacterRead(BaseModel):
@@ -119,3 +122,6 @@ class AdminArtifactSetRead(BaseModel):
     icon_sands_url: str | None
     icon_goblet_url: str | None
     icon_circlet_url: str | None
+    max_rarity: int | None = None
+    bonus_2pc: str | None = None
+    bonus_4pc: str | None = None

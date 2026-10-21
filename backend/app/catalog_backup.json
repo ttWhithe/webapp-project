@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-10-12T19:34:16.907781",
+  "created_at": "2026-10-21T06:24:50.671074",
   "characters": [
     {
       "external_id": 10000046,
@@ -925,19 +925,6 @@
       "version_added": "1.0"
     },
     {
-      "external_id": 10000038,
-      "slug": "albedo",
-      "name": "Albedo",
-      "name_ru": null,
-      "title": "Kreideprinz",
-      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Character_Albedo_Card.png",
-      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/2/23/Character_Albedo_Portrait.png",
-      "rarity": 5,
-      "region": "Mondstadt",
-      "birthday": "9/13",
-      "version_added": "1.2"
-    },
-    {
       "external_id": 10000044,
       "slug": "xinyan",
       "name": "Xinyan",
@@ -964,13 +951,26 @@
       "version_added": "5.0"
     },
     {
+      "external_id": 10000038,
+      "slug": "albedo",
+      "name": "Albedo",
+      "name_ru": "Альбедо",
+      "title": "Kreideprinz",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/3/30/Albedo_Icon.png",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/8/8f/Albedo_Wish.png",
+      "rarity": 5,
+      "region": "Mondstadt",
+      "birthday": "9/13",
+      "version_added": "1.2"
+    },
+    {
       "external_id": 10000078,
       "slug": "alhaitham",
       "name": "Alhaitham",
-      "name_ru": null,
+      "name_ru": "Аль-Хайтам",
       "title": "Admonishing Instruction",
       "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/2/2c/Alhaitham_Icon.png",
-      "portrait_url": null,
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/9/90/Alhaitham_Wish.png",
       "rarity": 5,
       "region": "Sumeru",
       "birthday": "2/11",
@@ -1172,19 +1172,6 @@
       "version_added": "6.3"
     },
     {
-      "external_id": 10000121,
-      "slug": "aino",
-      "name": "Aino",
-      "name_ru": "Айно",
-      "title": "Clinky-Clank Gadgets-A-Gogo",
-      "icon_url": null,
-      "portrait_url": null,
-      "rarity": 4,
-      "region": "Nod-Krai",
-      "birthday": "9/21",
-      "version_added": "6.0"
-    },
-    {
       "external_id": 10000112,
       "slug": "escoffier",
       "name": "Escoffier",
@@ -1222,6 +1209,19 @@
       "region": "Mondstadt",
       "birthday": "8/31",
       "version_added": "1.0"
+    },
+    {
+      "external_id": 10000121,
+      "slug": "aino",
+      "name": "Aino",
+      "name_ru": "Айно",
+      "title": "Clinky-Clank Gadgets-A-Gogo",
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/a/a3/Aino_Icon.png",
+      "portrait_url": "https://static.wikia.nocookie.net/gensin-impact/images/7/73/Aino_Wish.png",
+      "rarity": 4,
+      "region": "Nod-Krai",
+      "birthday": "9/21",
+      "version_added": "6.0"
     },
     {
       "external_id": 10000016,
@@ -1557,9 +1557,31 @@
       "name_ru": null,
       "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/f/f5/Weapon_The_Catch.png",
       "rarity": 4,
-      "base_atk": 42.4,
+      "base_atk": 510.0,
       "main_stat": "Energy Recharge",
       "version_added": "2.1"
+    },
+    {
+      "external_id": 12426,
+      "slug": "\"ultimate-overlords-mega-magic-sword\"",
+      "name": "\"Ultimate Overlord's Mega Magic Sword\"",
+      "name_ru": null,
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/6/6e/Weapon_Ultimate_Overlord%27s_Mega_Magic_Sword.png",
+      "rarity": 4,
+      "base_atk": 565.0,
+      "main_stat": "Energy Recharge",
+      "version_added": "4.3"
+    },
+    {
+      "external_id": 12516,
+      "slug": "a-teaspoon-of-transcendence",
+      "name": "A Teaspoon of Transcendence",
+      "name_ru": null,
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/c/c4/Weapon_A_Teaspoon_of_Transcendence.png",
+      "rarity": 5,
+      "base_atk": 674.0,
+      "main_stat": "CRIT DMG",
+      "version_added": "6.7"
     },
     {
       "external_id": 15431,
@@ -2739,17 +2761,6 @@
       "version_added": "6.0"
     },
     {
-      "external_id": 12516,
-      "slug": "a-teaspoon-of-transcendence",
-      "name": "A Teaspoon of Transcendence",
-      "name_ru": null,
-      "icon_url": null,
-      "rarity": 5,
-      "base_atk": 47.54,
-      "main_stat": "CRIT DMG",
-      "version_added": "6.7"
-    },
-    {
       "external_id": 14301,
       "slug": "magic-guide",
       "name": "Magic Guide",
@@ -3641,17 +3652,6 @@
       "version_added": "4.5"
     },
     {
-      "external_id": 12426,
-      "slug": "\"ultimate-overlords-mega-magic-sword\"",
-      "name": "\"Ultimate Overlord's Mega Magic Sword\"",
-      "name_ru": null,
-      "icon_url": null,
-      "rarity": 4,
-      "base_atk": 43.73,
-      "main_stat": "Energy Recharge",
-      "version_added": "4.3"
-    },
-    {
       "external_id": 14523,
       "slug": "angelos-heptades",
       "name": "Angelos' Heptades",
@@ -4336,12 +4336,6 @@
   ],
   "artifact_sets": [
     {
-      "slug": "a-day-carved-from-rising-winds",
-      "name": "A Day Carved From Rising Winds",
-      "name_ru": null,
-      "icon_url": null
-    },
-    {
       "slug": "aubade-of-morningstar-and-moon",
       "name": "Aubade of Morningstar and Moon",
       "name_ru": null,
@@ -4412,6 +4406,12 @@
       "name": "Scroll of the Hero of Cinder City",
       "name_ru": null,
       "icon_url": null
+    },
+    {
+      "slug": "a-day-carved-from-rising-winds",
+      "name": "A Day Carved From Rising Winds",
+      "name_ru": null,
+      "icon_url": "https://static.wikia.nocookie.net/gensin-impact/images/f/fd/Item_Windborne_Flower%27s_Spruchdichtung.png"
     },
     {
       "slug": "silken-moons-serenade",

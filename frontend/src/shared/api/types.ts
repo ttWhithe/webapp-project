@@ -128,7 +128,14 @@ export interface AdminCharacter {
   birthday: string | null
   icon_url: string | null
   portrait_url: string | null
-  version_added: string | null
+  version_added: string | null;
+  release_date: string | null;
+  namecard_url: string | null;
+  constellation_icon_url: string | null;
+  talents: Record<string, any> | null;
+  constellations: Record<string, any> | null;
+  c3_increases: string | null;
+  c5_increases: string | null;
 }
 
 export interface AdminWeapon {
@@ -144,6 +151,8 @@ export interface AdminWeapon {
   icon_url: string | null
   icon_awakened_url: string | null
   version_added: string | null
+  passive_name: string | null;
+  passive_desc: string | null;
 }
 
 export interface AdminArtifactSet {
@@ -157,6 +166,9 @@ export interface AdminArtifactSet {
   icon_sands_url: string | null
   icon_goblet_url: string | null
   icon_circlet_url: string | null
+  max_rarity: number | null;
+  bonus_2pc: string | null;
+  bonus_4pc: string | null;
 }
 
 export interface AdminCharacterUpdate {
