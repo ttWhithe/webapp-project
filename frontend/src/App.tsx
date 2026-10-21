@@ -20,13 +20,19 @@ export default function App() {
   const setLoading = useAuthStore((s) => s.setLoading)
 
   useEffect(() => {
-    // On startup try to fetch the current user.
-    // If cookies are valid, user stays logged in across page reloads.
-    // If not — we set user to null and show login.
     authApi
       .me()
       .then(setUser)
-      .catch(() => setUser(null))
+      .catch((error) => {
+        // Если это 401 (токены протухли) — тогда разлогиниваем
+        if (error.response?.status === 401) {
+          setUser(null)
+        } else {
+          // Если это 500, 502 или проблема с сетью — не выкидываем пользователя
+          // (просто оставляем его залогиненным, если он был)
+          console.error('Ошибка при проверке авторизации:', error)
+        }
+      })
       .finally(() => setLoading(false))
   }, [setUser, setLoading])
 

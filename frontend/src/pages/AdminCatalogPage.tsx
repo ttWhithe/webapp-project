@@ -36,6 +36,11 @@ export default function AdminCatalogPage() {
   const qc = useQueryClient()
 
   const [syncDialog, setSyncDialog] = useState(false)
+  const [bulkDialog, setBulkDialog] = useState(false)
+  const [heroesFile, setHeroesFile] = useState<File | null>(null)
+  const [weaponsFile, setWeaponsFile] = useState<File | null>(null)
+  const [artifactsFile, setArtifactsFile] = useState<File | null>(null)
+  const [forceBulk, setForceBulk] = useState(false)
 
   const syncMutation = useMutation({
     mutationFn: () => adminApi.syncCatalog(),
@@ -222,6 +227,21 @@ export default function AdminCatalogPage() {
     onError: (e: unknown) => setError(extractError(e)),
   })
 
+  const bulkImportMutation = useMutation({
+    mutationFn: () => adminApi.bulkImport(heroesFile, weaponsFile, artifactsFile, forceBulk),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['admin'] })
+      setBulkDialog(false)
+      setHeroesFile(null); setWeaponsFile(null); setArtifactsFile(null);
+      const msg = `Импорт завершен!\n\n` +
+        `Персонажи: +${data.characters.added} / ~${data.characters.updated} / пропущено ${data.characters.skipped}\n` +
+        `Оружие: +${data.weapons.added} / ~${data.weapons.updated} / пропущено ${data.weapons.skipped}\n` +
+        `Артефакты: +${data.artifact_sets.added} / ~${data.artifact_sets.updated} / пропущено ${data.artifact_sets.skipped}`
+      alert(msg)
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
   const submitting =
     updateCharacter.isPending ||
     updateWeapon.isPending ||
@@ -289,18 +309,27 @@ export default function AdminCatalogPage() {
           </TabButton>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setError(null)
-            if (tab === 'characters') setCreating({ kind: 'character' })
-            else if (tab === 'weapons') setCreating({ kind: 'weapon' })
-            else setCreating({ kind: 'artifact-set' })
-          }}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium shrink-0"
-        >
-          + Добавить
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setBulkDialog(true)}
+            className="px-4 py-2 bg-teal-600 hover:bg-teal-500 rounded-lg text-sm font-medium"
+          >
+            📦 Пакетный импорт
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setError(null)
+              if (tab === 'characters') setCreating({ kind: 'character' })
+              else if (tab === 'weapons') setCreating({ kind: 'weapon' })
+              else setCreating({ kind: 'artifact-set' })
+            }}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium"
+          >
+            + Добавить
+          </button>
+        </div>
       </div>
 
       {error && <ErrorState message={error} />}
@@ -359,7 +388,7 @@ export default function AdminCatalogPage() {
                   className: 'text-xs text-slate-400 max-w-[200px] truncate',
                   render: (r) => r.title ?? '—',
                 },
-{
+                {
                   key: 'element',
                   label: 'Элемент',
                   className: 'text-xs whitespace-nowrap',
@@ -459,7 +488,7 @@ export default function AdminCatalogPage() {
                   key: 'type',
                   label: 'Тип',
                   className: 'text-xs whitespace-nowrap',
-                  sortValue: (r) => r.weapon_type, // <--- Починили сортировку
+                  sortValue: (r) => r.weapon_type,
                   render: (r) => WEAPON_TYPE_LABELS[r.weapon_type],
                 },
                 {
@@ -472,21 +501,21 @@ export default function AdminCatalogPage() {
                   key: 'atk',
                   label: 'Base ATK',
                   className: 'text-xs text-slate-400 whitespace-nowrap',
-                  sortValue: (r) => r.base_atk, // <--- Починили сортировку (число)
+                  sortValue: (r) => r.base_atk,
                   render: (r) => r.base_atk ?? '—',
                 },
                 {
                   key: 'main_stat',
                   label: 'Main Stat',
                   className: 'text-xs text-slate-400 whitespace-nowrap',
-                  sortValue: (r) => r.main_stat, // <--- Починили сортировку
+                  sortValue: (r) => r.main_stat,
                   render: (r) => r.main_stat ?? '—',
                 },
                 {
                   key: 'passive',
                   label: 'Пассивка',
                   className: 'text-xs text-slate-400 max-w-[150px] truncate',
-                  sortValue: (r) => r.passive_name, // <--- Починили сортировку
+                  sortValue: (r) => r.passive_name,
                   render: (r) => r.passive_name ?? '—',
                 },
               ]}
@@ -710,7 +739,7 @@ export default function AdminCatalogPage() {
           title="Новый персонаж"
           submitting={createCharacter.isPending}
           errorMessage={error}
-          initialValues={{}} // Пустые поля
+          initialValues={{}}
           fields={[
             { key: 'name', label: 'Имя (англ)', placeholder: 'Aloy' },
             { key: 'slug', label: 'Slug (если пусто — сгенерируется)' },
@@ -805,6 +834,120 @@ export default function AdminCatalogPage() {
           </div>
         </div>
       )}
+
+      {/* Bulk Import Dialog */}
+      {bulkDialog && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-slate-800 border border-slate-700 p-6 rounded-xl max-w-lg w-full">
+            <h2 className="text-xl font-bold mb-2">📦 Пакетный импорт из JSON</h2>
+            <p className="text-sm text-slate-400 mb-6">
+              Выберите файлы, которые вы спарсили. Скрипт добавит новых и обновит существующих,
+              но <b>не тронет записи, которые вы правили вручную</b>.
+            </p>
+
+            <div className="space-y-3 mb-6">
+              {/* Heroes */}
+              <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-slate-200">heroes.json</span>
+                  <span className={`text-xs ${heroesFile ? 'text-emerald-400' : 'text-slate-500'}`}>
+                    {heroesFile ? heroesFile.name : 'Файл не выбран'}
+                  </span>
+                </div>
+                <label className="cursor-pointer px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-sm transition-colors text-white">
+                  Выбрать
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => setHeroesFile(e.target.files?.[0] || null)}
+                  />
+                </label>
+              </div>
+
+              {/* Weapons */}
+              <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-slate-200">weapons.json</span>
+                  <span className={`text-xs ${weaponsFile ? 'text-emerald-400' : 'text-slate-500'}`}>
+                    {weaponsFile ? weaponsFile.name : 'Файл не выбран'}
+                  </span>
+                </div>
+                <label className="cursor-pointer px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-sm transition-colors text-white">
+                  Выбрать
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => setWeaponsFile(e.target.files?.[0] || null)}
+                  />
+                </label>
+              </div>
+
+              {/* Artifacts */}
+              <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700 flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-slate-200">artifacts.json</span>
+                  <span className={`text-xs ${artifactsFile ? 'text-emerald-400' : 'text-slate-500'}`}>
+                    {artifactsFile ? artifactsFile.name : 'Файл не выбран'}
+                  </span>
+                </div>
+                <label className="cursor-pointer px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-sm transition-colors text-white">
+                  Выбрать
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => setArtifactsFile(e.target.files?.[0] || null)}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Загрузка */}
+            {bulkImportMutation.isPending ? (
+              <div className="flex flex-col items-center justify-center py-6 space-y-3">
+                <div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-teal-400 text-sm font-medium">Сравниваем данные и обновляем базу...</p>
+                <p className="text-xs text-slate-500">Это может занять до 10 секунд</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-4 bg-slate-900/50 p-3 rounded-lg border border-slate-700">
+                  <input
+                    type="checkbox"
+                    id="forceCheckbox"
+                    checked={forceBulk}
+                    onChange={(e) => setForceBulk(e.target.checked)}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                  <label htmlFor="forceCheckbox" className="text-sm text-slate-300 cursor-pointer select-none">
+                    Перезаписывать ручные правки (Force)
+                  </label>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setBulkDialog(false)}
+                    className="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm"
+                  >
+                    Отмена
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => bulkImportMutation.mutate()}
+                    disabled={!heroesFile && !weaponsFile && !artifactsFile}
+                    className="px-4 py-2 rounded bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-sm font-medium"
+                  >
+                    Начать импорт
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -835,13 +978,18 @@ function TabButton({
 
 function extractError(e: unknown): string {
   const err = e as { response?: { data?: { detail?: unknown } }; message?: string }
+
+  // Если бэкенд вернул детализацию ошибки
   const detail = err.response?.data?.detail
-
   if (typeof detail === 'string') return detail
-
   if (Array.isArray(detail)) {
     return detail.map((d: any) => `${d.loc.join('.')}: ${d.msg}`).join(' | ')
   }
 
-  return err.message || 'Не удалось сохранить изменения (ошибка сети или сервера)'
+  // Если это сетевая ошибка (сервер недоступен)
+  if (err.message === 'Network Error') {
+    return 'Ошибка сети: бэкенд перезагружается или недоступен. Подождите пару секунд и попробуйте снова.'
+  }
+
+  return err.message || 'Произошла неизвестная ошибка'
 }

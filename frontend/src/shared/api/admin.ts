@@ -154,4 +154,22 @@ export const adminApi = {
   async deleteArtifactSet(id: string): Promise<void> {
     await apiClient.delete(`/admin/artifact-sets/${id}`)
   },
+
+  async bulkImport(
+    heroes: File | null,
+    weapons: File | null,
+    artifacts: File | null,
+    force: boolean
+  ): Promise<any> {
+    const form = new FormData()
+    if (heroes) form.append('heroes_file', heroes)
+    if (weapons) form.append('weapons_file', weapons)
+    if (artifacts) form.append('artifacts_file', artifacts)
+    form.append('force', String(force)) // <--- Передаем флаг
+
+    const { data } = await apiClient.post('/admin/catalog/bulk-import', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
+  },
 }

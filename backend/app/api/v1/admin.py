@@ -1,5 +1,6 @@
 """Admin endpoints (require Role.ADMIN)."""
 
+import contextlib
 import json
 import random
 import uuid
@@ -39,10 +40,10 @@ from app.schemas.admin import (
 )
 from app.schemas.user import UserRead
 from app.services.cache import CacheService
-from app.services.catalog_mappers import to_slug
+from app.services.catalog_mappers import to_element, to_slug, to_weapon_type
 from app.services.catalog_sync import CatalogSyncService
 from app.services.genshin_db_client import GenshinDbClient
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from redis.asyncio import Redis
 from sqlalchemy import select
@@ -637,3 +638,186 @@ async def admin_delete_artifact_set(
     except IntegrityError as err:
         await db.rollback()
         raise HTTPException(400, "Нельзя удалить: сет используется пользователями") from err
+
+
+@router.post("/catalog/bulk-import")
+async def bulk_import_catalog(
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    cache: Annotated[CacheService, Depends(get_cache_service)],
+    force: bool = Form(False),  # <--- ДОБАВИЛИ ЭТО
+    heroes_file: UploadFile | None = File(None),
+    weapons_file: UploadFile | None = File(None),
+    artifacts_file: UploadFile | None = File(None),
+) -> dict:
+    """Bulk import from JSON parser with smart comparison."""
+    from datetime import timedelta
+
+    stats = {
+        "characters": {"added": 0, "updated": 0, "skipped": 0},
+        "weapons": {"added": 0, "updated": 0, "skipped": 0},
+        "artifact_sets": {"added": 0, "updated": 0, "skipped": 0},
+    }
+
+    def is_manually_edited(obj) -> bool:
+        if not obj.created_at or not obj.updated_at:
+            return False
+        return (obj.updated_at - obj.created_at) > timedelta(seconds=5)
+
+    # --- Персонажи ---
+    if heroes_file:
+        content = json.loads(await heroes_file.read())
+        existing_chars = {c.name: c for c in (await db.scalars(select(Character))).all()}
+
+        for name, data in content.items():
+            obj = existing_chars.get(name)
+            if not obj:
+                slug = to_slug(name)
+                try:
+                    el = to_element(str(data.get("element", "")))
+                    wt = to_weapon_type(str(data.get("weapon_type", "")))
+                except ValueError:
+                    stats["characters"]["skipped"] += 1
+                    continue
+
+                obj = Character(
+                    id=uuid.uuid4(),
+                    external_id=-random.randint(1000000, 9999999),
+                    slug=slug,
+                    name=name,
+                    element=el,
+                    weapon_type=wt,
+                    rarity=data.get("rarity", 5),
+                )
+                db.add(obj)
+                stats["characters"]["added"] += 1
+            elif not force and is_manually_edited(obj):
+                stats["characters"]["skipped"] += 1
+                continue
+
+            if "title" in data:
+                obj.title = data["title"]
+            if "release_date" in data:
+                obj.release_date = data["release_date"]
+            if "talents" in data:
+                obj.talents = data["talents"]
+            if "constellations" in data:
+                obj.constellations = data["constellations"]
+            if "other_languages" in data and "Russian" in data["other_languages"]:
+                obj.name_ru = data["other_languages"]["Russian"]
+            if "images" in data:
+                img = data["images"]
+                if img.get("character_icon"):
+                    obj.icon_url = img["character_icon"]
+                if img.get("full_wish"):
+                    obj.portrait_url = img["full_wish"]
+                if img.get("namecard"):
+                    obj.namecard_url = img["namecard"]
+                if img.get("constellation"):
+                    obj.constellation_icon_url = img["constellation"]
+            if "constellations" in data:
+                c3 = data["constellations"].get("3", {})
+                if "increases" in c3:
+                    obj.c3_increases = c3["increases"]
+                c5 = data["constellations"].get("5", {})
+                if "increases" in c5:
+                    obj.c5_increases = c5["increases"]
+
+            if obj in existing_chars.values():
+                stats["characters"]["updated"] += 1
+
+    # --- Оружие ---
+    if weapons_file:
+        content = json.loads(await weapons_file.read())
+        existing_weapons = {w.name: w for w in (await db.scalars(select(Weapon))).all()}
+
+        for name, data in content.items():
+            if name == "_placeholders":
+                continue
+            obj = existing_weapons.get(name)
+            if not obj:
+                try:
+                    wt = to_weapon_type(str(data.get("weapon_type", "")))
+                except ValueError:
+                    stats["weapons"]["skipped"] += 1
+                    continue
+
+                obj = Weapon(
+                    id=uuid.uuid4(),
+                    external_id=-random.randint(1000000, 9999999),
+                    slug=to_slug(name),
+                    name=name,
+                    weapon_type=wt,
+                    rarity=data.get("quality", 4),
+                )
+                db.add(obj)
+                stats["weapons"]["added"] += 1
+            elif not force and is_manually_edited(obj):
+                stats["weapons"]["skipped"] += 1
+                continue
+
+            if (
+                "base_atk" in data
+                and isinstance(data["base_atk"], dict)
+                and data["base_atk"].get("lvl_90")
+            ):
+                try:
+                    with contextlib.suppress(ValueError):
+                        obj.base_atk = float(str(data["base_atk"]["lvl_90"]).replace(",", ""))
+                except ValueError:
+                    pass
+            if "secondary_stat" in data and isinstance(data["secondary_stat"], dict):
+                obj.main_stat = data["secondary_stat"].get("name")
+            if "passive" in data and isinstance(data["passive"], dict):
+                obj.passive_name = data["passive"].get("name")
+                obj.passive_desc = data["passive"].get("description")
+            if "images" in data and isinstance(data["images"], dict):
+                if data["images"].get("base"):
+                    obj.icon_url = data["images"]["base"]
+                if data["images"].get("awakened"):
+                    obj.icon_awakened_url = data["images"]["awakened"]
+
+            if obj in existing_weapons.values():
+                stats["weapons"]["updated"] += 1
+
+    # --- Артефакты ---
+    if artifacts_file:
+        content = json.loads(await artifacts_file.read())
+        existing_sets = {a.name: a for a in (await db.scalars(select(ArtifactSet))).all()}
+
+        for name, data in content.items():
+            if name.startswith("_"):
+                continue
+            obj = existing_sets.get(name)
+            if not obj:
+                obj = ArtifactSet(id=uuid.uuid4(), slug=to_slug(name), name=name)
+                db.add(obj)
+                stats["artifact_sets"]["added"] += 1
+            elif not force and is_manually_edited(obj):
+                stats["artifact_sets"]["skipped"] += 1
+                continue
+
+            if "quality" in data and isinstance(data["quality"], list) and data["quality"]:
+                obj.max_rarity = max(data["quality"])
+            if "bonuses" in data and isinstance(data["bonuses"], dict):
+                obj.bonus_2pc = data["bonuses"].get("2pc")
+                obj.bonus_4pc = data["bonuses"].get("4pc")
+            if "images" in data and isinstance(data["images"], dict):
+                img = data["images"]
+                if img.get("flower"):
+                    obj.icon_url = img["flower"]
+                if img.get("plume"):
+                    obj.icon_plume_url = img["plume"]
+                if img.get("sands"):
+                    obj.icon_sands_url = img["sands"]
+                if img.get("goblet"):
+                    obj.icon_goblet_url = img["goblet"]
+                if img.get("circlet"):
+                    obj.icon_circlet_url = img["circlet"]
+
+            if obj in existing_sets.values():
+                stats["artifact_sets"]["updated"] += 1
+
+    await db.commit()
+    await cache.delete_pattern("*")
+    return stats
