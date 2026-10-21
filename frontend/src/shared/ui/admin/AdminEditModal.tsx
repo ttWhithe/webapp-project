@@ -17,6 +17,7 @@ interface Props {
   onSave: (values: Record<string, unknown>) => void
   onClose: () => void
   onImport?: (file: File) => void
+  onDelete?: () => void
 }
 
 export default function AdminEditModal({
@@ -28,6 +29,7 @@ export default function AdminEditModal({
   onSave,
   onClose,
   onImport,
+  onDelete,
 }: Props) {
   const [values, setValues] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {}
@@ -129,22 +131,40 @@ export default function AdminEditModal({
           </div>
         )}
 
-        <div className="flex justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={submitting}
-            className="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm disabled:opacity-50"
-          >
-            Отмена
-          </button>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-sm font-medium disabled:opacity-50"
-          >
-            {submitting ? 'Сохраняем...' : 'Сохранить'}
-          </button>
+        <div className="flex justify-between items-center pt-2">
+          <div>
+            {onDelete && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Вы уверены, что хотите удалить эту запись?')) {
+                    onDelete()
+                  }
+                }}
+                disabled={submitting}
+                className="px-4 py-2 rounded bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white transition-colors text-sm disabled:opacity-50"
+              >
+                Удалить
+              </button>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={submitting}
+              className="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm disabled:opacity-50"
+            >
+              Отмена
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-sm font-medium disabled:opacity-50"
+            >
+              {submitting ? 'Сохраняем...' : 'Сохранить'}
+            </button>
+          </div>
         </div>
       </form>
     </div>

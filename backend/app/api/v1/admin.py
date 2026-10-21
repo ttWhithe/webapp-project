@@ -1,6 +1,7 @@
 """Admin endpoints (require Role.ADMIN)."""
 
 import json
+import random
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -26,21 +27,26 @@ from app.repositories.catalog import (
     WeaponRepository,
 )
 from app.schemas.admin import (
+    AdminArtifactSetCreate,
     AdminArtifactSetRead,
     AdminArtifactSetUpdate,
+    AdminCharacterCreate,
     AdminCharacterRead,
+    AdminWeaponCreate,
     AdminWeaponRead,
     AdminWeaponUpdate,
     SyncStatsSchema,
 )
 from app.schemas.user import UserRead
 from app.services.cache import CacheService
+from app.services.catalog_mappers import to_slug
 from app.services.catalog_sync import CatalogSyncService
 from app.services.genshin_db_client import GenshinDbClient
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from redis.asyncio import Redis
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 BACKUP_PATH = Path(__file__).resolve().parent.parent.parent / "catalog_backup.json"
@@ -237,7 +243,7 @@ async def upload_backup(
 async def admin_list_characters(
     _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
     repo: Annotated[CharacterRepository, Depends(get_character_repo)],
-    limit: int = Query(200, ge=1, le=500),
+    limit: int = Query(500, ge=1, le=2000),
     offset: int = Query(0, ge=0),
 ) -> list[AdminCharacterRead]:
     items, _total = await repo.list_characters(limit=limit, offset=offset)
@@ -323,7 +329,7 @@ async def import_character_from_parser(
 async def admin_list_weapons(
     _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
     repo: Annotated[WeaponRepository, Depends(get_weapon_repo)],
-    limit: int = Query(200, ge=1, le=500),
+    limit: int = Query(500, ge=1, le=2000),
     offset: int = Query(0, ge=0),
 ) -> list[AdminWeaponRead]:
     items, _total = await repo.list_weapons(limit=limit, offset=offset)
@@ -360,7 +366,7 @@ async def admin_update_weapon(
 async def admin_list_artifact_sets(
     _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
     repo: Annotated[ArtifactSetRepository, Depends(get_artifact_set_repo)],
-    limit: int = Query(200, ge=1, le=500),
+    limit: int = Query(500, ge=1, le=2000),
     offset: int = Query(0, ge=0),
 ) -> list[AdminArtifactSetRead]:
     items, _total = await repo.list_sets(limit=limit, offset=offset)
@@ -496,3 +502,138 @@ async def import_artifact_from_parser(
     await db.refresh(artifact)
     await cache.delete_pattern("*")
     return AdminArtifactSetRead.model_validate(artifact)
+
+
+@router.post("/characters", response_model=AdminCharacterRead)
+async def admin_create_character(
+    payload: AdminCharacterCreate,
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    cache: Annotated[CacheService, Depends(get_cache_service)],
+) -> AdminCharacterRead:
+    slug = payload.slug or to_slug(payload.name)
+    # Generate a random negative external_id to avoid API conflicts
+    ext_id = -random.randint(100000, 999999)
+
+    char = Character(
+        id=uuid.uuid4(),
+        external_id=ext_id,
+        slug=slug,
+        name=payload.name,
+        element=payload.element,
+        weapon_type=payload.weapon_type,
+        rarity=payload.rarity,
+    )
+    db.add(char)
+    await db.commit()
+    await db.refresh(char)
+    await cache.delete_pattern("*")
+    return AdminCharacterRead.model_validate(char)
+
+
+@router.post("/weapons", response_model=AdminWeaponRead)
+async def admin_create_weapon(
+    payload: AdminWeaponCreate,
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    cache: Annotated[CacheService, Depends(get_cache_service)],
+) -> AdminWeaponRead:
+    slug = payload.slug or to_slug(payload.name)
+    ext_id = -random.randint(100000, 999999)
+
+    weapon = Weapon(
+        id=uuid.uuid4(),
+        external_id=ext_id,
+        slug=slug,
+        name=payload.name,
+        weapon_type=payload.weapon_type,
+        rarity=payload.rarity,
+    )
+    db.add(weapon)
+    await db.commit()
+    await db.refresh(weapon)
+    await cache.delete_pattern("*")
+    return AdminWeaponRead.model_validate(weapon)
+
+
+@router.post("/artifact-sets", response_model=AdminArtifactSetRead)
+async def admin_create_artifact_set(
+    payload: AdminArtifactSetCreate,
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    cache: Annotated[CacheService, Depends(get_cache_service)],
+) -> AdminArtifactSetRead:
+    slug = payload.slug or to_slug(payload.name)
+
+    artifact = ArtifactSet(
+        id=uuid.uuid4(),
+        slug=slug,
+        name=payload.name,
+    )
+    db.add(artifact)
+    await db.commit()
+    await db.refresh(artifact)
+    await cache.delete_pattern("*")
+    return AdminArtifactSetRead.model_validate(artifact)
+
+
+@router.delete("/characters/{character_id}")
+async def admin_delete_character(
+    character_id: uuid.UUID,
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    cache: Annotated[CacheService, Depends(get_cache_service)],
+) -> dict:
+    char = await db.get(Character, character_id)
+    if not char:
+        raise HTTPException(404, "Character not found")
+    try:
+        await db.delete(char)
+        await db.commit()
+        await cache.delete_pattern("*")
+        return {"status": "ok"}
+    except IntegrityError as err:
+        await db.rollback()
+        raise HTTPException(
+            400, "Нельзя удалить: персонаж уже добавлен в трекер пользователям"
+        ) from err
+
+
+@router.delete("/weapons/{weapon_id}")
+async def admin_delete_weapon(
+    weapon_id: uuid.UUID,
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    cache: Annotated[CacheService, Depends(get_cache_service)],
+) -> dict:
+    weapon = await db.get(Weapon, weapon_id)
+    if not weapon:
+        raise HTTPException(404, "Weapon not found")
+    try:
+        await db.delete(weapon)
+        await db.commit()
+        await cache.delete_pattern("*")
+        return {"status": "ok"}
+    except IntegrityError as err:
+        await db.rollback()
+        raise HTTPException(400, "Нельзя удалить: оружие уже используется пользователями") from err
+
+
+@router.delete("/artifact-sets/{set_id}")
+async def admin_delete_artifact_set(
+    set_id: uuid.UUID,
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    cache: Annotated[CacheService, Depends(get_cache_service)],
+) -> dict:
+    artifact = await db.get(ArtifactSet, set_id)
+    if not artifact:
+        raise HTTPException(404, "ArtifactSet not found")
+    try:
+        await db.delete(artifact)
+        await db.commit()
+        await cache.delete_pattern("*")
+        return {"status": "ok"}
+    except IntegrityError as err:
+        await db.rollback()
+        raise HTTPException(400, "Нельзя удалить: сет используется пользователями") from err

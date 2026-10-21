@@ -272,3 +272,23 @@ export interface UserCharacterDetail {
   created_at: string
   updated_at: string
 }
+
+export interface AdminCharacterCreate {
+  name: string;
+  slug?: string;
+  element: string;
+  weapon_type: string;
+  rarity: number;
+}
+
+export interface AdminWeaponCreate {
+  name: string;
+  slug?: string;
+  weapon_type: string;
+  rarity: number;
+}
+
+export interface AdminArtifactSetCreate {
+  name: string;
+  slug?: string;
+}

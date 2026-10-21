@@ -127,4 +127,31 @@ export const adminApi = {
     )
     return data
   },
+
+  async createCharacter(payload: AdminCharacterCreate): Promise<AdminCharacter> {
+    const { data } = await apiClient.post<AdminCharacter>('/admin/characters', payload)
+    return data
+  },
+
+  async createWeapon(payload: AdminWeaponCreate): Promise<AdminWeapon> {
+    const { data } = await apiClient.post<AdminWeapon>('/admin/weapons', payload)
+    return data
+  },
+
+  async createArtifactSet(payload: AdminArtifactSetCreate): Promise<AdminArtifactSet> {
+    const { data } = await apiClient.post<AdminArtifactSet>('/admin/artifact-sets', payload)
+    return data
+  },
+
+  async deleteCharacter(id: string): Promise<void> {
+    await apiClient.delete(`/admin/characters/${id}`)
+  },
+
+  async deleteWeapon(id: string): Promise<void> {
+    await apiClient.delete(`/admin/weapons/${id}`)
+  },
+
+  async deleteArtifactSet(id: string): Promise<void> {
+    await apiClient.delete(`/admin/artifact-sets/${id}`)
+  },
 }

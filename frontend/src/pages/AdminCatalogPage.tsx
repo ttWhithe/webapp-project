@@ -5,10 +5,13 @@ import { adminApi } from '@/shared/api/admin'
 import type {
   AdminArtifactSet,
   AdminArtifactSetUpdate,
+  AdminArtifactSetCreate,
   AdminCharacter,
   AdminCharacterUpdate,
+  AdminCharacterCreate,
   AdminWeapon,
   AdminWeaponUpdate,
+  AdminWeaponCreate,
 } from '@/shared/api/types'
 import { ELEMENT_LABELS, WEAPON_TYPE_LABELS } from '@/shared/lib/catalog-meta'
 import AdminEditModal from '@/shared/ui/admin/AdminEditModal'
@@ -27,6 +30,7 @@ type Editing =
 export default function AdminCatalogPage() {
   const [tab, setTab] = useState<Tab>('characters')
   const [editing, setEditing] = useState<Editing>(null)
+  const [creating, setCreating] = useState<{ kind: 'character' | 'weapon' | 'artifact-set' } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const qc = useQueryClient()
@@ -74,19 +78,19 @@ export default function AdminCatalogPage() {
 
   const charactersQuery = useQuery({
     queryKey: ['admin', 'characters'],
-    queryFn: () => adminApi.listCharacters(200, 0),
+    queryFn: () => adminApi.listCharacters(1000, 0),
     enabled: tab === 'characters',
   })
 
   const weaponsQuery = useQuery({
     queryKey: ['admin', 'weapons'],
-    queryFn: () => adminApi.listWeapons(200, 0),
+    queryFn: () => adminApi.listWeapons(1000, 0),
     enabled: tab === 'weapons',
   })
 
   const setsQuery = useQuery({
     queryKey: ['admin', 'artifact-sets'],
-    queryFn: () => adminApi.listArtifactSets(200, 0),
+    queryFn: () => adminApi.listArtifactSets(1000, 0),
     enabled: tab === 'artifact-sets',
   })
 
@@ -126,6 +130,36 @@ export default function AdminCatalogPage() {
     onError: (e: unknown) => setError(extractError(e)),
   })
 
+  const deleteCharacter = useMutation({
+    mutationFn: (id: string) => adminApi.deleteCharacter(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'characters'] })
+      setEditing(null)
+      alert('Персонаж удален')
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
+  const deleteWeapon = useMutation({
+    mutationFn: (id: string) => adminApi.deleteWeapon(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'weapons'] })
+      setEditing(null)
+      alert('Оружие удалено')
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
+  const deleteArtifactSet = useMutation({
+    mutationFn: (id: string) => adminApi.deleteArtifactSet(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'artifact-sets'] })
+      setEditing(null)
+      alert('Сет артефактов удален')
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
   const importParser = useMutation({
     mutationFn: ({ id, file }: { id: string; file: File }) =>
       adminApi.importParser(id, file),
@@ -158,11 +192,44 @@ export default function AdminCatalogPage() {
     onError: (e: unknown) => setError(extractError(e)),
   })
 
+  const createCharacter = useMutation({
+    mutationFn: (payload: AdminCharacterCreate) => adminApi.createCharacter(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'characters'] })
+      setCreating(null)
+      alert('Персонаж добавлен!')
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
+  const createWeapon = useMutation({
+    mutationFn: (payload: AdminWeaponCreate) => adminApi.createWeapon(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'weapons'] })
+      setCreating(null)
+      alert('Оружие добавлено!')
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
+  const createArtifactSet = useMutation({
+    mutationFn: (payload: AdminArtifactSetCreate) => adminApi.createArtifactSet(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'artifact-sets'] })
+      setCreating(null)
+      alert('Артефакт добавлен!')
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
   const submitting =
     updateCharacter.isPending ||
     updateWeapon.isPending ||
     updateSet.isPending ||
-    importParser.isPending
+    importParser.isPending ||
+    createCharacter.isPending ||
+    createWeapon.isPending ||
+    createArtifactSet.isPending
 
   return (
     <div className="space-y-6">
@@ -205,20 +272,35 @@ export default function AdminCatalogPage() {
         </label>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-slate-800 rounded-lg p-1 max-w-md border border-slate-700">
-        <TabButton active={tab === 'characters'} onClick={() => setTab('characters')}>
-          Персонажи
-        </TabButton>
-        <TabButton active={tab === 'weapons'} onClick={() => setTab('weapons')}>
-          Оружие
-        </TabButton>
-        <TabButton
-          active={tab === 'artifact-sets'}
-          onClick={() => setTab('artifact-sets')}
+      {/* Tabs and Add Button */}
+      <div className="flex justify-between items-center gap-4">
+        <div className="flex flex-1 gap-1 bg-slate-800 rounded-lg p-1 max-w-md border border-slate-700">
+          <TabButton active={tab === 'characters'} onClick={() => setTab('characters')}>
+            Персонажи
+          </TabButton>
+          <TabButton active={tab === 'weapons'} onClick={() => setTab('weapons')}>
+            Оружие
+          </TabButton>
+          <TabButton
+            active={tab === 'artifact-sets'}
+            onClick={() => setTab('artifact-sets')}
+          >
+            Артефакты
+          </TabButton>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setError(null)
+            if (tab === 'characters') setCreating({ kind: 'character' })
+            else if (tab === 'weapons') setCreating({ kind: 'weapon' })
+            else setCreating({ kind: 'artifact-set' })
+          }}
+          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-medium shrink-0"
         >
-          Артефакты
-        </TabButton>
+          + Добавить
+        </button>
       </div>
 
       {error && <ErrorState message={error} />}
@@ -243,22 +325,18 @@ export default function AdminCatalogPage() {
                   className: 'w-44 shrink-0',
                   render: (r) => (
                     <div className="flex flex-nowrap gap-1">
-                      {/* Иконка */}
                       {r.icon_url ? (
                         <img src={r.icon_url} alt="icon" className="w-8 h-8 rounded object-cover bg-slate-900" />
                       ) : <div className="w-8 h-8 rounded bg-slate-700" />}
 
-                      {/* Портрет */}
                       {r.portrait_url ? (
                         <img src={r.portrait_url} alt="portrait" className="w-8 h-8 rounded object-cover bg-slate-900" />
                       ) : <div className="w-8 h-8 rounded bg-slate-700" />}
 
-                      {/* Namecard */}
                       {r.namecard_url ? (
                         <img src={r.namecard_url} alt="namecard" className="w-8 h-8 rounded object-cover bg-slate-900" />
                       ) : <div className="w-8 h-8 rounded bg-slate-700" />}
 
-                      {/* Иконка созвездия */}
                       {r.constellation_icon_url ? (
                         <img src={r.constellation_icon_url} alt="constellation" className="w-8 h-8 rounded object-cover bg-slate-900" />
                       ) : <div className="w-8 h-8 rounded bg-slate-700" />}
@@ -281,16 +359,18 @@ export default function AdminCatalogPage() {
                   className: 'text-xs text-slate-400 max-w-[200px] truncate',
                   render: (r) => r.title ?? '—',
                 },
-                {
+{
                   key: 'element',
                   label: 'Элемент',
                   className: 'text-xs whitespace-nowrap',
+                  sortValue: (r) => r.element,
                   render: (r) => ELEMENT_LABELS[r.element],
                 },
                 {
                   key: 'weapon_type',
                   label: 'Оружие',
                   className: 'text-xs whitespace-nowrap',
+                  sortValue: (r) => r.weapon_type,
                   render: (r) => WEAPON_TYPE_LABELS[r.weapon_type],
                 },
                 {
@@ -379,6 +459,7 @@ export default function AdminCatalogPage() {
                   key: 'type',
                   label: 'Тип',
                   className: 'text-xs whitespace-nowrap',
+                  sortValue: (r) => r.weapon_type, // <--- Починили сортировку
                   render: (r) => WEAPON_TYPE_LABELS[r.weapon_type],
                 },
                 {
@@ -391,18 +472,21 @@ export default function AdminCatalogPage() {
                   key: 'atk',
                   label: 'Base ATK',
                   className: 'text-xs text-slate-400 whitespace-nowrap',
+                  sortValue: (r) => r.base_atk, // <--- Починили сортировку (число)
                   render: (r) => r.base_atk ?? '—',
                 },
                 {
                   key: 'main_stat',
                   label: 'Main Stat',
                   className: 'text-xs text-slate-400 whitespace-nowrap',
+                  sortValue: (r) => r.main_stat, // <--- Починили сортировку
                   render: (r) => r.main_stat ?? '—',
                 },
                 {
                   key: 'passive',
                   label: 'Пассивка',
                   className: 'text-xs text-slate-400 max-w-[150px] truncate',
+                  sortValue: (r) => r.passive_name, // <--- Починили сортировку
                   render: (r) => r.passive_name ?? '—',
                 },
               ]}
@@ -542,6 +626,7 @@ export default function AdminCatalogPage() {
           onImport={(file) =>
             importParser.mutate({ id: editing.row.id, file })
           }
+          onDelete={() => deleteCharacter.mutate(editing.row.id)}
         />
       )}
 
@@ -574,6 +659,7 @@ export default function AdminCatalogPage() {
           ]}
           onSave={(values) => updateWeapon.mutate({ id: editing.row.id, payload: values as AdminWeaponUpdate })}
           onImport={(file) => importWeaponParser.mutate({ id: editing.row.id, file })}
+          onDelete={() => deleteWeapon.mutate(editing.row.id)}
           onClose={() => {
             setEditing(null)
             setError(null)
@@ -610,10 +696,75 @@ export default function AdminCatalogPage() {
           ]}
           onSave={(values) => updateSet.mutate({ id: editing.row.id, payload: values as AdminArtifactSetUpdate })}
           onImport={(file) => importArtifactParser.mutate({ id: editing.row.id, file })}
+          onDelete={() => deleteArtifactSet.mutate(editing.row.id)}
           onClose={() => {
             setEditing(null)
             setError(null)
           }}
+        />
+      )}
+
+      {/* Create Modals */}
+      {creating?.kind === 'character' && (
+        <AdminEditModal
+          title="Новый персонаж"
+          submitting={createCharacter.isPending}
+          errorMessage={error}
+          initialValues={{}} // Пустые поля
+          fields={[
+            { key: 'name', label: 'Имя (англ)', placeholder: 'Aloy' },
+            { key: 'slug', label: 'Slug (если пусто — сгенерируется)' },
+            { key: 'element', label: 'Элемент', type: 'select', options: [
+              { value: 'anemo', label: 'Анемо' }, { value: 'geo', label: 'Гео' },
+              { value: 'electro', label: 'Электро' }, { value: 'dendro', label: 'Дендро' },
+              { value: 'hydro', label: 'Гидро' }, { value: 'pyro', label: 'Пиро' },
+              { value: 'cryo', label: 'Крио' },
+            ]},
+            { key: 'weapon_type', label: 'Оружие', type: 'select', options: [
+              { value: 'sword', label: 'Одноручный' }, { value: 'claymore', label: 'Двуручный' },
+              { value: 'polearm', label: 'Древковое' }, { value: 'catalyst', label: 'Катализатор' },
+              { value: 'bow', label: 'Лук' },
+            ]},
+            { key: 'rarity', label: 'Редкость (1–5)', type: 'number' },
+          ]}
+          onSave={(values) => createCharacter.mutate(values as AdminCharacterCreate)}
+          onClose={() => setCreating(null)}
+        />
+      )}
+
+      {creating?.kind === 'weapon' && (
+        <AdminEditModal
+          title="Новое оружие"
+          submitting={createWeapon.isPending}
+          errorMessage={error}
+          initialValues={{}}
+          fields={[
+            { key: 'name', label: 'Имя (англ)' },
+            { key: 'slug', label: 'Slug (если пусто — сгенерируется)' },
+            { key: 'weapon_type', label: 'Тип оружия', type: 'select', options: [
+              { value: 'sword', label: 'Одноручный' }, { value: 'claymore', label: 'Двуручный' },
+              { value: 'polearm', label: 'Древковое' }, { value: 'catalyst', label: 'Катализатор' },
+              { value: 'bow', label: 'Лук' },
+            ]},
+            { key: 'rarity', label: 'Редкость (1–5)', type: 'number' },
+          ]}
+          onSave={(values) => createWeapon.mutate(values as AdminWeaponCreate)}
+          onClose={() => setCreating(null)}
+        />
+      )}
+
+      {creating?.kind === 'artifact-set' && (
+        <AdminEditModal
+          title="Новый сет артефактов"
+          submitting={createArtifactSet.isPending}
+          errorMessage={error}
+          initialValues={{}}
+          fields={[
+            { key: 'name', label: 'Имя (англ)' },
+            { key: 'slug', label: 'Slug (если пусто — сгенерируется)' },
+          ]}
+          onSave={(values) => createArtifactSet.mutate(values as AdminArtifactSetCreate)}
+          onClose={() => setCreating(null)}
         />
       )}
 
@@ -683,8 +834,14 @@ function TabButton({
 }
 
 function extractError(e: unknown): string {
-  const err = e as { response?: { data?: { detail?: unknown } } }
+  const err = e as { response?: { data?: { detail?: unknown } }; message?: string }
   const detail = err.response?.data?.detail
+
   if (typeof detail === 'string') return detail
-  return 'Не удалось сохранить изменения'
+
+  if (Array.isArray(detail)) {
+    return detail.map((d: any) => `${d.loc.join('.')}: ${d.msg}`).join(' | ')
+  }
+
+  return err.message || 'Не удалось сохранить изменения (ошибка сети или сервера)'
 }

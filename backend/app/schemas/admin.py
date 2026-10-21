@@ -125,3 +125,23 @@ class AdminArtifactSetRead(BaseModel):
     max_rarity: int | None = None
     bonus_2pc: str | None = None
     bonus_4pc: str | None = None
+
+
+class AdminCharacterCreate(BaseModel):
+    name: str = Field(..., max_length=120)
+    slug: str | None = Field(None, max_length=80)
+    element: Element
+    weapon_type: WeaponType
+    rarity: int = Field(..., ge=1, le=5)
+
+
+class AdminWeaponCreate(BaseModel):
+    name: str = Field(..., max_length=150)
+    slug: str | None = Field(None, max_length=120)
+    weapon_type: WeaponType
+    rarity: int = Field(..., ge=1, le=5)
+
+
+class AdminArtifactSetCreate(BaseModel):
+    name: str = Field(..., max_length=150)
+    slug: str | None = Field(None, max_length=120)
