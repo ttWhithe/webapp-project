@@ -146,14 +146,15 @@ async def _validate_refs(
 async def _apply_artifacts(
     uc: UserCharacter, payloads: list[UserArtifactIn], db: AsyncSession
 ) -> None:
-    """Replace uc.artifacts with the given payloads.
-    Forcing a DB delete first to avoid unique constraint errors.
-    """
+    """Replace uc.artifacts with the given payloads."""
+    # Удаляем старые артефакты из БД
     await db.execute(delete(UserArtifact).where(UserArtifact.user_character_id == uc.id))
-    uc.artifacts = []
+
+    # Добавляем новые
     for p in payloads:
-        uc.artifacts.append(
+        db.add(
             UserArtifact(
+                user_character_id=uc.id,
                 slot=p.slot,
                 set_id=p.set_id,
                 rarity=p.rarity,

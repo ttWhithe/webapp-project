@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import JSON, DateTime, Integer, String, Uuid, func
 from sqlalchemy import Enum as SAEnum
@@ -67,8 +68,8 @@ class Character(Base):
     release_date: Mapped[str | None] = mapped_column(String(50), nullable=True)
     namecard_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     constellation_icon_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    talents: Mapped[dict | None] = mapped_column(JSON, nullable=True)
-    constellations: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    talents: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    constellations: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
 
     # Fields for dropdowns (C3 and C5 increases)
     c3_increases: Mapped[str | None] = mapped_column(String(50), nullable=True)

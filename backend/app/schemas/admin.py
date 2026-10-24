@@ -1,6 +1,7 @@
 """Schemas for admin endpoints."""
 
 import uuid
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -87,8 +88,8 @@ class AdminCharacterRead(BaseModel):
     release_date: str | None
     namecard_url: str | None
     constellation_icon_url: str | None
-    talents: dict | None
-    constellations: dict | None
+    talents: dict[str, Any] | None = None
+    constellations: dict[str, Any] | None = None
     c3_increases: str | None
     c5_increases: str | None
 

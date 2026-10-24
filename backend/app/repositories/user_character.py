@@ -43,6 +43,7 @@ class UserCharacterRepository:
                 joinedload(UserCharacter.weapon),
                 selectinload(UserCharacter.artifacts).joinedload(UserArtifact.artifact_set),
             )
+            .execution_options(populate_existing=True)
         )
         return await self._session.scalar(stmt)
 

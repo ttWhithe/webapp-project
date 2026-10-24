@@ -1,9 +1,9 @@
 # Software Requirements Specification
 ## Web Application "Genshin Progress Tracker"
 
-**Version:** 1.2
+**Version:** 2.0
 **Date:** 2026
-**Status:** MVP backend + partial frontend delivered; UI refinements in progress
+**Status:** MVP backend + frontend mostly delivered; Zone 4 and CI fixes in progress
 
 ---
 
@@ -44,6 +44,7 @@ B2C — Genshin Impact players (RU/EN segments). Age 14+, interested in resource
 | OAuth | Open Authorization |
 | SPA | Single Page Application |
 | CI/CD | Continuous Integration / Continuous Delivery |
+
 ---
 
 ## 2. Functional Requirements
@@ -98,19 +99,7 @@ Final percentage = sum of weighted components (weights sum = 1.0):
 
 Weights stored in `progress_weights` table; the formula lives in `services/progress.py` (backend) and `shared/lib/progress.ts` (frontend, mirrored for live UI feedback).
 
-**MVP weights (equal, sum = 1.0):**
-
-| Component | Weight |
-|---|---|
-| `w_level` | 0.20 |
-| `w_talents` | 0.20 |
-| `w_weapon` | 0.20 |
-| `w_artifacts` | 0.20 |
-| `w_friendship` | 0.20 |
-
 Constellations **do not** affect the percentage (shown as a separate badge).
-
-Weights are stored in the `progress_weights` table and editable by an admin. The formula is implemented in the isolated module `services/progress.py`.
 
 ---
 
@@ -119,75 +108,52 @@ Weights are stored in the `progress_weights` table and editable by an admin. The
 ### 3.1. Data Model (main entities)
 
 **users**
-- `id` (PK, UUID)
-- `email` (unique, nullable — if OAuth-only)
-- `hashed_password` (nullable)
-- `role` (enum: `guest`, `user`, `premium`, `admin`)
-- `username` (unique)
-- `avatar_url`
-- `created_at`, `updated_at`
+- `id` (PK, UUID), `email` (unique, nullable), `hashed_password` (nullable), `role`, `username`, `avatar_url`, `created_at`, `updated_at`
 
 **oauth_accounts**
-- `id` (PK)
-- `user_id` (FK → users)
-- `provider` (enum: `google`, `telegram`, `vk`, `yandex`, `discord`)
-- `provider_user_id` (unique with provider)
-- `access_token`, `refresh_token` (encrypted)
-- `expires_at`
+- `id` (PK), `user_id` (FK → users), `provider`, `provider_user_id`, `access_token`, `refresh_token`, `expires_at`
 
-**refresh_tokens** *(or store in Redis — see section 5.4)*
+**refresh_tokens**
 - `id`, `user_id`, `token_hash`, `expires_at`, `revoked`
 
 **characters**
 - `id`, `name`, `element`, `weapon_type`, `rarity`, `icon_url`, `max_level`, `version_added`
+- *(v2.0)* `release_date`, `namecard_url`, `constellation_icon_url`, `talents` (JSON), `constellations` (JSON), `c3_increases`, `c5_increases`
 
 **weapons**
 - `id`, `name`, `type`, `rarity`, `icon_url`, `max_level`, `secondary_stat`
+- *(v2.0)* `passive_name`, `passive_desc`
 
 **artifact_sets**
 - `id`, `name`, `icon_url`, `bonus_2pc`, `bonus_4pc`
+- *(v2.0)* `max_rarity`, `min_rarity`
 
-**artifacts** *(catalog)*
+**artifacts (catalog)**
 - `id`, `set_id`, `slot`, `main_stat`, `rarity`
 
 **user_characters**
-- `id` (PK, UUID)
-- `user_id` (FK → users)
-- `character_id` (FK → characters)
-- `level` (int, 1-100)
-- `level_cap` (int, 90 | 95 | 100 — default 90)
-- `constellation` (int, 0-6)
-- `friendship` (int, 1-10)
-- `talent_normal`, `talent_skill`, `talent_burst` (int, 1-13)
-- `masterless_stella_fortuna` (int, 0-3)
-- `weapon_id` (FK → weapons, nullable)
-- `weapon_level` (int, nullable)
-- `weapon_refinement` (int, nullable)
-- `custom_icon_url`, `custom_portrait_url`, `custom_background_url` (nullable)
-- `custom_hp`, `custom_atk`, `custom_def`, `custom_em` (int, nullable)
-- `custom_crit_rate`, `custom_crit_dmg`, `custom_energy_recharge`, `custom_elemental_dmg_bonus` (numeric(5,2), nullable)
+- `id` (PK, UUID), `user_id` (FK), `character_id` (FK)
+- `level`, `level_cap`, `constellation`, `friendship`
+- `talent_normal`, `talent_skill`, `talent_burst`, `masterless_stella_fortuna`
+- `weapon_id` (FK), `weapon_level`, `weapon_refinement`
+- `custom_icon_url`, `custom_portrait_url`, `custom_background_url`
+- `custom_hp`, `custom_atk`, `custom_def`, `custom_em`
+- `custom_crit_rate`, `custom_crit_dmg`, `custom_energy_recharge`, `custom_elemental_dmg_bonus`
 - `created_at`, `updated_at`
 - UNIQUE (`user_id`, `character_id`)
 
 **user_artifacts**
-- `id` (PK, UUID)
-- `user_character_id` (FK → user_characters, CASCADE)
-- `slot` (enum: flower/plume/sands/goblet/circlet)
-- `set_id` (FK → artifact_sets, RESTRICT)
-- `rarity` (int, 1-5, CHECK)
-- `level` (int, 0-20, CHECK ≤ max-by-rarity: 1★→4, 2★→4, 3★→12, 4★→16, 5★→20)
-- `main_stat` (str, nullable)
-- `substats` (JSONB, nullable — list of {stat, value})
+- `id` (PK, UUID), `user_character_id` (FK, CASCADE), `slot`, `set_id` (FK), `rarity`, `level`, `main_stat`, `substats` (JSONB)
 - UNIQUE (`user_character_id`, `slot`)
 
 **progress_weights**
 - `id`, `w_level`, `w_talents`, `w_weapon`, `w_artifacts`, `w_friendship`, `updated_at`
 
 **payments**
-- `id`, `user_id`, `provider` (`stripe` / `yookassa`), `external_id`, `amount`, `currency`, `status`, `type` (`donation` / `subscription`), `created_at`
+- `id`, `user_id`, `provider`, `external_id`, `amount`, `currency`, `status`, `type`, `created_at`
 
 **subscriptions**
-- `id`, `user_id`, `plan` (`premium_visual`), `starts_at`, `ends_at`, `status`
+- `id`, `user_id`, `plan`, `starts_at`, `ends_at`, `status`
 
 ### 3.2. Storage Requirements
 
@@ -212,7 +178,6 @@ Weights are stored in the `progress_weights` table and editable by an admin. The
 ### 4.2. Main Endpoints
 
 **Auth**
-
 | Method | Path | Description |
 |---|---|---|
 | POST | `/auth/register` | Register by email |
@@ -225,7 +190,6 @@ Weights are stored in the `progress_weights` table and editable by an admin. The
 | GET | `/users/me` | Current user |
 
 **Catalog**
-
 | Method | Path | Description |
 |---|---|---|
 | GET | `/characters` | List of characters (Redis cache) |
@@ -234,7 +198,6 @@ Weights are stored in the `progress_weights` table and editable by an admin. The
 | GET | `/artifact-sets` | Artifact sets |
 
 **Tracker**
-
 | Method | Path | Description |
 |---|---|---|
 | GET | `/me/characters` | My characters + progress % |
@@ -245,7 +208,6 @@ Weights are stored in the `progress_weights` table and editable by an admin. The
 | GET | `/me/characters?filter=low` | Filters |
 
 **Payments**
-
 | Method | Path | Description |
 |---|---|---|
 | POST | `/payments/donate` | Create payment session (donation) |
@@ -254,10 +216,19 @@ Weights are stored in the `progress_weights` table and editable by an admin. The
 | POST | `/payments/webhook/yookassa` | YooKassa webhook |
 
 **Admin (role=admin)**
-
 | Method | Path | Description |
 |---|---|---|
-| POST | `/admin/catalog/sync` | Refresh catalog from external source |
+| POST | `/admin/catalog/sync` | Refresh catalog from external source (auto-backup before sync) |
+| GET | `/admin/catalog/backup` | Download catalog JSON |
+| POST | `/admin/catalog/backup` | Upload catalog JSON (merge only empty fields) |
+| POST | `/admin/catalog/bulk-import` | Bulk import from parser |
+| POST | `/admin/characters/{id}/import-parser` | Import character from parser |
+| POST | `/admin/weapons/{id}/import-parser` | Import weapon from parser |
+| POST | `/admin/artifact-sets/{id}/import-parser`| Import artifact set from parser |
+| PATCH | `/admin/characters/{id}` | Update character |
+| PATCH | `/admin/weapons/{id}` | Update weapon |
+| PATCH | `/admin/artifact-sets/{id}` | Update artifact set |
+| DELETE | `/admin/characters/{id}` | Delete character |
 | PATCH | `/admin/progress-weights` | Change weights |
 | GET | `/admin/users` | User list |
 | PATCH | `/admin/users/{id}/role` | Change role |
@@ -273,46 +244,27 @@ Weights are stored in the `progress_weights` table and editable by an admin. The
 ## 5. Auth, Security, Caching Requirements
 
 ### 5.1. OAuth Providers
-
 **MVP:** email + password only (Argon2id hashed).
-
-**Post-MVP:** abstract `OAuthProvider` interface (`get_authorize_url()`, `exchange_code()`, `get_user_info()`) with implementations for Google (OpenID Connect, `authlib`), Telegram (Login Widget + HMAC-SHA256), VK, Yandex, Discord. Adding a new provider = new class + registry entry (Open/Closed Principle).
+**Post-MVP:** abstract `OAuthProvider` interface.
 
 ### 5.2. JWT and Cookies
-
-- **Access token:** JWT, HS256, 15 min, payload: `sub`, `role`, `exp`.
-- **Refresh token:** opaque (random string), 30 days, hash stored in Redis (`refresh:{user_id}:{jti}`).
+- **Access token:** JWT, HS256, 15 min.
+- **Refresh token:** opaque (random string), 30 days, hash stored in Redis.
 - **Cookies:** `httpOnly`, `secure`, `samesite=lax`.
-- **CSRF protection:** double-submit cookie or `samesite=strict` for mutating requests.
-- **Rotation:** on `/auth/refresh` the old `jti` is invalidated, a new one is issued.
-- **Logout:** remove `jti` from Redis → instant revocation.
+- **Rotation:** on `/auth/refresh` the old `jti` is invalidated.
 
 ### 5.3. RBAC
-
-Implemented via a FastAPI dependency:
-
-    def require_role(*roles: Role):
-        async def checker(user=Depends(get_current_user)):
-            if user.role not in roles:
-                raise HTTPException(403)
-            return user
-        return checker
+Implemented via a FastAPI dependency `require_role(*roles: Role)`.
 
 ### 5.4. Redis — Usage Scenarios
-
-1. Storage of refresh tokens (blacklist/whitelist, rotation).
-2. Rate limiting (e.g., `slowapi` on Redis): login, register, payments.
-3. Cache of characters/weapons/artifacts catalog (TTL 24h, invalidation by key `catalog:*`).
-4. Cache of aggregated user percentages (TTL 5 min, invalidated on PATCH).
-5. Optional: Pub/Sub for real-time notifications (post-MVP).
+1. Storage of refresh tokens.
+2. Rate limiting.
+3. Cache of characters/weapons/artifacts catalog.
+4. Cache of aggregated user percentages.
 
 ### 5.5. Misc
-
-- Passwords: **Argon2id** (`passlib` + `argon2-cffi`).
+- Passwords: **Argon2id**.
 - CORS: strict origins whitelist.
-- Rate limiting on all auth endpoints.
-- Input validation via Pydantic v2.
-- Secrets — via `.env` + `pydantic-settings` (never committed to the repository).
 - Logs: `structlog` in JSON, no PII.
 
 ---
@@ -320,74 +272,66 @@ Implemented via a FastAPI dependency:
 ## 6. Payment Requirements
 
 ### 6.1. Providers
-
 - **Stripe** — for international cards.
 - **YooKassa** — for RU cards.
 
-Abstraction: `PaymentProvider` (Strategy pattern) with methods:
-`create_payment()`, `verify_webhook()`, `handle_event()`.
+Abstraction: `PaymentProvider` (Strategy pattern).
 
 ### 6.2. Scenarios
-
-1. **Donation:** user enters an amount (min. 100 RUB / 1 EUR), chooses a provider, is redirected to the payment page, and after success a record is written to `payments` with status `succeeded`.
-2. **Subscription `premium_visual`:** fixed monthly price, gives cosmetics (themes, badges). Functionality is not restricted.
+1. **Donation:** user enters an amount.
+2. **Subscription `premium_visual`:** fixed monthly price.
 
 ### 6.3. Webhooks
-
-- Signature verification (`Stripe-Signature`, YooKassa IP + secret).
-- Idempotency: store `external_id` in `payments` with UNIQUE; repeated processing is ignored.
-- All webhooks are logged into a separate `webhook_logs` table (input payload + result).
+- Signature verification.
+- Idempotency: store `external_id` in `payments` with UNIQUE.
 
 ### 6.4. Security
-
 - No PAN / card secrets on the backend.
-- Amounts are re-validated on the backend (never trust the frontend).
+- Amounts are re-validated on the backend.
 
 ---
 
 ## 7. UI/UX Requirements
 
 ### 7.1. Screens (MVP)
-
 1. **Landing** — what the app is about, CTA "Sign in".
 2. **Login** — Google + Telegram + email.
 3. **Character list** — cards with icon, name, percentage (progress bar), filters, sorting.
-4. **Character card** — fill-in form + percentage breakdown by components (**level / talents / weapon / artifacts / friendship**).
+4. **Character card** — fill-in form + percentage breakdown:
+   - **Zone 1 (Hero):** Radial progress, clickable slots.
+   - **Zone 2 (Stats):** Sliders, custom stat inputs.
+   - **Zone 3 (Equipment):** Weapon, 5 artifact slots, set bonuses.
+   - **Zone 4 (Constellations):** In progress.
 5. **Profile** — user info, role, "Donate" and "Premium" buttons.
 6. **Payment** — Stripe Checkout / YooKassa redirect.
-7. **Admin panel** — catalog sync, weights, users.
+7. **Admin panel** — catalog sync, weights, users, manual CRUD, backups.
 8. **404 / 500** — standard pages.
 
 ### 7.2. Design
-
-- Figma mockups created before frontend development.
+- Figma mockups.
 - Mobile-first responsiveness (Tailwind breakpoints).
 - Dark / light theme.
 - UI library: shadcn/ui + Tailwind.
 
 ### 7.3. UX Requirements
-
-- Snackbar notifications for success/error.
+- Snackbar notifications.
 - Optimistic updates on edits (TanStack Query).
 - Skeleton loaders.
-- Form validation via React Hook Form + Zod with instant feedback.
+- Form validation via React Hook Form + Zod.
 
 ---
 
 ## 8. Integration Requirements
 
 ### 8.1. External Catalog Sources
-
-- **genshin-db-api** (`https://genshin-db-api.vercel.app/api/v5`) — primary source. Maintained by the genshin-db community, updates within 1-2 days of new patches, returns localized data for characters, weapons, artifacts.
-- **genshin.jmp.blue** — legacy fallback (English-only, lags behind patches).
-- **Enka.Network** — optional (post-MVP) for importing player data by UID.
-- **Fandom Wiki** — planned post-MVP parser for RU localization (name_ru fields already in schema).
+- **genshin-db-api** — primary source.
+- **genshin.jmp.blue** — legacy fallback.
+- **Enka.Network** — optional (post-MVP).
+- **Fandom Wiki** — planned post-MVP parser for RU localization.
 
 ### 8.2. Parser Requirements
-
 - Idempotency (upsert by external id).
 - Resilience to network errors (retry with exponential backoff).
-- Logging of discrepancies.
 - Cache is invalidated after the update.
 
 ---
@@ -395,29 +339,21 @@ Abstraction: `PaymentProvider` (Strategy pattern) with methods:
 ## 9. Non-Functional Requirements
 
 ### 9.1. Performance
-
-- p95 API response < 300 ms (excluding external calls).
+- p95 API response < 300 ms.
 - Catalog served from Redis in < 50 ms.
-- Support for 100 concurrent users on a single instance (for MVP).
 
 ### 9.2. Security
-
 - OWASP Top 10 coverage.
-- Dependencies scanned via `pip-audit` / `npm audit` in CI.
-- Secrets — via env / secrets manager only.
+- Dependencies scanned via `pip-audit` / `npm audit`.
 
 ### 9.3. Reliability
-
 - Graceful shutdown of FastAPI.
-- Health checks: `/health` (liveness) and `/health/ready` (readiness with DB + Redis check).
-- DB backups (in prod — Neon automatic).
+- Health checks: `/health` and `/health/ready`.
 
 ### 9.4. Code
-
-- Python 3.12, strict typing, `ruff`, `mypy` (strict for core).
-- TypeScript strict mode, `eslint` + `prettier`.
-- Pre-commit hooks.
-- Tests: pytest >= 80% coverage on key modules (auth, progress, payments).
+- Python 3.12, strict typing, `ruff`, `mypy`.
+- TypeScript strict mode.
+- Tests: pytest >= 80% coverage.
 
 ---
 
@@ -426,94 +362,61 @@ Abstraction: `PaymentProvider` (Strategy pattern) with methods:
 | Layer | Technologies |
 |---|---|
 | Backend | Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0 (async), Alembic, asyncpg |
-| Auth | python-jose / pyjwt, passlib[argon2], authlib (Google), httpx (Telegram) |
+| Auth | python-jose, passlib[argon2] |
 | Cache | Redis 7, redis-py (async) |
 | DB | PostgreSQL 16 |
-| Payments | stripe-python, yookassa SDK |
-| Frontend | React 18, TypeScript, Vite, TanStack Query, Zustand, React Router, React Hook Form + Zod, shadcn/ui + Tailwind |
-| Infra | Docker, Docker Compose, GitHub Actions, Nginx (prod) |
-| Monitoring | structlog, prometheus-fastapi-instrumentator (optional) |
-| Tests | pytest, pytest-asyncio, httpx.AsyncClient, testcontainers |
-| Quality | ruff, mypy, eslint, prettier, pre-commit |
+| Frontend | React 18, TypeScript, Vite, TanStack Query, Zustand, React Router |
+| Infra | Docker, Docker Compose, GitHub Actions |
 
 ---
 
 ## 11. Architecture
 
 ### 11.1. High-Level Diagram
-
-    [Browser SPA] --HTTPS--> [Nginx] --> [FastAPI] --> [PostgreSQL]
-                                           |
-                                           +--> [Redis]
-                                           |
-                                           +--> [Stripe API]
-                                           |
-                                           +--> [YooKassa API]
-                                           |
-                                           +--> [genshin.dev API] (sync)
+    [Browser SPA] --> [FastAPI] --> [PostgreSQL]
+                           |
+                           +--> [Redis]
+                           +--> [genshin-db-api] (sync)
 
 ### 11.2. Backend Structure
-
     app/
-    |-- api/            # routers
-    |   `-- v1/
-    |-- core/           # config, security, deps
-    |-- db/             # session, base
-    |-- models/         # SQLAlchemy
-    |-- schemas/        # Pydantic
-    |-- services/       # business logic
-    |   |-- auth/
-    |   |-- oauth/
-    |   |-- progress.py
-    |   |-- payments/
-    |   `-- catalog_sync.py
-    |-- repositories/   # data access
-    |-- tasks/          # background tasks
-    |-- tests/
-    `-- main.py
+    |-- api/v1/       # admin.py, auth.py, catalog.py, tracker.py
+    |-- core/         # config, security
+    |-- db/           # session, base
+    |-- models/       # SQLAlchemy
+    |-- schemas/      # Pydantic
+    |-- services/     # business logic
 
-Principles: layered architecture, DI via FastAPI `Depends`, separation of ORM models and Pydantic schemas, business logic in services (not in routers).
-
-### 11.3. Frontend Structure
-
+### 11.3. Frontend Structure (Refactored)
     src/
-    |-- app/            # routing, providers
-    |-- features/       # auth, tracker, payments
-    |-- entities/       # character, user
-    |-- shared/         # ui-kit, api-client, lib
-    `-- pages/
+    |-- app/          # routing, providers
+    |-- features/
+        |-- character-detail/
+            |-- components/  # HeroActionArc, RarityArc, RefinementArc, SimpleSlider
+            |-- zones/       # ZoneHero, ZoneStats, ZoneWeaponArtifacts, ZoneConstellations
+            |-- constants.ts, utils.ts
+    |-- pages/        # CharacterDetailPage.tsx
+    |-- shared/       # ui-kit, api-client, lib
 
 ---
 
 ## 12. Testing
-
-- **Unit:** progress formula, OAuth signatures, parser.
-- **Integration:** auth flow (register → login → refresh → logout), character CRUD, payment webhooks.
-- **E2E (optional):** Playwright on critical scenarios.
-- **Coverage:** >= 80% for `services/`, `api/v1/auth`.
+- **Unit:** progress formula, parser.
+- **Integration:** auth flow, character CRUD.
+- **Coverage:** >= 80% for key modules.
 
 ---
 
 ## 13. Deployment
 
 ### 13.1. Local
+`docker compose up`
 
-`docker compose up` → spins up Postgres, Redis, backend, frontend.
-
-### 13.2. Production (free, for portfolio)
-
+### 13.2. Production
 - Backend: Fly.io / Render
 - Frontend: Vercel / Netlify
 - Postgres: Neon / Supabase
 - Redis: Upstash
-- Secrets: platform env variables
-- CI/CD: GitHub Actions → auto-deploy on push to `main`
-
-### 13.3. Artifacts
-
-- Multi-stage `Dockerfile` for the backend.
-- `Dockerfile` + nginx for the frontend.
-- `docker-compose.yml` (dev) and `docker-compose.prod.yml`.
 
 ---
 
@@ -521,114 +424,103 @@ Principles: layered architecture, DI via FastAPI `Depends`, separation of ORM mo
 
 | Stage | Content | Status |
 |---|---|---|
-| 0 | Spec, ER diagram, repo structure | ✅ Done |
-| 1 | Boilerplate: Docker Compose, FastAPI, Alembic, CI, pre-commit | ✅ Done |
-| 2 | Auth: email/password, JWT in cookies, Redis refresh tokens, RBAC | ✅ Done |
-| 3 | Catalog: genshin-db-api sync, models, Redis cache, public API | ✅ Done |
-| 4 | Tracker backend: CRUD, progress formula, /me/characters | ✅ Done |
-| 5 | Frontend scaffold: Vite, React, Tailwind, auth pages | ✅ Done |
-| 6 | Frontend catalog: character cards, filters, detail page | ✅ Done |
+| 0 | Spec, ER diagram | ✅ Done |
+| 1 | Boilerplate: Docker, FastAPI, Alembic, CI | ✅ Done |
+| 2 | Auth: email/password, JWT, RBAC | ✅ Done |
+| 3 | Catalog: sync, models, Redis cache | ✅ Done |
+| 4 | Tracker backend: CRUD, progress formula | ✅ Done |
+| 5 | Frontend scaffold: Vite, React, Tailwind | ✅ Done |
+| 6 | Frontend catalog: character cards, filters | ✅ Done |
 | 7 | Frontend zone 1 (hero, radial progress) | ✅ Done |
-| 8 | Frontend zone 2 (stats, sliders, debounced autosave) | ✅ Done |
-| 9 | Frontend zones 3-4 (weapon+artifacts, constellations) | 🚧 In progress |
-| 10 | Payments: Stripe + YooKassa, webhook handling | ⏳ Planned |
-| 11 | Deployment (Fly.io / Render / Neon / Upstash) | ⏳ Planned |
-| 12 | Post-MVP: OAuth, PWA, Enka import, Fandom parser, animations | 📋 Backlog |
+| 8 | Frontend zone 2 (stats, sliders) | ✅ Done |
+| 9 | Frontend zone 3 (weapon + artifacts) | ✅ Done |
+| 10 | Frontend zone 4 (constellations) | 🚧 In progress |
+| 11 | Payments: Stripe + YooKassa | ⏳ Planned |
+| 12 | Deployment | ⏳ Planned |
+| 13 | Fix CI tests and linters | 🚧 In progress |
 
 ---
 
 ## 15. Documentation
-
-- **README.md** — description, stack, screenshots, quick start, demo links.
-- **docs/** — architecture (Mermaid diagrams), ER, ADR (Architecture Decision Records).
-- **CONTRIBUTING.md** — development rules.
-- **.env.example** — all variables.
-- **API** — OpenAPI at `/docs`.
+- **README.md**
+- **docs/**
+- **CONTRIBUTING.md**
+- **.env.example**
 
 ---
 
 ## 16. MVP Acceptance Criteria
-
-1. User can register and sign in with email + password.
-2. User sees a list of all characters with a percentage 0–100%.
+1. User can register and sign in.
+2. User sees a list of all characters with a percentage.
 3. User can fill in and save data for a character.
-4. Percentage uses cap-based formula: level 90 = 100%, talent 9 = 100%, crown/Stella counted separately.
+4. Percentage uses cap-based formula.
 5. Filters and sorting work.
 6. Donation works via Stripe and YooKassa (sandbox).
 7. RBAC works (admin / user / guest).
-8. Refresh tokens are stored in Redis with rotation.
-9. Catalog is refreshed from an external source via a button.
-10. CI is green; tests >= 80% on key modules.
+8. Refresh tokens are stored in Redis.
+9. Catalog is refreshed from an external source.
+10. CI is green; tests >= 80%.
 11. Deployed to free hosting; link in README.
 
 ---
 
 ## 17. Constraints and Assumptions
-
 - Not affiliated with HoYoverse. Public data is used.
 - MVP does not include a mobile app (PWA — post-MVP).
 - No payment information is stored — only transaction IDs.
 - Catalog may lag behind the current patch until synchronized.
-- Legally: donations / subscription are "project support", without in-game advantages.
 
 ---
 
 ## 18. Changelog
 
-### v1.2 (current)
-- Progress formula: level 90 cap, talent 9 cap, crown counter, Masterless Stella Fortuna (0-3)
-- Tracker: added custom stats (HP/ATK/DEF/EM/CR/CD/ER/ElemDMG), custom image URLs, level_cap field
-- Catalog source switched to genshin-db-api (better freshness + localization)
-- Auth: OAuth postponed to post-MVP, email/password only for MVP
-- Frontend: full auth flow, catalog with filters/pagination, character detail page with 4 zones (zones 1-2 done)
-- Admin: PATCH endpoints for manual editing of catalog entries (name_ru, icons, etc.)
-- Artifacts: rarity 1-5 supported with per-rarity level caps
-- Crown badge now always shown for owned characters (including 0)
+### v2.0 (current)
+- **Admin panel:** added bulk import from JSON, manual CRUD, auto-backup system, and sync protection (preventing overwriting manual edits).
+- **DB models updated:** added `release_date`, `talents`, `constellations`, `passive_name`, `min_rarity`, etc. for characters, weapons, and artifact sets.
+- **Frontend refactoring:** split `CharacterDetailPage` into modular features (`components`, `zones`).
+- **Zone 3 (Weapon + Artifacts):** full UI with stat validation (Main/Sub stats), set bonuses (2pc/4pc), and rarity backgrounds.
+- **Zone 1:** Added clickable slots and default 1-star weapon placeholders.
+- **Fixed:** infinite loop in React Query, SQLAlchemy `MissingGreenlet` error when updating artifacts.
+- **CI:** in progress (fixing pytest fixtures and mypy types).
+
+### v1.2
+- Progress formula: level 90 cap, talent 9 cap, crown counter.
+- Tracker: added custom stats.
+- Catalog source switched to genshin-db-api.
+- Admin: PATCH endpoints for manual editing.
 
 ### v1.0
-- Initial spec
+- Initial spec.
 
 ---
 
 ## 19. Post-MVP Backlog
 
 ### Auth & Users
-- OAuth providers: Google, Telegram, VK, Yandex, Discord (abstract provider pattern)
-- Email verification
-- Password reset flow
-- Rate limiting on auth endpoints (slowapi + Redis)
+- OAuth providers: Google, Telegram, VK, Yandex, Discord.
+- Email verification.
+- Password reset flow.
 
 ### Catalog & Data
-- Local image storage (S3-compatible) instead of hotlinking Wikia/HoYo URLs
-- Fandom parser for Russian localization (auto-fill name_ru, descriptions)
-- Fandom parser as fallback for new characters not yet in genshin-db-api
-- Enka.Network import: paste UID → auto-fill character progression
-- Artifact set bonus calculation (2pc / 2+2 / 4pc) from equipped artifacts
+- Local image storage (S3).
+- Fandom parser for RU localization.
+- Enka.Network import.
 
 ### Tracker
-- Full constellation data per character (stat bonuses, talent +3 which boosts cap from 10 to 13)
-- Unlocked constellation-colored digits (#38ffff for active, #ffff00 for crowned)
-- Character recommendations ("this character has 12% HP leftover to 100%")
-- Team compositions, share builds
-- Artifact recommendations
+- Full constellation data.
+- Team compositions, share builds.
+- Artifact recommendations.
 
 ### UI/UX
-- Shared element transitions between zones (Framer Motion layoutId)
-- Dark / light theme toggle
-- Mobile-first responsive polish
-- PWA installation
-- Icon library (SVG) replacing emoji placeholders
-- Skeleton loaders everywhere
-- Optimistic UI on all mutations
+- Shared element transitions (Framer Motion).
+- Dark / light theme toggle.
+- PWA installation.
 
 ### Payments
-- Stripe + YooKassa providers (Strategy pattern)
-- Donation flow + cosmetic `premium_visual` subscription
-- Webhook handlers with idempotency
-- `webhook_logs` table
+- Stripe + YooKassa providers.
+- Webhook handlers with idempotency.
 
 ### Infra & Quality
-- Deployment to free hosting (Fly.io / Render + Neon + Upstash)
-- E2E tests (Playwright)
-- Prometheus metrics + Grafana dashboards
-- Background tasks (Celery / APScheduler) for scheduled catalog sync
+- Deployment to free hosting.
+- E2E tests (Playwright).
+- Prometheus metrics.

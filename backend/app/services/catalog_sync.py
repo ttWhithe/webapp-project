@@ -14,7 +14,7 @@ import uuid
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from pydantic import ValidationError
 from sqlalchemy import select
@@ -50,11 +50,11 @@ ARTIFACT_EDITABLE = {
 }
 
 
-def _was_edited(obj) -> bool:
+def _was_edited(obj: Any) -> bool:
     """True, если запись правили вручную (updated_at позже created_at + 5 сек)."""
     if not obj.created_at or not obj.updated_at:
         return False
-    return (obj.updated_at - obj.created_at) > timedelta(seconds=5)
+    return bool((obj.updated_at - obj.created_at) > timedelta(seconds=5))
 
 
 T = TypeVar("T")
