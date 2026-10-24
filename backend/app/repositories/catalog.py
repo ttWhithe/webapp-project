@@ -53,7 +53,11 @@ class CharacterRepository:
             stmt = stmt.where(Character.rarity == rarity)
 
         total = await self._count(stmt)
-        stmt = stmt.order_by(CHARACTER_SORTS.get(sort, CHARACTER_SORTS["name_asc"]))
+        sort_expr = CHARACTER_SORTS.get(sort, CHARACTER_SORTS["name_asc"])
+        if isinstance(sort_expr, list):
+            stmt = stmt.order_by(*sort_expr)
+        else:
+            stmt = stmt.order_by(sort_expr)
         stmt = stmt.limit(limit).offset(offset)
         result = await self._session.scalars(stmt)
         return list(result.all()), total
@@ -95,7 +99,11 @@ class WeaponRepository:
             stmt = stmt.where(Weapon.rarity == rarity)
 
         total = await self._count(stmt)
-        stmt = stmt.order_by(WEAPON_SORTS.get(sort, WEAPON_SORTS["name_asc"]))
+        sort_expr = WEAPON_SORTS.get(sort, WEAPON_SORTS["name_asc"])
+        if isinstance(sort_expr, list):
+            stmt = stmt.order_by(*sort_expr)
+        else:
+            stmt = stmt.order_by(sort_expr)
         stmt = stmt.limit(limit).offset(offset)
         result = await self._session.scalars(stmt)
         return list(result.all()), total

@@ -481,6 +481,7 @@ async def import_artifact_from_parser(
 
     if "quality" in data and isinstance(data["quality"], list) and data["quality"]:
         artifact.max_rarity = max(data["quality"])
+        artifact.min_rarity = min(data["quality"])
 
     if "bonuses" in data and isinstance(data["bonuses"], dict):
         artifact.bonus_2pc = data["bonuses"].get("2pc")
@@ -799,6 +800,7 @@ async def bulk_import_catalog(
 
             if "quality" in data and isinstance(data["quality"], list) and data["quality"]:
                 obj.max_rarity = max(data["quality"])
+                obj.min_rarity = min(data["quality"])
             if "bonuses" in data and isinstance(data["bonuses"], dict):
                 obj.bonus_2pc = data["bonuses"].get("2pc")
                 obj.bonus_4pc = data["bonuses"].get("4pc")

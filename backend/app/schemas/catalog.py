@@ -55,8 +55,16 @@ class ArtifactSetRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
-    external_id: int | None
     slug: str
     name: str
     name_ru: str | None
     icon_url: str | None
+
+    icon_plume_url: str | None
+    icon_sands_url: str | None
+    icon_goblet_url: str | None
+    icon_circlet_url: str | None
+    min_rarity: int | None
+    max_rarity: int | None
+    bonus_2pc: str | None
+    bonus_4pc: str | None

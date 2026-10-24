@@ -709,6 +709,7 @@ export default function AdminCatalogPage() {
             icon_goblet_url: editing.row.icon_goblet_url,
             icon_circlet_url: editing.row.icon_circlet_url,
             max_rarity: editing.row.max_rarity,
+            min_rarity: editing.row.min_rarity,
             bonus_2pc: editing.row.bonus_2pc,
             bonus_4pc: editing.row.bonus_4pc,
           }}
@@ -719,6 +720,7 @@ export default function AdminCatalogPage() {
             { key: 'icon_sands_url', label: 'URL иконки (Часы)' },
             { key: 'icon_goblet_url', label: 'URL иконки (Кубок)' },
             { key: 'icon_circlet_url', label: 'URL иконки (Шапка)' },
+            { key: 'min_rarity', label: 'Мин. редкость', type: 'number' },
             { key: 'max_rarity', label: 'Макс. редкость', type: 'number' },
             { key: 'bonus_2pc', label: 'Бонус 2 предметов' },
             { key: 'bonus_4pc', label: 'Бонус 4 предметов' },

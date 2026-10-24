@@ -10,6 +10,7 @@ from app.api.deps import (
     get_user_character_repo,
     get_weapon_repo,
 )
+from app.db.session import get_db
 from app.models.user_artifact import UserArtifact
 from app.models.user_character import UserCharacter
 from app.repositories.catalog import (
@@ -31,6 +32,8 @@ from app.schemas.tracker import (
 )
 from app.services.progress import ProgressBreakdown, calculate_progress
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import delete
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/me/characters", tags=["tracker"])
 
@@ -139,9 +142,14 @@ async def _validate_refs(
                 raise HTTPException(404, f"ArtifactSet {a.set_id} not found")
 
 
-def _apply_artifacts(uc: UserCharacter, payloads: list[UserArtifactIn]) -> None:
-    """Replace uc.artifacts with the given payloads."""
-    uc.artifacts.clear()
+async def _apply_artifacts(
+    uc: UserCharacter, payloads: list[UserArtifactIn], db: AsyncSession
+) -> None:
+    """Replace uc.artifacts with the given payloads.
+    Forcing a DB delete first to avoid unique constraint errors.
+    """
+    await db.execute(delete(UserArtifact).where(UserArtifact.user_character_id == uc.id))
+    uc.artifacts = []
     for p in payloads:
         uc.artifacts.append(
             UserArtifact(
@@ -176,6 +184,7 @@ async def create_my_character(
     characters: Annotated[CharacterRepository, Depends(get_character_repo)],
     weapons: Annotated[WeaponRepository, Depends(get_weapon_repo)],
     artifact_sets: Annotated[ArtifactSetRepository, Depends(get_artifact_set_repo)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> UserCharacterDetail:
     """Track a new character for the current user."""
     if await repo.get_by_character_id(current_user.id, payload.character_id) is not None:
@@ -195,7 +204,7 @@ async def create_my_character(
     repo.add(uc)
 
     if payload.artifacts:
-        _apply_artifacts(uc, payload.artifacts)
+        await _apply_artifacts(uc, payload.artifacts, db)
 
     await repo.commit()
 
@@ -226,6 +235,7 @@ async def update_my_character(
     characters: Annotated[CharacterRepository, Depends(get_character_repo)],
     weapons: Annotated[WeaponRepository, Depends(get_weapon_repo)],
     artifact_sets: Annotated[ArtifactSetRepository, Depends(get_artifact_set_repo)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> UserCharacterDetail:
     uc = await repo.get_by_id_for_user(user_character_id, current_user.id)
     if uc is None:
@@ -244,7 +254,7 @@ async def update_my_character(
             weapons=weapons,
             artifact_sets=artifact_sets,
         )
-        _apply_artifacts(uc, payload.artifacts)
+        await _apply_artifacts(uc, payload.artifacts, db)
 
     await repo.commit()
 

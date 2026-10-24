@@ -180,7 +180,11 @@ export default function RadialProgress({
                     paddingBottom: outerSize * 0.22,
                   }}
                 >
-                  {cfg.icon}
+                  {cfg.icon.startsWith('http') ? (
+                    <img src={cfg.icon} alt="" className="w-3/4 h-3/4 object-contain" />
+                  ) : (
+                    cfg.icon
+                  )}
                 </div>
               )}
               {/* value under icon (+ crown when above cap) */}
@@ -193,6 +197,7 @@ export default function RadialProgress({
                   textShadow: `0 0 2px ${colors.secondary}, 0 0 4px ${colors.secondary}88`,
                   fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
                   lineHeight: 1,
+                  fontWeight: 900,
                 }}
               >
                 {isCrowned && <span style={{ fontSize: '0.9em' }}>👑</span>}
@@ -254,10 +259,14 @@ export default function RadialProgress({
                 style={{
                   fontSize: middleSize * 0.4,
                   lineHeight: 1,
-                  paddingBottom: middleSize * 0.2,
+                  paddingBottom: middleSize * 0.1,
                 }}
               >
-                {item.icon}
+                {item.icon.startsWith('http') ? (
+                  <img src={item.icon} alt="" className="w-[75%] h-[75%] object-contain" />
+                ) : (
+                  item.icon
+                )}
               </div>
               <div
                 className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none flex items-start"
@@ -268,9 +277,10 @@ export default function RadialProgress({
                   textShadow: `0 0 2px ${colors.secondary}, 0 0 4px ${colors.secondary}88`,
                   fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
                   lineHeight: 1,
+                  fontWeight: 900,
                 }}
               >
-                {item.rawValue != null ? (
+                {item.rawValue != null && item.rawValue !== '' ? (
                   <>
                     <span>{item.rawValue}</span>
                     {item.stars != null && item.stars > 0 && (
@@ -286,9 +296,9 @@ export default function RadialProgress({
                       </span>
                     )}
                   </>
-                ) : (
+                ) : item.value > 0 ? (
                   <span>{Math.round(item.value)}%</span>
-                )}
+                ) : null}
               </div>
             </div>
             <div

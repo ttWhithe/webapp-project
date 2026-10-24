@@ -32,6 +32,7 @@ class ArtifactSet(Base):
     name: Mapped[str] = mapped_column(String(150), nullable=False)
     name_ru: Mapped[str | None] = mapped_column(String(150), nullable=True)
     max_rarity: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    min_rarity: Mapped[int | None] = mapped_column(Integer, nullable=True)
     bonus_2pc: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     bonus_4pc: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     icon_url: Mapped[str | None] = mapped_column(String(500), nullable=True)

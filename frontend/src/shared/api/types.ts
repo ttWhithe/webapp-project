@@ -167,6 +167,7 @@ export interface AdminArtifactSet {
   icon_goblet_url: string | null
   icon_circlet_url: string | null
   max_rarity: number | null;
+  min_rarity: number | null;
   bonus_2pc: string | null;
   bonus_4pc: string | null;
 }

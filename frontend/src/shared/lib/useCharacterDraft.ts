@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import type { UserCharacterDetail } from '@/shared/api/types'
+import type { UserCharacterDetail, UserArtifactRead } from '@/shared/api/types'
 import { calculateProgress, type ProgressBreakdown } from '@/shared/lib/progress'
 
 type Draft = Pick<
@@ -22,7 +22,9 @@ type Draft = Pick<
   | 'weapon_id'
   | 'weapon_level'
   | 'weapon_refinement'
->
+> & {
+  artifacts: UserArtifactRead[]
+}
 
 export interface UseCharacterDraftResult {
   draft: Draft | null
@@ -52,8 +54,6 @@ export function useCharacterDraft({
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingPatch = useRef<Partial<Draft>>({})
 
-  // Stable onSave reference — parent recreates the function every render,
-  // and without a ref we'd trigger the unmount effect on every render → loop.
   const onSaveRef = useRef(onSave)
   useEffect(() => {
     onSaveRef.current = onSave
@@ -61,7 +61,6 @@ export function useCharacterDraft({
 
   useEffect(() => {
     if (!detail) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraft(null)
       return
     }
@@ -83,6 +82,7 @@ export function useCharacterDraft({
       weapon_id: detail.weapon_id,
       weapon_level: detail.weapon_level,
       weapon_refinement: detail.weapon_refinement,
+      artifacts: detail.artifacts || [],
     })
   }, [detail])
 
@@ -95,9 +95,9 @@ export function useCharacterDraft({
           talentNormal: draft.talent_normal,
           talentSkill: draft.talent_skill,
           talentBurst: draft.talent_burst,
-          weaponLevel: detail.weapon_level,
-          weaponRefinement: detail.weapon_refinement,
-          artifacts: detail.artifacts.map(
+          weaponLevel: draft.weapon_level,
+          weaponRefinement: draft.weapon_refinement,
+          artifacts: draft.artifacts.map(
             (a) => [a.level, a.rarity] as [number, number],
           ),
         })
@@ -107,7 +107,6 @@ export function useCharacterDraft({
     <K extends keyof Draft>(key: K, value: Draft[K]) => {
       setDraft((prev) => {
         if (!prev) return prev
-        if (prev[key] === value) return prev
         return { ...prev, [key]: value }
       })
       setIsDirty(true)
@@ -132,7 +131,6 @@ export function useCharacterDraft({
     [debounceMs],
   )
 
-  // Flush pending save on unmount only
   useEffect(() => {
     return () => {
       if (saveTimer.current) {

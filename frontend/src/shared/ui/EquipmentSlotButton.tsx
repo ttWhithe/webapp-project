@@ -1,21 +1,23 @@
+import CircularProgress from './CircularProgress'
+
 interface Props {
   icon: string
+  customIconUrl?: string | null // <--- ДОБАВИЛИ ДЛЯ КАРТИНОК
   label: string
   selected: boolean
   filled: boolean
   progress: number // 0-100
-  /** Level text shown at the bottom of the circle. E.g. "90" or "+20" */
   levelText?: string
-  /** Stars shown as superscript next to levelText (weapon refinement) */
   stars?: number
   colors: { main: string; secondary: string; accent: string }
   onClick: () => void
 }
 
-const SIZE = 128 // px — circle diameter
+const SIZE = 128 // px — circle diameter (как было у тебя)
 
 export default function EquipmentSlotButton({
   icon,
+  customIconUrl,
   label,
   selected,
   filled,
@@ -51,7 +53,7 @@ export default function EquipmentSlotButton({
     >
       {/* Inner circle */}
       <div
-        className="absolute rounded-full flex items-center justify-center"
+        className="absolute rounded-full flex items-center justify-center overflow-hidden"
         style={{
           top: '12%',
           left: '12%',
@@ -63,16 +65,25 @@ export default function EquipmentSlotButton({
         }}
       >
         {/* Icon — upper area */}
-        <span
-          className="leading-none pointer-events-none select-none"
-          style={{
-            fontSize: 34,
-            paddingBottom: 10,
-            opacity: filled ? 1 : 0.55,
-          }}
-        >
-          {icon}
-        </span>
+        {customIconUrl ? (
+          <img
+            src={customIconUrl}
+            alt={label}
+            className="w-[75%] h-[75%] object-contain drop-shadow-md pointer-events-none"
+            style={{ opacity: filled ? 1 : 0.55, marginBottom: 10 }}
+          />
+        ) : (
+          <span
+            className="leading-none pointer-events-none select-none"
+            style={{
+              fontSize: 34,
+              paddingBottom: 10,
+              opacity: filled ? 1 : 0.55,
+            }}
+          >
+            {icon}
+          </span>
+        )}
       </div>
 
       {/* Level + stars — at the bottom, inside the ring */}
