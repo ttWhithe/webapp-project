@@ -8,6 +8,7 @@ type Draft = Pick<
   | 'level'
   | 'level_cap'
   | 'friendship'
+  | 'constellation'
   | 'talent_normal'
   | 'talent_skill'
   | 'talent_burst'
@@ -68,6 +69,7 @@ export function useCharacterDraft({
       level: detail.level,
       level_cap: detail.level_cap,
       friendship: detail.friendship,
+      constellation: detail.constellation,
       talent_normal: detail.talent_normal,
       talent_skill: detail.talent_skill,
       talent_burst: detail.talent_burst,

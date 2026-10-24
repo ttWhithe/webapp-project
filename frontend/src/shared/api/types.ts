@@ -33,6 +33,13 @@ export type Element =
 
 export type WeaponType = 'sword' | 'claymore' | 'polearm' | 'bow' | 'catalyst'
 
+export interface ConstellationData {
+  name: string;
+  icon: string;
+  description: string;
+  increases?: string;
+}
+
 export interface Character {
   id: string
   external_id: number
@@ -48,6 +55,10 @@ export interface Character {
   icon_url: string | null
   portrait_url: string | null
   version_added: string | null
+  constellation_icon_url: string | null;
+  constellations: Record<string, ConstellationData> | null;
+  c3_increases: string | null;
+  c5_increases: string | null;
 }
 
 export interface Weapon {

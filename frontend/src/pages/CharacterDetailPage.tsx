@@ -91,6 +91,7 @@ export default function CharacterDetailPage() {
   })
 
   const { current, goTo } = useSectionScroll(ZONES)
+  const safeCurrent = Math.min(current, ZONES - 1)
 
   if (catalogQuery.isLoading) return <LoadingSpinner />
   if (catalogQuery.isError || !catalogQuery.data)
@@ -99,10 +100,10 @@ export default function CharacterDetailPage() {
   const character = catalogQuery.data
 
   return (
-    <div className="relative">
+    <div className="relative h-screen w-full overflow-hidden">
       <div
         className="transition-transform duration-700 ease-in-out"
-        style={{ transform: `translateY(-${current * 100}vh)` }}
+        style={{ transform: `translateY(-${safeCurrent * 100}vh)` }}
       >
         <ZoneHero
           character={character}
@@ -114,7 +115,7 @@ export default function CharacterDetailPage() {
           totalOverride={progress?.total}
           artifactSets={artifactSets}
           weapons={weapons}
-          defaultWeapon={defaultWeapon} // <--- Передаем заглушку
+          defaultWeapon={defaultWeapon}
           onSelectSlot={(key) => {
             setSelectedSlot(key)
             goTo(2)
@@ -141,12 +142,19 @@ export default function CharacterDetailPage() {
           lastSaved={lastSaved}
           artifactSets={artifactSets}
           weapons={weapons}
-          defaultWeapon={defaultWeapon} // <--- Передаем заглушку
+          defaultWeapon={defaultWeapon}
           weaponsQuery={weaponsQuery}
           selectedSlot={selectedSlot}
           setSelectedSlot={setSelectedSlot}
         />
-        <ZoneConstellations detail={detail} />
+        <ZoneConstellations
+          character={character}
+          draft={draft}
+          onUpdate={update}
+          isSaving={isSaving}
+          lastSaved={lastSaved}
+          goTo={goTo}
+        />
       </div>
     </div>
   )

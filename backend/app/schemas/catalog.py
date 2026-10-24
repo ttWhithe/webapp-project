@@ -1,6 +1,7 @@
 """Read schemas for the public catalog: characters, weapons, artifact sets."""
 
 import uuid
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
@@ -33,6 +34,10 @@ class CharacterRead(BaseModel):
     icon_url: str | None
     portrait_url: str | None
     version_added: str | None
+    constellation_icon_url: str | None = None
+    constellations: dict[str, Any] | list[dict[str, Any]] | None = None
+    c3_increases: str | None = None
+    c5_increases: str | None = None
 
 
 class WeaponRead(BaseModel):

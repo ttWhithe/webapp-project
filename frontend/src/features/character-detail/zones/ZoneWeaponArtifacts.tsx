@@ -254,7 +254,7 @@ export function ZoneWeaponArtifacts({
                 )}
 
                 <div className="absolute left-1/2 -translate-x-1/2 flex items-start font-bold pointer-events-none" style={{ bottom: 10, color: colors.accent, fontFamily: "'Comic Sans MS', 'Comic Sans', cursive", fontSize: 36, textShadow: `0 0 5px ${colors.secondary}`, lineHeight: 1 }}>
-                  {selectedSlot === 'weapon' ? <><span>{draft.weapon_level ?? 0}</span>{refinement > 0 && <span style={{ fontSize: '0.5em', color: '#fde047', marginLeft: 3, marginTop: -4 }}>★{refinement}</span>}</> : <span>{isPlaceholder ? '' : Math.max(1, currentArtifact?.level || 1)}</span>}
+                  {selectedSlot === 'weapon' ? <><span>{draft.weapon_level ?? 1}</span>{refinement > 0 && <span style={{ fontSize: '0.5em', color: '#fde047', marginLeft: 3, marginTop: -4 }}>★{refinement}</span>}</> : <span>{isPlaceholder ? '' : Math.max(1, currentArtifact?.level || 1)}</span>}
                 </div>
 
                 {selectedSlot === 'weapon' ? (

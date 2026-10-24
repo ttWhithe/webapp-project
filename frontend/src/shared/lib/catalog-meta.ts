@@ -60,6 +60,12 @@ export const RARITY_BG_MAP: Record<number, string> = {
   5: 'https://static.wikia.nocookie.net/gensin-impact/images/7/76/Background_Item_5_Star.png',
 }
 
+// Цвета для талантов
+export const TALENT_COLORS = {
+  crown: { main: '#ffff00', secondary: '#96640f', accent: '#ffff00' },
+  constellation: { main: '#38ffff', secondary: '#0f4646', accent: '#38ffff' },
+}
+
 // Special "5a" background — for Traveler and Aloy
 const RARITY_BG_5A =
   'https://static.wikia.nocookie.net/gensin-impact/images/d/de/Background_Item_5a_Star.png'

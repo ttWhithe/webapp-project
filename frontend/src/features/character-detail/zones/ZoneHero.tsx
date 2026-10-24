@@ -1,4 +1,4 @@
-import { ELEMENT_HEX } from '@/shared/lib/catalog-meta'
+import { ELEMENT_HEX, TALENT_COLORS } from '@/shared/lib/catalog-meta'
 import RadialProgress, { type OuterSlotConfig, type RadialItem } from '@/shared/ui/RadialProgress'
 import { ARTIFACT_MAX_LEVEL, PLACEHOLDER_ICONS } from '../constants'
 import { getSetSlotIcon } from '../utils'
@@ -16,13 +16,9 @@ export function ZoneHero({
 
   const items: RadialItem[] = [
     {
-      key: 'weapon',
-      label: 'Оружие',
-      value: weaponPct,
-      // Если оружие не выбрано, ставим картинку 1-звездочного
+      key: 'weapon', label: 'Оружие', value: weaponPct,
       icon: selectedWeapon?.icon_url || defaultWeapon?.icon_url || '⚔️',
-      rawValue: draft?.weapon_level ?? 0,
-      stars: draft?.weapon_refinement ?? 0
+      rawValue: draft?.weapon_level ?? 1, stars: draft?.weapon_refinement ?? 1
     },
     { key: 'flower', label: 'Цветок', value: 0, icon: PLACEHOLDER_ICONS.flower, rawValue: '' },
     { key: 'plume', label: 'Перо', value: 0, icon: PLACEHOLDER_ICONS.plume, rawValue: '' },
@@ -51,17 +47,54 @@ export function ZoneHero({
 
   const total = totalOverride ?? detail?.progress.total ?? 0
 
+  // Берем данные из БД (Админки)
+  const cLevel = draft?.constellation || 0
+  const c3Inc = character.c3_increases || ''
+  const c5Inc = character.c5_increases || ''
+
+  const isBurstBuffed = cLevel >= 3 && (c3Inc.includes('Взрыв') || c3Inc.includes('Burst'))
+  const isSkillBuffed = cLevel >= 5 && (c5Inc.includes('навык') || c5Inc.includes('Skill'))
+
+  const baseNormal = draft?.talent_normal ?? 1
+  const baseSkill = draft?.talent_skill ?? 1
+  const baseBurst = draft?.talent_burst ?? 1
+
+  const skillCrownAt = isSkillBuffed ? 13 : 10
+  const burstCrownAt = isBurstBuffed ? 13 : 10
+
+  // Создаем 6 слотов созвездий
+  const outerConsts: OuterSlotConfig[] = Array.from({ length: 6 }, (_, i) => {
+    const level = i + 1
+    // Так как в БД нет отдельных иконок для C1-C6, используем общую иконку созвездия
+    return {
+      variant: 'plain',
+      icon: character.constellation_icon_url || '🌟',
+      label: `C${level}`,
+      disabled: cLevel < level
+    }
+  })
+
   const OUTER_CONFIG: OuterSlotConfig[] = [
     { hidden: true },
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
-    { variant: 'plain', icon: '🌟', label: 'Созвездия' },
-    { icon: '💥', label: 'Взрыв стихии', value: draft?.talent_burst ?? 1, ringPercent: Math.min(100, ((draft?.talent_burst ?? 1) / 9) * 100), crownAt: 10 },
-    { icon: '⚡', label: 'Элем. навык', value: draft?.talent_skill ?? 1, ringPercent: Math.min(100, ((draft?.talent_skill ?? 1) / 9) * 100), crownAt: 10 },
-    { icon: '⚔️', label: 'Обычная атака', value: draft?.talent_normal ?? 1, ringPercent: Math.min(100, ((draft?.talent_normal ?? 1) / 9) * 100), crownAt: 10 },
+    ...outerConsts,
+    {
+      icon: '💥', label: 'Взрыв стихии', value: baseBurst,
+      ringPercent: Math.min(100, (baseBurst / 9) * 100),
+      crownAt: burstCrownAt,
+      textColor: baseBurst >= burstCrownAt ? TALENT_COLORS.crown.accent : (isBurstBuffed ? TALENT_COLORS.constellation.accent : undefined)
+    },
+    {
+      icon: '⚡', label: 'Элем. навык', value: baseSkill,
+      ringPercent: Math.min(100, (baseSkill / 9) * 100),
+      crownAt: skillCrownAt,
+      textColor: baseSkill >= skillCrownAt ? TALENT_COLORS.crown.accent : (isSkillBuffed ? TALENT_COLORS.constellation.accent : undefined)
+    },
+    {
+      icon: '⚔️', label: 'Обычная атака', value: baseNormal,
+      ringPercent: Math.min(100, (baseNormal / 9) * 100),
+      crownAt: 10,
+      textColor: baseNormal >= 10 ? TALENT_COLORS.crown.accent : undefined
+    },
     { hidden: true },
     { variant: 'plain', icon: isOwned ? '👤' : '➕', label: isOwned ? 'Убрать из трекера' : 'Добавить в трекер', angle: 180 },
     { icon: '📊', label: 'Уровень', value: draft?.level ?? 1, ringPercent: Math.min(100, ((draft?.level ?? 1) / 90) * 100), crownAt: 91 },

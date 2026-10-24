@@ -14,6 +14,7 @@ interface OuterSlotConfig {
   crownAt?: number
   /** Crown color (defaults to #fde047) */
   crownColor?: string
+  textColor?: string
 }
 
 export interface RadialItem {
@@ -193,7 +194,7 @@ export default function RadialProgress({
                 style={{
                   bottom: outerSize * 0.07,
                   fontSize: outerSize * 0.22,
-                  color: isCrowned ? crownColor : colors.accent,
+                  color: isCrowned ? crownColor : (cfg.textColor ?? colors.accent),
                   textShadow: `0 0 2px ${colors.secondary}, 0 0 4px ${colors.secondary}88`,
                   fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
                   lineHeight: 1,

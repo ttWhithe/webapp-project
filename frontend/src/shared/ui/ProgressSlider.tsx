@@ -8,6 +8,7 @@ interface Props {
   onChange: (value: number) => void
   icon?: string
   colors: { main: string; secondary: string; accent: string }
+  valueColor?: string // <-- ДОБАВЛЕНО
   disabled?: boolean
   height?: number
   crownAt?: number
@@ -23,6 +24,7 @@ export default function ProgressSlider({
   onChange,
   icon,
   colors,
+  valueColor,
   disabled = false,
   height = 96,
   crownAt,
@@ -34,7 +36,7 @@ export default function ProgressSlider({
   const ringStroke = 18
   const innerBorder = 3
 
-  const contentHeight = height - moduleBorder * 2 // 88
+  const contentHeight = height - moduleBorder * 2
 
   const ringPercent =
     ringCap != null && ringCap > 0
@@ -52,9 +54,7 @@ export default function ProgressSlider({
     ${colors.accent} 100%)`
 
   const isCrowned = crownAt != null && value >= crownAt
-
-  // inner circle size (for icon font scale)
-  const innerSize = contentHeight - circleOuterBorder * 2 - ringStroke * 2 // 46
+  const innerSize = contentHeight - circleOuterBorder * 2 - ringStroke * 2
 
   return (
     <div
@@ -69,7 +69,6 @@ export default function ProgressSlider({
         overflow: 'visible',
       }}
     >
-      {/* left: circle with border + conic-gradient ring */}
       <div
         className="relative shrink-0 transition-transform duration-300 ease-out scale-110 group-hover:scale-[1.21]"
         style={{
@@ -81,8 +80,6 @@ export default function ProgressSlider({
           transformOrigin: 'center',
         }}
       >
-        {/* ring — conic-gradient fills the padding-box area (inside the outer border).
-            No SVG stroke, so no anti-aliasing gap with the border. */}
         <div
           className="absolute inset-0 rounded-full"
           style={{
@@ -93,8 +90,6 @@ export default function ProgressSlider({
           }}
         />
 
-        {/* inner circle — overlaps the ring's inner edge by 1px each side,
-            so there's no anti-aliasing seam between two secondary regions */}
         <div
           className="absolute rounded-full flex items-center justify-center"
           style={{
@@ -109,21 +104,18 @@ export default function ProgressSlider({
         >
           <span
             className="leading-none select-none pointer-events-none"
-            style={{
-              fontSize: innerSize * 0.42,
-              paddingBottom: innerSize * 0.2,
-            }}
+            style={{ fontSize: innerSize * 0.42, paddingBottom: innerSize * 0.2 }}
           >
             {icon ?? '◆'}
           </span>
         </div>
 
-        {/* value + crown — sits at the bottom of the ring */}
+        {/* ЦИФРА: меняет цвет через valueColor */}
         <div
           className="absolute left-1/2 -translate-x-1/2 font-bold leading-none pointer-events-none flex items-center gap-1"
           style={{
             bottom: 2,
-            color: isCrowned ? crownColor : colors.accent,
+            color: isCrowned ? crownColor : (valueColor ?? colors.accent), // <-- ИСПОЛЬЗУЕМ valueColor
             fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
             fontSize: contentHeight * 0.24,
             textShadow: `0 0 4px ${colors.secondary}`,
@@ -135,12 +127,11 @@ export default function ProgressSlider({
         </div>
       </div>
 
-      {/* right: label + slider */}
       <div className="flex-1 min-w-0 flex flex-col justify-center pt-1 pb-4">
         <div
           className="text-2xl font-semibold mb-4 text-center truncate"
           style={{
-            color: colors.accent,
+            color: colors.accent, // <-- ТЕКСТ ВСЕГДА ЦВЕТА ЭЛЕМЕНТА
             fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
           }}
         >
