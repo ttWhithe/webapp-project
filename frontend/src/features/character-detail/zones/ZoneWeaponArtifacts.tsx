@@ -1,4 +1,4 @@
-import { ELEMENT_HEX } from '@/shared/lib/catalog-meta'
+import { ELEMENT_HEX, RARITY_BG_MAP } from '@/shared/lib/catalog-meta'
 import CircularProgress from '@/shared/ui/CircularProgress'
 import EquipmentSlotButton from '@/shared/ui/EquipmentSlotButton'
 import { ARTIFACT_MAX_LEVEL, EQUIPMENT_SLOTS, MAIN_STATS, PLACEHOLDER_ICONS, SUB_STATS } from '../constants'
@@ -7,6 +7,61 @@ import { RefinementArc } from '../components/RefinementArc'
 import { RarityArc } from '../components/RarityArc'
 import { SimpleSlider } from '../components/SimpleSlider'
 import type { UserArtifactRead } from '@/shared/api/types'
+
+// Компонент для красивого фона сетов артефактов (диагональ или сектора)
+function ArtifactSetBackground({ minR, maxR }: { minR: number, maxR: number }) {
+  // Если редкость одна — просто одна картинка
+  if (minR === maxR || minR >= maxR) {
+    return <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[minR] || RARITY_BG_MAP[5]})` }} />
+  }
+
+  // Если две редкости (например 4 и 5) — разделяем диагональю из левого-нижнего в правый-верхний
+  if (maxR - minR === 1) {
+    return (
+      <>
+        <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[maxR]})` }} />
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-80"
+          style={{
+            backgroundImage: `url(${RARITY_BG_MAP[minR]})`,
+            clipPath: 'polygon(0 0, 100% 0, 0 100%)' // Верхний левый треугольник
+          }}
+        />
+      </>
+    )
+  }
+
+  // Если три редкости (например 1, 2, 3) — делаем 3 сектора через conic-gradient маску
+  if (maxR - minR >= 2) {
+    const midR = minR + 1
+    return (
+      <>
+        {/* Синий (макс. редкость) - база, 2 - 6 часов */}
+        <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[maxR]})` }} />
+
+        {/* Зеленый (средняя редкость) - 6 - 10 часов */}
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-80"
+          style={{
+            backgroundImage: `url(${RARITY_BG_MAP[midR]})`,
+            WebkitMaskImage: 'conic-gradient(from 180deg, black 0deg 120deg, transparent 120deg 360deg)'
+          }}
+        />
+
+        {/* Серый (мин. редкость) - 10 - 2 часа */}
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-80"
+          style={{
+            backgroundImage: `url(${RARITY_BG_MAP[minR]})`,
+            WebkitMaskImage: 'conic-gradient(from 300deg, black 0deg 120deg, transparent 120deg 360deg)'
+          }}
+        />
+      </>
+    )
+  }
+
+  return null
+}
 
 export function ZoneWeaponArtifacts({
   character,
@@ -37,7 +92,6 @@ export function ZoneWeaponArtifacts({
   const isPlaceholder = selectedSlot !== 'weapon' && !currentArtifact
   const artifactIcon = (!isPlaceholder && currentSetInfo) ? getSetSlotIcon(currentSetInfo, selectedSlot) : null
 
-  // Если оружие не выбрано, используем 1-звездочную заглушку
   const selectedWeapon = draft.weapon_id ? weapons.find((w: any) => w.id === draft.weapon_id) : defaultWeapon
   const displayWeaponIcon = selectedWeapon?.icon_url
 
@@ -98,7 +152,6 @@ export function ZoneWeaponArtifacts({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Кнопка ОРУЖИЯ в верхнем меню (исправлено) */}
             <EquipmentSlotButton
               icon={EQUIPMENT_SLOTS[0].icon}
               customIconUrl={displayWeaponIcon}
@@ -163,7 +216,6 @@ export function ZoneWeaponArtifacts({
               <div className="relative" style={{ width: 240, height: 240 }}>
                 <CircularProgress value={isPlaceholder ? 0 : (selectedSlot === 'weapon' ? weaponPct : (currentArtifact ? (currentArtifact.level / (ARTIFACT_MAX_LEVEL[currentArtifact.rarity] || 20)) * 100 : 0))} size={240} strokeWidth={24} fillColor={colors.secondary} emptyColor={colors.main} innerColor={colors.main} borderColor={colors.secondary} hideLabel borderWidth={5} />
 
-                {/* Большой круг оружия (используем displayWeaponIcon для заглушки) */}
                 {selectedSlot === 'weapon' && displayWeaponIcon ? (
                   <img src={displayWeaponIcon} alt="weapon" className="absolute rounded-full object-cover pointer-events-none" style={{ top: '18%', left: '18%', width: '64%', height: '64%' }} />
                 ) : isPlaceholder ? (
@@ -262,11 +314,28 @@ export function ZoneWeaponArtifacts({
                     {weapons.map((w: any) => {
                       const isSelected = draft.weapon_id === w.id
                       return (
-                        <button key={w.id} type="button" onClick={() => { onUpdate('weapon_id', w.id); if (draft.weapon_id !== w.id) { onUpdate('weapon_level', 1); onUpdate('weapon_refinement', 1); } }} title={w.name} className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col" style={{ border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`, boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none', backgroundColor: colors.main }}>
-                          {w.icon_url && <img src={w.icon_url} alt={w.name} loading="lazy" className="w-full h-full object-cover pb-6" />}
-                          <div className="absolute top-1 right-1 px-1 rounded text-[10px] font-bold z-10" style={{ backgroundColor: colors.secondary, color: '#fde047' }}>★{w.rarity}</div>
+                        <button
+                          key={w.id}
+                          type="button"
+                          onClick={() => { onUpdate('weapon_id', w.id); if (draft.weapon_id !== w.id) { onUpdate('weapon_level', 1); onUpdate('weapon_refinement', 1); } }}
+                          title={w.name}
+                          className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col"
+                          style={{
+                            border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`,
+                            boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none',
+                            backgroundImage: `url(${RARITY_BG_MAP[w.rarity]})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
+                          }}
+                        >
+                          {/* Иконка оружия поверх фона */}
+                          {w.icon_url && <img src={w.icon_url} alt={w.name} loading="lazy" className="w-full h-full object-contain p-1 pb-6 drop-shadow-md z-10" />}
 
-                          <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1">
+                          {/* Плашка редкости */}
+                          <div className="absolute top-1 right-1 px-1 rounded text-[10px] font-bold z-20" style={{ backgroundColor: colors.secondary, color: '#fde047' }}>★{w.rarity}</div>
+
+                          {/* Название */}
+                          <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1 z-20">
                             <span className="text-[10px] text-white font-medium truncate block text-center w-full">{w.name}</span>
                           </div>
                         </button>
@@ -280,11 +349,11 @@ export function ZoneWeaponArtifacts({
                     type="button"
                     onClick={() => handleArtifactUpdate(null)}
                     title="Убрать артефакт"
-                    className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col"
-                    style={{ border: `${isPlaceholder ? 4 : 2}px solid ${isPlaceholder ? colors.accent : colors.secondary}`, boxShadow: isPlaceholder ? `0 0 20px ${colors.accent}88` : 'none', backgroundColor: colors.main }}
+                    className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col bg-slate-700"
+                    style={{ border: `${isPlaceholder ? 4 : 2}px solid ${isPlaceholder ? colors.accent : colors.secondary}`, boxShadow: isPlaceholder ? `0 0 20px ${colors.accent}88` : 'none' }}
                   >
-                    <img src={PLACEHOLDER_ICONS[selectedSlot]} alt="Нет" loading="lazy" className="w-full h-full object-cover pb-8 opacity-60" />
-                    <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1.5">
+                    <img src={PLACEHOLDER_ICONS[selectedSlot]} alt="Нет" loading="lazy" className="w-full h-full object-cover pb-8 opacity-60 z-10" />
+                    <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1.5 z-20">
                       <span className="text-[10px] text-white font-medium truncate block text-center w-full">— Нет —</span>
                     </div>
                   </button>
@@ -298,15 +367,23 @@ export function ZoneWeaponArtifacts({
                         onClick={() => handleArtifactUpdate({ set_id: s.id, set_name: s.name, set_slug: s.slug, rarity: Math.min(Math.max(currentArtifact?.rarity || 5, s.min_rarity || 1), s.max_rarity || 5) })}
                         title={s.name}
                         className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col"
-                        style={{ border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`, boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none', backgroundColor: colors.main }}
+                        style={{
+                          border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`,
+                          boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none'
+                        }}
                       >
+                        {/* Умный фон из нескольких слоев */}
+                        <ArtifactSetBackground minR={s.min_rarity || 1} maxR={s.max_rarity || 5} />
+
+                        {/* Иконка артефакта (z-10, чтобы была поверх фона) */}
                         {getSetSlotIcon(s, selectedSlot) ? (
-                          <img src={getSetSlotIcon(s, selectedSlot)!} alt={s.name} loading="lazy" className="w-full h-full object-cover pb-8" />
+                          <img src={getSetSlotIcon(s, selectedSlot)!} alt={s.name} loading="lazy" className="w-full h-full object-contain p-1 pb-8 z-10 drop-shadow-md" />
                         ) : (
-                          <div className="w-full h-full pb-8 flex items-center justify-center opacity-50 text-3xl">{selectedMeta.icon}</div>
+                          <div className="w-full h-full pb-8 flex items-center justify-center opacity-50 text-3xl z-10">{selectedMeta.icon}</div>
                         )}
 
-                        <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1.5">
+                        {/* Название */}
+                        <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1.5 z-20">
                           <span className="text-[10px] text-white font-medium truncate block text-center w-full">{s.name}</span>
                         </div>
                       </button>

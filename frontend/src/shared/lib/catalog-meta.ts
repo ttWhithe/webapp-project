@@ -52,7 +52,7 @@ export const WEAPON_TYPE_LABELS: Record<WeaponType, string> = {
 }
 
 // Rarity background images (from Genshin Wikia)
-const RARITY_BG_MAP: Record<number, string> = {
+export const RARITY_BG_MAP: Record<number, string> = {
   1: 'https://static.wikia.nocookie.net/gensin-impact/images/c/c2/Background_Item_1_Star.png',
   2: 'https://static.wikia.nocookie.net/gensin-impact/images/2/2e/Background_Item_2_Star.png',
   3: 'https://static.wikia.nocookie.net/gensin-impact/images/2/20/Background_Item_3_Star.png',
