@@ -1,21 +1,19 @@
 import { ELEMENT_HEX, RARITY_BG_MAP } from '@/shared/lib/catalog-meta'
 import CircularProgress from '@/shared/ui/CircularProgress'
 import EquipmentSlotButton from '@/shared/ui/EquipmentSlotButton'
-import { ARTIFACT_MAX_LEVEL, EQUIPMENT_SLOTS, MAIN_STATS, PLACEHOLDER_ICONS, SUB_STATS } from '../constants'
+import { ARTIFACT_MAX_LEVEL, ARTIFACT_MAIN_STATS, ARTIFACT_SUB_STATS, EQUIPMENT_SLOTS, PLACEHOLDER_ICONS } from '../constants'
 import { getSetSlotIcon } from '../utils'
 import { RefinementArc } from '../components/RefinementArc'
 import { RarityArc } from '../components/RarityArc'
 import { SimpleSlider } from '../components/SimpleSlider'
 import type { UserArtifactRead } from '@/shared/api/types'
 
-// Компонент для красивого фона сетов артефактов (диагональ или сектора)
+// Компонент для красивого фона сетов артефактов
 function ArtifactSetBackground({ minR, maxR }: { minR: number, maxR: number }) {
-  // Если редкость одна — просто одна картинка
   if (minR === maxR || minR >= maxR) {
     return <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[minR] || RARITY_BG_MAP[5]})` }} />
   }
 
-  // Если две редкости (например 4 и 5) — разделяем диагональю из левого-нижнего в правый-верхний
   if (maxR - minR === 1) {
     return (
       <>
@@ -24,22 +22,18 @@ function ArtifactSetBackground({ minR, maxR }: { minR: number, maxR: number }) {
           className="absolute inset-0 bg-cover bg-center opacity-80"
           style={{
             backgroundImage: `url(${RARITY_BG_MAP[minR]})`,
-            clipPath: 'polygon(0 0, 100% 0, 0 100%)' // Верхний левый треугольник
+            clipPath: 'polygon(0 0, 100% 0, 0 100%)'
           }}
         />
       </>
     )
   }
 
-  // Если три редкости (например 1, 2, 3) — делаем 3 сектора через conic-gradient маску
   if (maxR - minR >= 2) {
     const midR = minR + 1
     return (
       <>
-        {/* Синий (макс. редкость) - база, 2 - 6 часов */}
         <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[maxR]})` }} />
-
-        {/* Зеленый (средняя редкость) - 6 - 10 часов */}
         <div
           className="absolute inset-0 bg-cover bg-center opacity-80"
           style={{
@@ -47,8 +41,6 @@ function ArtifactSetBackground({ minR, maxR }: { minR: number, maxR: number }) {
             WebkitMaskImage: 'conic-gradient(from 180deg, black 0deg 120deg, transparent 120deg 360deg)'
           }}
         />
-
-        {/* Серый (мин. редкость) - 10 - 2 часа */}
         <div
           className="absolute inset-0 bg-cover bg-center opacity-80"
           style={{
@@ -95,6 +87,14 @@ export function ZoneWeaponArtifacts({
   const selectedWeapon = draft.weapon_id ? weapons.find((w: any) => w.id === draft.weapon_id) : defaultWeapon
   const displayWeaponIcon = selectedWeapon?.icon_url
 
+  // Получаем доступные Main Stats для текущего слота
+  const availableMainStats = ARTIFACT_MAIN_STATS[selectedSlot] || []
+  // Для цветка и пера Main Stat нельзя изменить
+  const isMainStatLocked = selectedSlot === 'flower' || selectedSlot === 'plume'
+
+  // Если слот залочен, показываем дефолтное значение (HP/ATK), иначе берем из БД
+  const displayMainStat = isMainStatLocked ? availableMainStats[0] : (currentArtifact?.main_stat || '')
+
   function handleArtifactUpdate(updates: Partial<UserArtifactRead> | null) {
     let newArtifacts = [...draft.artifacts]
     const idx = newArtifacts.findIndex((a: UserArtifactRead) => a.slot === selectedSlot)
@@ -105,6 +105,11 @@ export function ZoneWeaponArtifacts({
       return
     }
 
+    // Если меняется Main Stat, нужно убрать этот стат из Sub Stats, чтобы не было дубликата
+    if (updates.main_stat && idx >= 0) {
+      updates.substats = (newArtifacts[idx].substats || []).filter(s => s.stat !== updates.main_stat)
+    }
+
     let finalLevel = updates.level !== undefined ? updates.level : (idx >= 0 ? Math.max(1, newArtifacts[idx].level) : 1)
     const finalRarity = updates.rarity !== undefined ? updates.rarity : (idx >= 0 ? newArtifacts[idx].rarity : 5)
     const maxLevel = ARTIFACT_MAX_LEVEL[finalRarity] || 20
@@ -113,16 +118,38 @@ export function ZoneWeaponArtifacts({
     if (finalLevel < 1) finalLevel = 1
 
     if (idx >= 0) {
-      newArtifacts[idx] = { ...newArtifacts[idx], ...updates, level: finalLevel }
+      // Если артефакт уже есть, но у него пустой main_stat (например, цветок), принудительно ставим дефолт
+      let finalMainStat = newArtifacts[idx].main_stat
+      if (!finalMainStat && selectedSlot === 'flower') finalMainStat = 'HP'
+      if (!finalMainStat && selectedSlot === 'plume') finalMainStat = 'ATK'
+
+      newArtifacts[idx] = { ...newArtifacts[idx], ...updates, level: finalLevel, main_stat: finalMainStat }
     } else {
+      // При создании артефакта сразу ставим дефолтный main_stat для цветка/пера
+      const defaultMain = selectedSlot === 'flower' ? 'HP' : selectedSlot === 'plume' ? 'ATK' : (updates.main_stat || null)
+
       newArtifacts.push({
         id: Math.random().toString(), slot: selectedSlot,
         set_id: updates.set_id || '', set_slug: updates.set_slug || '', set_name: updates.set_name || '',
         rarity: finalRarity, level: finalLevel,
-        main_stat: updates.main_stat || null, substats: updates.substats || [],
+        main_stat: defaultMain, substats: updates.substats || [],
       })
     }
     onUpdate('artifacts', newArtifacts)
+  }
+
+  // Функция для получения доступных Sub Stats для конкретного инпута
+  const getAvailableSubStats = (currentIndex: number) => {
+    // Собираем статы, которые уже заняты в ДРУГИХ слотах
+    const usedStats = (currentArtifact?.substats || [])
+      .filter((_, idx) => idx !== currentIndex)
+      .map((s: any) => s.stat)
+
+    return ARTIFACT_SUB_STATS.filter(
+      (s) =>
+        s !== currentArtifact?.main_stat && // Не должен совпадать с Main Stat
+        !usedStats.includes(s) // Не должен дублироваться в других Sub Stats
+    )
   }
 
   const setCounts: Record<string, number> = {}
@@ -263,39 +290,73 @@ export function ZoneWeaponArtifacts({
 
                 <div className={`bg-slate-900/60 p-3 rounded-xl border border-slate-700 flex flex-col gap-2 ${isPlaceholder ? 'opacity-50 pointer-events-none' : ''}`}>
                   <label className="text-xs text-slate-400 font-semibold">Основная характеристика (Main Stat)</label>
-                  <select value={currentArtifact?.main_stat || ''} onChange={(e) => handleArtifactUpdate({ main_stat: e.target.value })} className="bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white">
+                  <select
+                    value={displayMainStat}
+                    onChange={(e) => handleArtifactUpdate({ main_stat: e.target.value })}
+                    className="bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white disabled:opacity-50"
+                    disabled={isMainStatLocked}
+                  >
                     <option value="">— Не выбрано —</option>
-                    {MAIN_STATS.map(s => <option key={s} value={s}>{s}</option>)}
+                    {availableMainStats.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
 
                 <div className={`bg-slate-900/60 p-3 rounded-xl border border-slate-700 flex flex-col gap-2 ${isPlaceholder ? 'opacity-50 pointer-events-none' : ''}`}>
                   <label className="text-xs text-slate-400 font-semibold">Доп. характеристики (Substats)</label>
-                  {(currentArtifact?.substats || []).map((sub: any, i: number) => (
-                    <div key={i} className="flex gap-2">
-                      <select value={sub.stat} onChange={(e) => {
-                        const newSubs = [...currentArtifact.substats]
-                        newSubs[i].stat = e.target.value
-                        handleArtifactUpdate({ substats: newSubs })
-                      }} className="bg-slate-800 border border-slate-600 rounded p-1 text-sm text-white flex-1">
-                        {SUB_STATS.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                      <input type="text" value={sub.value} onChange={(e) => {
-                        const newSubs = [...currentArtifact.substats]
-                        newSubs[i].value = e.target.value
-                        handleArtifactUpdate({ substats: newSubs })
-                      }} className="bg-slate-800 border border-slate-600 rounded p-1 text-sm text-white w-20" placeholder="+10%" />
-                      <button onClick={() => {
-                        const newSubs = currentArtifact.substats.filter((_: any, idx: number) => idx !== i)
-                        handleArtifactUpdate({ substats: newSubs })
-                      }} className="text-red-400 px-2 hover:bg-slate-800 rounded">✕</button>
-                    </div>
-                  ))}
+                  {(currentArtifact?.substats || []).map((sub: any, i: number) => {
+                    const options = getAvailableSubStats(i)
+                    return (
+                      <div key={i} className="flex gap-2">
+                        <select
+                          value={sub.stat || ''}
+                          onChange={(e) => {
+                            const newSubs = [...currentArtifact.substats]
+                            newSubs[i].stat = e.target.value
+                            handleArtifactUpdate({ substats: newSubs })
+                          }}
+                          className="bg-slate-800 border border-slate-600 rounded p-1 text-sm text-white flex-1"
+                        >
+                          <option value="">—</option>
+                          {options.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                        <input
+                          type="text"
+                          value={sub.value || ''}
+                          onChange={(e) => {
+                            const newSubs = [...currentArtifact.substats]
+                            newSubs[i].value = e.target.value
+                            handleArtifactUpdate({ substats: newSubs })
+                          }}
+                          className="bg-slate-800 border border-slate-600 rounded p-1 text-sm text-white w-20"
+                          placeholder="+10%"
+                        />
+                        <button
+                          onClick={() => {
+                            const newSubs = currentArtifact.substats.filter((_: any, idx: number) => idx !== i)
+                            handleArtifactUpdate({ substats: newSubs })
+                          }}
+                          className="text-red-400 px-2 hover:bg-slate-800 rounded"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )
+                  })}
                   {(currentArtifact?.substats?.length || 0) < 4 && (
-                    <button onClick={() => {
-                      const newSubs = [...(currentArtifact?.substats || []), { stat: 'HP', value: '' }]
-                      handleArtifactUpdate({ substats: newSubs })
-                    }} className="text-teal-400 text-xs text-left hover:underline mt-1">+ Добавить сабстат</button>
+                    <button
+                      onClick={() => {
+                        const usedStats = (currentArtifact?.substats || []).map((s: any) => s.stat)
+                        const firstAvailable = ARTIFACT_SUB_STATS.find(s =>
+                          s !== currentArtifact?.main_stat && !usedStats.includes(s)
+                        ) || 'HP'
+
+                        const newSubs = [...(currentArtifact?.substats || []), { stat: firstAvailable, value: '' }]
+                        handleArtifactUpdate({ substats: newSubs })
+                      }}
+                      className="text-teal-400 text-xs text-left hover:underline mt-1"
+                    >
+                      + Добавить сабстат
+                    </button>
                   )}
                 </div>
               </div>
@@ -328,13 +389,8 @@ export function ZoneWeaponArtifacts({
                             backgroundPosition: 'center'
                           }}
                         >
-                          {/* Иконка оружия поверх фона */}
                           {w.icon_url && <img src={w.icon_url} alt={w.name} loading="lazy" className="w-full h-full object-contain p-1 pb-6 drop-shadow-md z-10" />}
-
-                          {/* Плашка редкости */}
                           <div className="absolute top-1 right-1 px-1 rounded text-[10px] font-bold z-20" style={{ backgroundColor: colors.secondary, color: '#fde047' }}>★{w.rarity}</div>
-
-                          {/* Название */}
                           <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1 z-20">
                             <span className="text-[10px] text-white font-medium truncate block text-center w-full">{w.name}</span>
                           </div>
@@ -372,17 +428,14 @@ export function ZoneWeaponArtifacts({
                           boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none'
                         }}
                       >
-                        {/* Умный фон из нескольких слоев */}
                         <ArtifactSetBackground minR={s.min_rarity || 1} maxR={s.max_rarity || 5} />
 
-                        {/* Иконка артефакта (z-10, чтобы была поверх фона) */}
                         {getSetSlotIcon(s, selectedSlot) ? (
                           <img src={getSetSlotIcon(s, selectedSlot)!} alt={s.name} loading="lazy" className="w-full h-full object-contain p-1 pb-8 z-10 drop-shadow-md" />
                         ) : (
                           <div className="w-full h-full pb-8 flex items-center justify-center opacity-50 text-3xl z-10">{selectedMeta.icon}</div>
                         )}
 
-                        {/* Название */}
                         <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1.5 z-20">
                           <span className="text-[10px] text-white font-medium truncate block text-center w-full">{s.name}</span>
                         </div>

@@ -1,17 +1,5 @@
 export const ZONES = 4
 
-export const MAIN_STATS = [
-  'HP', 'ATK', 'HP%', 'ATK%', 'DEF%', 'Elemental Mastery', 'Energy Recharge',
-  'CRIT Rate', 'CRIT DMG', 'Healing Bonus', 'Physical DMG Bonus',
-  'Pyro DMG Bonus', 'Hydro DMG Bonus', 'Dendro DMG Bonus', 'Electro DMG Bonus',
-  'Anemo DMG Bonus', 'Cryo DMG Bonus', 'Geo DMG Bonus'
-]
-
-export const SUB_STATS = [
-  'HP', 'ATK', 'DEF', 'HP%', 'ATK%', 'DEF%', 'Elemental Mastery',
-  'Energy Recharge', 'CRIT Rate', 'CRIT DMG'
-]
-
 export const ARTIFACT_MAX_LEVEL: Record<number, number> = {
   1: 4, 2: 4, 3: 12, 4: 16, 5: 20,
 }
@@ -33,4 +21,25 @@ export const EQUIPMENT_SLOTS: { key: EquipmentSlotKey; icon: string; label: stri
   { key: 'sands', icon: '⏳', label: 'Часы' },
   { key: 'goblet', icon: '🏺', label: 'Кубок' },
   { key: 'circlet', icon: '👑', label: 'Шапка' },
+]
+
+// Разрешенные Main Stats для каждого слота
+export const ARTIFACT_MAIN_STATS: Record<string, string[]> = {
+  flower: ['HP'],
+  plume: ['ATK'],
+  sands: ['HP%', 'ATK%', 'DEF%', 'Elemental Mastery', 'Energy Recharge'],
+  goblet: [
+    'HP%', 'ATK%', 'DEF%', 'Elemental Mastery', 'Physical DMG Bonus',
+    'Pyro DMG Bonus', 'Hydro DMG Bonus', 'Electro DMG Bonus', 'Cryo DMG Bonus',
+    'Anemo DMG Bonus', 'Geo DMG Bonus', 'Dendro DMG Bonus'
+  ],
+  circlet: ['HP%', 'ATK%', 'DEF%', 'Elemental Mastery', 'CRIT Rate', 'CRIT DMG', 'Healing Bonus'],
+}
+
+// Базовые Sub Stats (без бонусов урона и лечения)
+export const ARTIFACT_SUB_STATS = [
+  'HP', 'ATK', 'DEF',
+  'HP%', 'ATK%', 'DEF%',
+  'Elemental Mastery', 'Energy Recharge',
+  'CRIT Rate', 'CRIT DMG'
 ]
