@@ -98,6 +98,7 @@ def _to_detail(uc: UserCharacter) -> UserCharacterDetail:
         talent_skill=uc.talent_skill,
         talent_burst=uc.talent_burst,
         weapon=WeaponBrief.model_validate(uc.weapon) if uc.weapon else None,
+        weapon_id=uc.weapon_id,
         weapon_level=uc.weapon_level,
         weapon_refinement=uc.weapon_refinement,
         artifacts=[_to_artifact_read(a) for a in uc.artifacts],

@@ -1,5 +1,3 @@
-import { useQuery } from '@tanstack/react-query'
-import { catalogApi } from '@/shared/api/catalog'
 import { ELEMENT_HEX } from '@/shared/lib/catalog-meta'
 import CircularProgress from '@/shared/ui/CircularProgress'
 import EquipmentSlotButton from '@/shared/ui/EquipmentSlotButton'
@@ -10,15 +8,23 @@ import { RarityArc } from '../components/RarityArc'
 import { SimpleSlider } from '../components/SimpleSlider'
 import type { UserArtifactRead } from '@/shared/api/types'
 
-export function ZoneWeaponArtifacts({ character, detail, draft, progress, onUpdate, goTo, isSaving, lastSaved, artifactSets, selectedSlot, setSelectedSlot }: any) {
+export function ZoneWeaponArtifacts({
+  character,
+  detail,
+  draft,
+  progress,
+  onUpdate,
+  goTo,
+  isSaving,
+  lastSaved,
+  artifactSets,
+  weapons,
+  defaultWeapon,
+  weaponsQuery,
+  selectedSlot,
+  setSelectedSlot
+}: any) {
   const colors = ELEMENT_HEX[character.element as keyof typeof ELEMENT_HEX]
-
-  const weaponsQuery = useQuery({
-    queryKey: ['weapons', character.weapon_type],
-    queryFn: () => catalogApi.listWeapons({ weapon_type: character.weapon_type, sort: 'rarity_desc', limit: 200 }),
-    enabled: selectedSlot === 'weapon' && !!detail && !!draft,
-    staleTime: 5 * 60_000,
-  })
 
   if (!detail || !draft || !progress) return <section className="h-screen flex items-center justify-center text-slate-500">Нет данных об экипировке</section>
 
@@ -28,10 +34,12 @@ export function ZoneWeaponArtifacts({ character, detail, draft, progress, onUpda
 
   const currentArtifact = draft.artifacts.find((a: UserArtifactRead) => a.slot === selectedSlot)
   const currentSetInfo = artifactSets.find((s: any) => s.id === currentArtifact?.set_id)
-  const isPlaceholder = !currentArtifact
+  const isPlaceholder = selectedSlot !== 'weapon' && !currentArtifact
   const artifactIcon = (!isPlaceholder && currentSetInfo) ? getSetSlotIcon(currentSetInfo, selectedSlot) : null
 
-  const selectedWeapon = selectedSlot === 'weapon' && draft.weapon_id ? weaponsQuery.data?.items.find((w: any) => w.id === draft.weapon_id) : null
+  // Если оружие не выбрано, используем 1-звездочную заглушку
+  const selectedWeapon = draft.weapon_id ? weapons.find((w: any) => w.id === draft.weapon_id) : defaultWeapon
+  const displayWeaponIcon = selectedWeapon?.icon_url
 
   function handleArtifactUpdate(updates: Partial<UserArtifactRead> | null) {
     let newArtifacts = [...draft.artifacts]
@@ -90,7 +98,19 @@ export function ZoneWeaponArtifacts({ character, detail, draft, progress, onUpda
           </div>
 
           <div className="flex items-center gap-2">
-            <EquipmentSlotButton icon={EQUIPMENT_SLOTS[0].icon} label={EQUIPMENT_SLOTS[0].label} selected={selectedSlot === 'weapon'} filled={detail.weapon != null} progress={weaponPct} levelText={draft.weapon_level != null ? String(draft.weapon_level) : undefined} stars={refinement} colors={colors} onClick={() => setSelectedSlot('weapon')} />
+            {/* Кнопка ОРУЖИЯ в верхнем меню (исправлено) */}
+            <EquipmentSlotButton
+              icon={EQUIPMENT_SLOTS[0].icon}
+              customIconUrl={displayWeaponIcon}
+              label={EQUIPMENT_SLOTS[0].label}
+              selected={selectedSlot === 'weapon'}
+              filled={!!draft.weapon_id || !!defaultWeapon}
+              progress={weaponPct}
+              levelText={draft.weapon_level != null ? String(draft.weapon_level) : undefined}
+              stars={refinement}
+              colors={colors}
+              onClick={() => setSelectedSlot('weapon')}
+            />
             <div className="h-16 w-[3px] rounded-full" style={{ backgroundColor: colors.secondary }} />
 
             {EQUIPMENT_SLOTS.slice(1).map((slot) => {
@@ -143,8 +163,9 @@ export function ZoneWeaponArtifacts({ character, detail, draft, progress, onUpda
               <div className="relative" style={{ width: 240, height: 240 }}>
                 <CircularProgress value={isPlaceholder ? 0 : (selectedSlot === 'weapon' ? weaponPct : (currentArtifact ? (currentArtifact.level / (ARTIFACT_MAX_LEVEL[currentArtifact.rarity] || 20)) * 100 : 0))} size={240} strokeWidth={24} fillColor={colors.secondary} emptyColor={colors.main} innerColor={colors.main} borderColor={colors.secondary} hideLabel borderWidth={5} />
 
-                {selectedSlot === 'weapon' && selectedWeapon?.icon_url ? (
-                  <img src={selectedWeapon.icon_url} alt="weapon" className="absolute rounded-full object-cover pointer-events-none" style={{ top: '18%', left: '18%', width: '64%', height: '64%' }} />
+                {/* Большой круг оружия (используем displayWeaponIcon для заглушки) */}
+                {selectedSlot === 'weapon' && displayWeaponIcon ? (
+                  <img src={displayWeaponIcon} alt="weapon" className="absolute rounded-full object-cover pointer-events-none" style={{ top: '18%', left: '18%', width: '64%', height: '64%' }} />
                 ) : isPlaceholder ? (
                   <img src={PLACEHOLDER_ICONS[selectedSlot]} alt="placeholder" className="absolute rounded-full object-cover pointer-events-none opacity-50" style={{ top: '18%', left: '18%', width: '64%', height: '64%' }} />
                 ) : artifactIcon ? (
@@ -238,12 +259,16 @@ export function ZoneWeaponArtifacts({ character, detail, draft, progress, onUpda
               {selectedSlot === 'weapon' ? (
                 weaponsQuery.isLoading ? <div className="text-center text-slate-500 py-10">Загрузка...</div> : (
                   <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                    {(weaponsQuery.data?.items ?? []).map((w: any) => {
+                    {weapons.map((w: any) => {
                       const isSelected = draft.weapon_id === w.id
                       return (
-                        <button key={w.id} type="button" onClick={() => { onUpdate('weapon_id', w.id); if (draft.weapon_id !== w.id) { onUpdate('weapon_level', 1); onUpdate('weapon_refinement', 1); } }} title={w.name} className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105" style={{ border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`, boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none', backgroundColor: colors.main }}>
-                          {w.icon_url && <img src={w.icon_url} alt={w.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />}
-                          <div className="absolute top-1 right-1 px-1 rounded text-[10px] font-bold" style={{ backgroundColor: colors.secondary, color: '#fde047' }}>★{w.rarity}</div>
+                        <button key={w.id} type="button" onClick={() => { onUpdate('weapon_id', w.id); if (draft.weapon_id !== w.id) { onUpdate('weapon_level', 1); onUpdate('weapon_refinement', 1); } }} title={w.name} className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col" style={{ border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`, boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none', backgroundColor: colors.main }}>
+                          {w.icon_url && <img src={w.icon_url} alt={w.name} loading="lazy" className="w-full h-full object-cover pb-6" />}
+                          <div className="absolute top-1 right-1 px-1 rounded text-[10px] font-bold z-10" style={{ backgroundColor: colors.secondary, color: '#fde047' }}>★{w.rarity}</div>
+
+                          <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1">
+                            <span className="text-[10px] text-white font-medium truncate block text-center w-full">{w.name}</span>
+                          </div>
                         </button>
                       )
                     })}

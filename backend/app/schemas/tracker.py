@@ -176,6 +176,7 @@ class UserCharacterDetail(BaseModel):
     talent_burst: int
 
     weapon: WeaponBrief | None
+    weapon_id: uuid.UUID | None = None
     weapon_level: int | None
     weapon_refinement: int | None
 

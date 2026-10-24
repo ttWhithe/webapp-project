@@ -4,15 +4,26 @@ import { ARTIFACT_MAX_LEVEL, PLACEHOLDER_ICONS } from '../constants'
 import { getSetSlotIcon } from '../utils'
 import { HeroActionArc } from '../components/HeroActionArc'
 import type { EquipmentSlotKey } from '../constants'
-import type { UserCharacterDetail } from '@/shared/api/types'
 
-export function ZoneHero({ character, detail, draft, goTo, onToggleOwned, isOwned, totalOverride, artifactSets, onSelectSlot }: any) {
+export function ZoneHero({
+  character, detail, draft, goTo, onToggleOwned, isOwned, totalOverride, artifactSets, weapons, defaultWeapon, onSelectSlot
+}: any) {
   const colors = ELEMENT_HEX[character.element as keyof typeof ELEMENT_HEX]
   const portraitSrc = detail?.custom_portrait_url ?? character.portrait_url ?? character.icon_url ?? ''
   const weaponPct = draft?.weapon_level ? Math.min(100, (draft.weapon_level / 90) * 100) : 0
 
+  const selectedWeapon = weapons.find((w: any) => w.id === draft?.weapon_id)
+
   const items: RadialItem[] = [
-    { key: 'weapon', label: 'Оружие', value: weaponPct, icon: '⚔️', rawValue: draft?.weapon_level ?? 0, stars: draft?.weapon_refinement ?? 0 },
+    {
+      key: 'weapon',
+      label: 'Оружие',
+      value: weaponPct,
+      // Если оружие не выбрано, ставим картинку 1-звездочного
+      icon: selectedWeapon?.icon_url || defaultWeapon?.icon_url || '⚔️',
+      rawValue: draft?.weapon_level ?? 0,
+      stars: draft?.weapon_refinement ?? 0
+    },
     { key: 'flower', label: 'Цветок', value: 0, icon: PLACEHOLDER_ICONS.flower, rawValue: '' },
     { key: 'plume', label: 'Перо', value: 0, icon: PLACEHOLDER_ICONS.plume, rawValue: '' },
     { key: 'sands', label: 'Часы', value: 0, icon: PLACEHOLDER_ICONS.sands, rawValue: '' },

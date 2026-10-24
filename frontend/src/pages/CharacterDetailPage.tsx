@@ -28,7 +28,7 @@ export default function CharacterDetailPage() {
   })
 
   const mineQuery = useQuery({
-    queryKey: ['me', 'characters', slug],
+    queryKey: ['me', 'characters'],
     queryFn: () => trackerApi.listMine(),
     staleTime: 30_000,
   })
@@ -46,8 +46,19 @@ export default function CharacterDetailPage() {
     enabled: !!tracked,
   })
 
+  const weaponsQuery = useQuery({
+    queryKey: ['weapons', catalogQuery.data?.weapon_type],
+    queryFn: () => catalogApi.listWeapons({ weapon_type: catalogQuery.data?.weapon_type, sort: 'rarity_desc', limit: 200 }),
+    enabled: !!catalogQuery.data?.weapon_type,
+    staleTime: 5 * 60_000,
+  })
+
   const detail = detailQuery.data
   const artifactSets = setsQuery.data?.items || []
+  const weapons = weaponsQuery.data?.items || []
+
+  // Ищем однозвездочное оружие для заглушки (например, "Dull Blade")
+  const defaultWeapon = weapons.find((w: any) => w.rarity === 1)
 
   const handleSave = async (
     patch: Parameters<typeof trackerApi.updateMine>[1],
@@ -55,7 +66,23 @@ export default function CharacterDetailPage() {
     if (!tracked) return
     await trackerApi.updateMine(tracked.id, patch)
     qc.invalidateQueries({ queryKey: ['me', 'characters', 'detail', tracked.id] })
-    qc.invalidateQueries({ queryKey: ['me', 'characters'] })
+  }
+
+  const handleToggleOwned = async () => {
+    if (!catalogQuery.data) return
+    try {
+      if (tracked) {
+        await trackerApi.deleteMine(tracked.id)
+      } else {
+        await trackerApi.addMine(catalogQuery.data.id)
+      }
+      // Даем кэшу обновиться, чтобы UI сразу показал изменения
+      await qc.invalidateQueries({ queryKey: ['me', 'characters'] })
+      await qc.invalidateQueries({ queryKey: ['me', 'characters', 'detail'] })
+    } catch (e: any) {
+      console.error('Не удалось обновить трекер', e)
+      alert(e.response?.data?.detail || 'Ошибка: не удалось добавить/удалить персонажа')
+    }
   }
 
   const { draft, progress, isSaving, lastSaved, update } = useCharacterDraft({
@@ -82,10 +109,12 @@ export default function CharacterDetailPage() {
           detail={detail}
           draft={draft}
           goTo={goTo}
-          onToggleOwned={() => {}}
+          onToggleOwned={handleToggleOwned}
           isOwned={!!tracked}
           totalOverride={progress?.total}
           artifactSets={artifactSets}
+          weapons={weapons}
+          defaultWeapon={defaultWeapon} // <--- Передаем заглушку
           onSelectSlot={(key) => {
             setSelectedSlot(key)
             goTo(2)
@@ -111,6 +140,9 @@ export default function CharacterDetailPage() {
           isSaving={isSaving}
           lastSaved={lastSaved}
           artifactSets={artifactSets}
+          weapons={weapons}
+          defaultWeapon={defaultWeapon} // <--- Передаем заглушку
+          weaponsQuery={weaponsQuery}
           selectedSlot={selectedSlot}
           setSelectedSlot={setSelectedSlot}
         />
