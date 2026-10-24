@@ -48,7 +48,7 @@ async def _ensure_database_exists(database_url: str) -> None:
         )
     except (OSError, asyncpg.PostgresError) as exc:
         raise RuntimeError(
-            f"Failed to connect to service DB 'postgres' " f"to check/create '{target}': {exc}"
+            f"Failed to connect to service DB 'postgres' to check/create '{target}': {exc}"
         ) from exc
 
     try:
