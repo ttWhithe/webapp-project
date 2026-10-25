@@ -18,7 +18,6 @@ export function ZoneStats({ character, detail, draft, progress, onUpdate, isSavi
     </section>
   )
 
-  // Берем бусты из БД (Админки), проверяем на русский и английский
   const c3Inc = character.c3_increases || ''
   const c5Inc = character.c5_increases || ''
   const cLevel = draft.constellation || 0
@@ -43,12 +42,15 @@ export function ZoneStats({ character, detail, draft, progress, onUpdate, isSavi
   const burstCrownAt = isBurstBuffed ? 13 : 10
   const burstRingCap = isBurstBuffed ? 12 : 9
 
-  // Определяем цвет ТОЛЬКО для цифры
   const getValueColor = (isCrowned: boolean, isBuffed: boolean) => {
     if (isCrowned) return TALENT_COLORS.crown.accent
     if (isBuffed) return TALENT_COLORS.constellation.accent
-    return undefined // По умолчанию цвет элемента
+    return undefined
   }
+
+  const normalColors = colors
+  const skillColors = colors
+  const burstColors = colors
 
   return (
     <section className="h-screen flex items-center justify-center px-4 relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
@@ -68,25 +70,45 @@ export function ZoneStats({ character, detail, draft, progress, onUpdate, isSavi
           </div>
         </div>
         <div className="flex flex-col justify-center gap-3 px-[50px]">
-          <ProgressSlider label="Уровень персонажа" value={draft.level} min={1} max={draft.level_cap} onChange={(v: any) => onUpdate('level', v)} icon="📊" colors={colors} crownAt={PROGRESS_LEVEL_CAP + 1} ringCap={PROGRESS_LEVEL_CAP} />
+          <ProgressSlider
+            label="Уровень персонажа"
+            value={draft.level}
+            min={1}
+            max={100}
+            onChange={(v: any) => onUpdate('level', v)}
+            icon="📊"
+            colors={colors}
+            goldenAt={PROGRESS_LEVEL_CAP + 1} // <--- ЗОЛОТОЙ ЦВЕТ ПОСЛЕ 90
+            ringCap={PROGRESS_LEVEL_CAP}
+          />
           <ProgressSlider label="Уровень дружбы" value={draft.friendship} min={1} max={10} onChange={(v: any) => onUpdate('friendship', v)} icon="💚" colors={colors} ringCap={10} />
 
           <div className="flex items-center gap-3 my-2"><div className="flex-1 h-[2px] rounded-full" style={{ backgroundColor: colors.secondary }} /><span className="text-xs uppercase tracking-widest font-semibold" style={{ color: colors.accent }}>Таланты</span><div className="flex-1 h-[2px] rounded-full" style={{ backgroundColor: colors.secondary }} /></div>
 
           <ProgressSlider
             label="Обычная атака" value={draft.talent_normal} min={1} max={normalMax}
-            onChange={(v: any) => onUpdate('talent_normal', v)} icon="⚔️" colors={colors}
-            crownAt={normalCrownAt} ringCap={normalRingCap} valueColor={getValueColor(draft.talent_normal >= normalCrownAt, false)}
+            onChange={(v: any) => onUpdate('talent_normal', v)}
+            icon={character.talents?.['Normal Attack']?.icon || '⚔️'} // <--- ИКОНКА ИЗ БД
+            colors={normalColors}
+            goldenAt={normalCrownAt} ringCap={normalRingCap} valueColor={getValueColor(draft.talent_normal >= normalCrownAt, false)}
           />
           <ProgressSlider
-            label="Элементарный навык" value={baseSkill} min={skillMin} max={skillMax}
-            onChange={(v: any) => onUpdate('talent_skill', v)} icon="⚡" colors={colors}
-            crownAt={skillCrownAt} ringCap={skillRingCap} valueColor={getValueColor(baseSkill >= skillCrownAt, isSkillBuffed)}
+            label="Элементарный навык"
+            value={isSkillBuffed ? baseSkill + 3 : baseSkill}
+            min={skillMin} max={skillMax}
+            onChange={(v: any) => onUpdate('talent_skill', isSkillBuffed ? v - 3 : v)}
+            icon={character.talents?.['Elemental Skill']?.icon || '⚡'} // <--- ИКОНКА ИЗ БД
+            colors={skillColors} goldenAt={skillCrownAt} ringCap={skillRingCap}
+            valueColor={getValueColor(baseSkill >= skillCrownAt, isSkillBuffed)}
           />
           <ProgressSlider
-            label="Взрыв стихии" value={baseBurst} min={burstMin} max={burstMax}
-            onChange={(v: any) => onUpdate('talent_burst', v)} icon="💥" colors={colors}
-            crownAt={burstCrownAt} ringCap={burstRingCap} valueColor={getValueColor(baseBurst >= burstCrownAt, isBurstBuffed)}
+            label="Взрыв стихии"
+            value={isBurstBuffed ? baseBurst + 3 : baseBurst}
+            min={burstMin} max={burstMax}
+            onChange={(v: any) => onUpdate('talent_burst', isBurstBuffed ? v - 3 : v)}
+            icon={character.talents?.['Elemental Burst']?.icon || '💥'} // <--- ИКОНКА ИЗ БД
+            colors={burstColors} goldenAt={burstCrownAt} ringCap={burstRingCap}
+            valueColor={getValueColor(baseBurst >= burstCrownAt, isBurstBuffed)}
           />
         </div>
         <div className="hidden lg:flex items-center justify-center">

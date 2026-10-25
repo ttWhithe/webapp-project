@@ -47,7 +47,6 @@ export function ZoneHero({
 
   const total = totalOverride ?? detail?.progress.total ?? 0
 
-  // Берем данные из БД (Админки)
   const cLevel = draft?.constellation || 0
   const c3Inc = character.c3_increases || ''
   const c5Inc = character.c5_increases || ''
@@ -59,18 +58,30 @@ export function ZoneHero({
   const baseSkill = draft?.talent_skill ?? 1
   const baseBurst = draft?.talent_burst ?? 1
 
+  // Эффективные уровни (с учетом созвездий)
+  const effNormal = baseNormal
+  const effSkill = isSkillBuffed ? baseSkill + 3 : baseSkill
+  const effBurst = isBurstBuffed ? baseBurst + 3 : baseBurst
+
+  // Максимальный уровень для короны (10 или 13)
   const skillCrownAt = isSkillBuffed ? 13 : 10
   const burstCrownAt = isBurstBuffed ? 13 : 10
 
-  // Создаем 6 слотов созвездий
+  // Берем данные из БД
+  let consts: any = character.constellations || {}
+  if (typeof consts === 'string') {
+    try { consts = JSON.parse(consts) } catch (e) { consts = {} }
+  }
+
   const outerConsts: OuterSlotConfig[] = Array.from({ length: 6 }, (_, i) => {
     const level = i + 1
-    // Так как в БД нет отдельных иконок для C1-C6, используем общую иконку созвездия
+    const data = consts[String(level)] || {}
     return {
       variant: 'plain',
-      icon: character.constellation_icon_url || '🌟',
-      label: `C${level}`,
-      disabled: cLevel < level
+      icon: data.icon || character.constellation_icon_url || '🌟',
+      label: data.name || `Созвездие ${level}`,
+      disabled: false, // <--- ВСЕГДА КЛИКАБЕЛЬНО
+      opacity: cLevel >= level ? 1 : 0.4, // <--- Но прозрачно, если не открыто
     }
   })
 
@@ -78,27 +89,43 @@ export function ZoneHero({
     { hidden: true },
     ...outerConsts,
     {
-      icon: '💥', label: 'Взрыв стихии', value: baseBurst,
-      ringPercent: Math.min(100, (baseBurst / 9) * 100),
-      crownAt: burstCrownAt,
-      textColor: baseBurst >= burstCrownAt ? TALENT_COLORS.crown.accent : (isBurstBuffed ? TALENT_COLORS.constellation.accent : undefined)
+      icon: character.talents?.['Elemental Burst']?.icon || '💥',
+      label: 'Взрыв стихии', value: effBurst,
+      ringPercent: Math.min(100, (effBurst / (isBurstBuffed ? 12 : 9)) * 100), // <--- Обновляем прогресс кольца
+      goldenAt: burstCrownAt,
+      textColor: effBurst >= burstCrownAt ? TALENT_COLORS.crown.accent : (isBurstBuffed ? TALENT_COLORS.constellation.accent : undefined)
     },
     {
-      icon: '⚡', label: 'Элем. навык', value: baseSkill,
-      ringPercent: Math.min(100, (baseSkill / 9) * 100),
-      crownAt: skillCrownAt,
-      textColor: baseSkill >= skillCrownAt ? TALENT_COLORS.crown.accent : (isSkillBuffed ? TALENT_COLORS.constellation.accent : undefined)
+      icon: character.talents?.['Elemental Skill']?.icon || '⚡',
+      label: 'Элем. навык', value: effSkill, // <--- ИСПОЛЬЗУЕМ effSkill
+      ringPercent: Math.min(100, (effSkill / (isSkillBuffed ? 12 : 9)) * 100),
+      goldenAt: skillCrownAt,
+      textColor: effSkill >= skillCrownAt ? TALENT_COLORS.crown.accent : (isSkillBuffed ? TALENT_COLORS.constellation.accent : undefined)
     },
     {
-      icon: '⚔️', label: 'Обычная атака', value: baseNormal,
-      ringPercent: Math.min(100, (baseNormal / 9) * 100),
-      crownAt: 10,
-      textColor: baseNormal >= 10 ? TALENT_COLORS.crown.accent : undefined
+      icon: character.talents?.['Normal Attack']?.icon || '⚔️',
+      label: 'Обычная атака', value: effNormal,
+      ringPercent: Math.min(100, (effNormal / 9) * 100),
+      goldenAt: 10,
+      textColor: effNormal >= 10 ? TALENT_COLORS.crown.accent : undefined
     },
     { hidden: true },
-    { variant: 'plain', icon: isOwned ? '👤' : '➕', label: isOwned ? 'Убрать из трекера' : 'Добавить в трекер', angle: 180 },
-    { icon: '📊', label: 'Уровень', value: draft?.level ?? 1, ringPercent: Math.min(100, ((draft?.level ?? 1) / 90) * 100), crownAt: 91 },
-    { icon: '💚', label: 'Дружба', value: draft?.friendship ?? 1, ringPercent: Math.min(100, ((draft?.friendship ?? 1) / 10) * 100) },
+    {
+      variant: 'plain',
+      icon: isOwned ? '👤' : '➕',
+      label: isOwned ? 'Убрать из трекера' : 'Добавить в трекер',
+      angle: 180 },
+    {
+      icon: '📊', label: 'Уровень', value: draft?.level ?? 1,
+      ringPercent: Math.min(100, ((draft?.level ?? 1) / 90) * 100),
+      goldenAt: 91,
+      goldenIcon: 'none'
+    },
+    {
+      icon: '💚',
+      label: 'Дружба',
+      value: draft?.friendship ?? 1,
+      ringPercent: Math.min(100, ((draft?.friendship ?? 1) / 10) * 100) },
   ]
 
   function handleOuterClick(i: number) {

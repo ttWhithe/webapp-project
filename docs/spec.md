@@ -1,9 +1,9 @@
 # Software Requirements Specification
 ## Web Application "Genshin Progress Tracker"
 
-**Version:** 2.2
+**Version:** 2.3
 **Date:** 2026
-**Status:** MVP backend + frontend mostly delivered; Zone 4 in progress; Admin panel updated; CI fully fixed
+**Status:** MVP backend + frontend mostly delivered; Zones 1-4 completed; Admin panel refactored; ready for deployment
 
 ---
 
@@ -443,10 +443,11 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 | 7 | Frontend zone 1 (hero, radial progress) | ✅ Done |
 | 8 | Frontend zone 2 (stats, sliders) | ✅ Done |
 | 9 | Frontend zone 3 (weapon + artifacts) | ✅ Done |
-| 10 | Frontend zone 4 (constellations) | 🚧 In progress |
-| 11 | Payments: Stripe + YooKassa | ⏳ Planned |
-| 12 | Deployment | ⏳ Planned |
-| 13 | Fix CI tests and linters | ✅ Done |
+| 10 | Frontend zone 4 (constellations) | ✅ Done |
+| 11 | Add/Remove character toggle (Zone UI adaptations for empty state) | ⏳ Planned |
+| 12 | Payments: Stripe + YooKassa | ⏳ Planned |
+| 13 | Deployment | ⏳ Planned |
+| 14 | Fix CI tests and linters | ✅ Done |
 
 ---
 
@@ -483,7 +484,13 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 
 ## 18. Changelog
 
-### v2.2 (current)
+### v2.3 (current)
+- **Zones 1-4 UI:** Fully completed. Added dynamic talent/constellation icons from DB, corrected level/crown logic, and polished Zone 4 (center image + arc layout).
+- **Admin Panel:** Added passive talents, constellation descriptions, and icons to the table and edit modal. Fixed table scroll and z-index issues.
+- **Backend:** Updated `CharacterRead` schema to serve `talents` and `constellations` to the public API.
+- **Zone 3:** Added rarity background images for artifact rarity buttons.
+
+### v2.2
 - **Admin Panel Refactored:** Split massive `AdminCatalogPage` into modular components (`AdminCharacterTab`, `AdminCharacterModal`, `AdminBulkImportModal`, etc.).
 - **Admin UI Improvements:** Added passive talents, constellation icons, and descriptions to the character table and edit modal. Sticky table headers.
 - **Progress Logic:** Clarified C3/C5 behavior (raises talent cap to 13, crown logic applies only at max level).
@@ -535,6 +542,7 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 - Artifact recommendations.
 
 ### UI/UX
+- Animated SVG for constellation art in Zone 4 (currently static PNG).
 - Shared element transitions (Framer Motion).
 - Dark / light theme toggle.
 - PWA installation.

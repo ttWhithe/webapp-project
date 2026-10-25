@@ -59,6 +59,7 @@ export interface Character {
   constellations: Record<string, ConstellationData> | null;
   c3_increases: string | null;
   c5_increases: string | null;
+  talents?: Record<string, any> | null;
 }
 
 export interface Weapon {

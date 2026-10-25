@@ -8,12 +8,12 @@ interface Props {
   onChange: (value: number) => void
   icon?: string
   colors: { main: string; secondary: string; accent: string }
-  valueColor?: string // <-- ДОБАВЛЕНО
+  valueColor?: string
   disabled?: boolean
   height?: number
-  crownAt?: number
+  goldenAt?: number
+  goldenColor?: string
   ringCap?: number
-  crownColor?: string
 }
 
 export default function ProgressSlider({
@@ -27,9 +27,9 @@ export default function ProgressSlider({
   valueColor,
   disabled = false,
   height = 96,
-  crownAt,
+  goldenAt,
+  goldenColor = '#fde047',
   ringCap,
-  crownColor = '#fde047',
 }: Props) {
   const moduleBorder = 4
   const circleOuterBorder = 3
@@ -53,8 +53,9 @@ export default function ProgressSlider({
     ${colors.accent} ${sliderPercent}%,
     ${colors.accent} 100%)`
 
-  const isCrowned = crownAt != null && value >= crownAt
+  const isGolden = goldenAt != null && value >= goldenAt
   const innerSize = contentHeight - circleOuterBorder * 2 - ringStroke * 2
+  const isImage = icon?.startsWith('http') || icon?.startsWith('/')
 
   return (
     <div
@@ -103,26 +104,30 @@ export default function ProgressSlider({
           }}
         >
           <span
-            className="leading-none select-none pointer-events-none"
-            style={{ fontSize: innerSize * 0.42, paddingBottom: innerSize * 0.2 }}
+            className="leading-none select-none pointer-events-none flex items-center justify-center w-full h-full"
+            style={{ fontSize: innerSize * 0.42 }}
           >
-            {icon ?? '◆'}
+            {isImage ? (
+              // УВЕЛИЧИЛИ РАЗМЕР С 65% ДО 80%
+              <img src={icon} alt="" className="object-contain" />
+            ) : (
+              icon ?? '◆'
+            )}
           </span>
         </div>
 
-        {/* ЦИФРА: меняет цвет через valueColor */}
         <div
           className="absolute left-1/2 -translate-x-1/2 font-bold leading-none pointer-events-none flex items-center gap-1"
           style={{
             bottom: 2,
-            color: isCrowned ? crownColor : (valueColor ?? colors.accent), // <-- ИСПОЛЬЗУЕМ valueColor
+            color: isGolden ? goldenColor : (valueColor ?? colors.accent),
             fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
             fontSize: contentHeight * 0.24,
             textShadow: `0 0 4px ${colors.secondary}`,
             zIndex: 5,
           }}
         >
-          {isCrowned && <span style={{ fontSize: '1.1em' }}>👑</span>}
+          {/* Только цифра, никаких иконок */}
           <span>{value}</span>
         </div>
       </div>
@@ -131,7 +136,7 @@ export default function ProgressSlider({
         <div
           className="text-2xl font-semibold mb-4 text-center truncate"
           style={{
-            color: colors.accent, // <-- ТЕКСТ ВСЕГДА ЦВЕТА ЭЛЕМЕНТА
+            color: colors.accent,
             fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
           }}
         >

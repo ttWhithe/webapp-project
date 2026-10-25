@@ -35,6 +35,7 @@ class CharacterRead(BaseModel):
     portrait_url: str | None
     version_added: str | None
     constellation_icon_url: str | None = None
+    talents: dict[str, Any] | None = None
     constellations: dict[str, Any] | list[dict[str, Any]] | None = None
     c3_increases: str | None = None
     c5_increases: str | None = None
