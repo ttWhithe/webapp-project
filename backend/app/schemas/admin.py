@@ -41,6 +41,8 @@ class AdminCharacterUpdate(BaseModel):
     constellation_icon_url: str | None = None
     c3_increases: str | None = None
     c5_increases: str | None = None
+    talents: Any | None = None
+    constellations: Any | None = None
 
 
 class AdminWeaponUpdate(BaseModel):

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 interface FieldConfig {
   key: string
   label: string
-  type?: 'text' | 'number' | 'select'
+  type?: 'text' | 'number' | 'select' | 'textarea' // <-- ДОБАВИЛИ textarea
   placeholder?: string
   options?: { value: string; label: string }[]
 }
@@ -21,15 +21,7 @@ interface Props {
 }
 
 export default function AdminEditModal({
-  title,
-  fields,
-  initialValues,
-  submitting,
-  errorMessage,
-  onSave,
-  onClose,
-  onImport,
-  onDelete,
+  title, fields, initialValues, submitting, errorMessage, onSave, onClose, onImport, onDelete,
 }: Props) {
   const [values, setValues] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {}
@@ -54,7 +46,6 @@ export default function AdminEditModal({
     for (const f of fields) {
       const raw = values[f.key]
       const trimmed = raw.trim()
-      // Treat empty strings as null — clears the field
       if (trimmed === '') {
         payload[f.key] = null
       } else if (f.type === 'number') {
@@ -71,47 +62,48 @@ export default function AdminEditModal({
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-slate-800 rounded-xl border border-slate-700 w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+        className="bg-slate-800 rounded-xl border border-slate-700 w-full max-w-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto"
       >
         <h2 className="text-xl font-bold">{title}</h2>
 
         {errorMessage && (
-          <div className="bg-red-900/40 text-red-300 text-sm p-2 rounded">
-            {errorMessage}
-          </div>
+          <div className="bg-red-900/40 text-red-300 text-sm p-2 rounded">{errorMessage}</div>
         )}
 
-        {fields.map((f) => (
-          <label key={f.key} className="block">
-            <span className="block text-xs text-slate-400 mb-1">{f.label}</span>
-            {f.type === 'select' ? (
-              <select
-                value={values[f.key] ?? ''}
-                onChange={(e) =>
-                  setValues({ ...values, [f.key]: e.target.value })
-                }
-                className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 focus:border-indigo-500 outline-none text-sm"
-              >
-                <option value="">— Не выбрано —</option>
-                {f.options?.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                type={f.type === 'number' ? 'number' : 'text'}
-                value={values[f.key] ?? ''}
-                onChange={(e) =>
-                  setValues({ ...values, [f.key]: e.target.value })
-                }
-                placeholder={f.placeholder}
-                className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 focus:border-indigo-500 outline-none text-sm"
-              />
-            )}
-          </label>
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {fields.map((f) => (
+            <label key={f.key} className="block">
+              <span className="block text-xs text-slate-400 mb-1">{f.label}</span>
+              {f.type === 'select' ? (
+                <select
+                  value={values[f.key] ?? ''}
+                  onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
+                  className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 focus:border-indigo-500 outline-none text-sm"
+                >
+                  <option value="">— Не выбрано —</option>
+                  {f.options?.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              ) : f.type === 'textarea' ? (
+                <textarea
+                  value={values[f.key] ?? ''}
+                  onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
+                  placeholder={f.placeholder}
+                  className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 focus:border-indigo-500 outline-none text-sm min-h-[80px]"
+                />
+              ) : (
+                <input
+                  type={f.type === 'number' ? 'number' : 'text'}
+                  value={values[f.key] ?? ''}
+                  onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
+                  placeholder={f.placeholder}
+                  className="w-full px-3 py-2 rounded bg-slate-700 border border-slate-600 focus:border-indigo-500 outline-none text-sm"
+                />
+              )}
+            </label>
+          ))}
+        </div>
 
         {onImport && (
           <div className="pt-2">
@@ -137,9 +129,7 @@ export default function AdminEditModal({
               <button
                 type="button"
                 onClick={() => {
-                  if (window.confirm('Вы уверены, что хотите удалить эту запись?')) {
-                    onDelete()
-                  }
+                  if (window.confirm('Вы уверены, что хотите удалить эту запись?')) onDelete()
                 }}
                 disabled={submitting}
                 className="px-4 py-2 rounded bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white transition-colors text-sm disabled:opacity-50"
@@ -149,19 +139,10 @@ export default function AdminEditModal({
             )}
           </div>
           <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={submitting}
-              className="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm disabled:opacity-50"
-            >
+            <button type="button" onClick={onClose} disabled={submitting} className="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm disabled:opacity-50">
               Отмена
             </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-sm font-medium disabled:opacity-50"
-            >
+            <button type="submit" disabled={submitting} className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-sm font-medium disabled:opacity-50">
               {submitting ? 'Сохраняем...' : 'Сохранить'}
             </button>
           </div>

@@ -334,7 +334,7 @@ export default function AdminCatalogPage() {
 
       {error && <ErrorState message={error} />}
 
-      {/* Characters */}
+      {/* Characters Table */}
       {tab === 'characters' && (
         <>
           {charactersQuery.isLoading && <LoadingSpinner />}
@@ -351,30 +351,21 @@ export default function AdminCatalogPage() {
                 {
                   key: 'icon',
                   label: 'Картинки',
-                  className: 'w-44 shrink-0',
+                  className: 'w-40 shrink-0',
                   render: (r) => (
                     <div className="flex flex-nowrap gap-1">
-                      {r.icon_url ? (
-                        <img src={r.icon_url} alt="icon" className="w-8 h-8 rounded object-cover bg-slate-900" />
-                      ) : <div className="w-8 h-8 rounded bg-slate-700" />}
-
-                      {r.portrait_url ? (
-                        <img src={r.portrait_url} alt="portrait" className="w-8 h-8 rounded object-cover bg-slate-900" />
-                      ) : <div className="w-8 h-8 rounded bg-slate-700" />}
-
-                      {r.namecard_url ? (
-                        <img src={r.namecard_url} alt="namecard" className="w-8 h-8 rounded object-cover bg-slate-900" />
-                      ) : <div className="w-8 h-8 rounded bg-slate-700" />}
-
-                      {r.constellation_icon_url ? (
-                        <img src={r.constellation_icon_url} alt="constellation" className="w-8 h-8 rounded object-cover bg-slate-900" />
-                      ) : <div className="w-8 h-8 rounded bg-slate-700" />}
+                      {[r.icon_url, r.portrait_url, r.namecard_url, r.constellation_icon_url].map((url, i) => (
+                        <div key={i} className="w-8 h-8 rounded bg-slate-900 shrink-0">
+                          {url ? <img src={url} alt="img" className="w-full h-full object-cover rounded" /> : <div className="w-full h-full bg-slate-700 rounded" />}
+                        </div>
+                      ))}
                     </div>
                   ),
                 },
                 {
                   key: 'name',
                   label: 'Имя',
+                  className: 'min-w-[150px]',
                   render: (r) => (
                     <div>
                       <div className="font-medium whitespace-nowrap">{r.name}</div>
@@ -383,9 +374,70 @@ export default function AdminCatalogPage() {
                   ),
                 },
                 {
+                  key: 'talents',
+                  label: 'Скиллы (Актив + Пассив)',
+                  className: 'w-64 shrink-0',
+                  sortable: false,
+                  render: (r) => (
+                    <div className="flex flex-nowrap items-center gap-1">
+                      {/* Активные (синяя обводка) */}
+                      {['Normal Attack', 'Elemental Skill', 'Elemental Burst'].map((key, i) => {
+                        const url = r.talents?.[key]?.icon
+                        return (
+                          <div key={`active-${i}`} className="w-8 h-8 rounded bg-slate-900 shrink-0 border border-indigo-500/30" title={key}>
+                            {url ? <img src={url} alt="talent" className="w-full h-full object-cover rounded" /> : <div className="w-full h-full bg-slate-700 rounded" />}
+                          </div>
+                        )
+                      })}
+
+                      {/* Визуальный разделитель */}
+                      <div className="w-[1px] h-6 bg-slate-600 mx-1 shrink-0" />
+
+                      {/* Пассивные (зеленая обводка) */}
+                      {['1st Ascension Passive', '4th Ascension Passive', 'Utility Passive'].map((key, i) => {
+                        const url = r.talents?.[key]?.icon
+                        return (
+                          <div key={`passive-${i}`} className="w-8 h-8 rounded bg-slate-900 shrink-0 border border-emerald-500/30" title={key}>
+                            {url ? <img src={url} alt="passive" className="w-full h-full object-cover rounded" /> : <div className="w-full h-full bg-slate-700 rounded" />}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ),
+                },
+                {
+                  key: 'constellations',
+                  label: 'Созвездия (C1-C6)',
+                  className: 'w-52 shrink-0',
+                  sortable: false,
+                  render: (r) => (
+                    <div className="flex flex-nowrap gap-1">
+                      {[1, 2, 3, 4, 5, 6].map((lvl) => {
+                        const url = r.constellations?.[String(lvl)]?.icon
+                        return (
+                          <div key={lvl} className="w-8 h-8 rounded bg-slate-900 shrink-0 relative group">
+                            {url ? (
+                              <>
+                                <img src={url} alt={`C${lvl}`} className="w-full h-full object-cover rounded" />
+                                <span className="absolute -top-1 -left-1 bg-indigo-600 text-[9px] px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                                  C{lvl}
+                                </span>
+                              </>
+                            ) : (
+                              <div className="w-full h-full bg-slate-700 rounded flex items-center justify-center text-[10px] text-slate-500">
+                                C{lvl}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ),
+                },
+                {
                   key: 'title',
                   label: 'Титул',
-                  className: 'text-xs text-slate-400 max-w-[200px] truncate',
+                  className: 'text-xs text-slate-400 max-w-[150px] truncate',
                   render: (r) => r.title ?? '—',
                 },
                 {
@@ -409,26 +461,16 @@ export default function AdminCatalogPage() {
                   render: (r) => `★${r.rarity}`,
                 },
                 {
+                  // ВЕРНУЛ РЕГИОН
                   key: 'region',
                   label: 'Регион',
                   className: 'text-xs text-slate-400 whitespace-nowrap',
+                  sortValue: (r) => r.region,
                   render: (r) => r.region ?? '—',
                 },
                 {
-                  key: 'birthday',
-                  label: 'Д.Р.',
-                  className: 'text-xs text-slate-400 whitespace-nowrap',
-                  render: (r) => r.birthday ?? '—',
-                },
-                {
-                  key: 'release_date',
-                  label: 'Релиз',
-                  className: 'text-xs text-slate-400 whitespace-nowrap',
-                  render: (r) => r.release_date ?? '—',
-                },
-                {
                   key: 'c35',
-                  label: 'C3 / C5',
+                  label: 'C3 / C5 буст',
                   className: 'text-xs text-slate-400 whitespace-nowrap',
                   sortable: false,
                   render: (r) => (
@@ -589,6 +631,7 @@ export default function AdminCatalogPage() {
       )}
 
       {/* Edit modals */}
+      {/* MODAL: Character */}
       {editing?.kind === 'character' && (
         <AdminEditModal
           title={`Редактирование: ${editing.row.name}`}
@@ -606,55 +649,138 @@ export default function AdminCatalogPage() {
             release_date: editing.row.release_date,
             namecard_url: editing.row.namecard_url,
             constellation_icon_url: editing.row.constellation_icon_url,
+            element: editing.row.element,
+            weapon_type: editing.row.weapon_type,
+            slug: editing.row.slug,
             c3_increases: editing.row.c3_increases,
             c5_increases: editing.row.c5_increases,
+
+            // --- ТАЛАНТЫ ---
+            talent_normal_url: editing.row.talents?.['Normal Attack']?.icon || '',
+            talent_skill_url: editing.row.talents?.['Elemental Skill']?.icon || '',
+            talent_burst_url: editing.row.talents?.['Elemental Burst']?.icon || '',
+
+            // --- ПАССИВКИ ---
+            talent_passive_1_url: editing.row.talents?.['1st Ascension Passive']?.icon || '',
+            talent_passive_4_url: editing.row.talents?.['4th Ascension Passive']?.icon || '',
+            talent_passive_util_url: editing.row.talents?.['Utility Passive']?.icon || '',
+
+            // --- СОЗВЕЗДИЯ ---
+            c1_icon: editing.row.constellations?.['1']?.icon || '',
+            c1_desc: editing.row.constellations?.['1']?.description || '',
+            c2_icon: editing.row.constellations?.['2']?.icon || '',
+            c2_desc: editing.row.constellations?.['2']?.description || '',
+            c3_icon: editing.row.constellations?.['3']?.icon || '',
+            c3_desc: editing.row.constellations?.['3']?.description || '',
+            c4_icon: editing.row.constellations?.['4']?.icon || '',
+            c4_desc: editing.row.constellations?.['4']?.description || '',
+            c5_icon: editing.row.constellations?.['5']?.icon || '',
+            c5_desc: editing.row.constellations?.['5']?.description || '',
+            c6_icon: editing.row.constellations?.['6']?.icon || '',
+            c6_desc: editing.row.constellations?.['6']?.description || '',
           }}
           fields={[
+            // --- БАЗОВЫЕ ПОЛЯ ---
             { key: 'name_ru', label: 'Русское имя' },
+            { key: 'slug', label: 'Slug (только чтение)' },
             { key: 'title', label: 'Титул' },
             { key: 'icon_url', label: 'URL Icon (Портрет)' },
-            { key: 'portrait_url', label: 'URL Full (страница персонажа)' },
-            { key: 'rarity', label: 'Редкость (1–5)', type: 'number' },
+            { key: 'portrait_url', label: 'URL Full (страница)' },
+            { key: 'rarity', label: 'Редкость', type: 'number' },
             { key: 'region', label: 'Регион' },
             { key: 'birthday', label: 'День рождения' },
             { key: 'version_added', label: 'Версия добавления' },
             { key: 'release_date', label: 'Дата релиза' },
-            { key: 'namecard_url', label: 'URL Namecard (карточка)' },
-            { key: 'constellation_icon_url', label: 'URL иконки созвездия' },
-            {
-              key: 'c3_increases',
-              label: '3-е созвездие повышает:',
-              type: 'select',
-              options: [
-                { value: 'Normal Attack', label: 'Обычная атака' },
-                { value: 'Elemental Skill', label: 'Элементальный навык' },
-                { value: 'Elemental Burst', label: 'Взрыв стихии' },
-              ],
-            },
-            {
-              key: 'c5_increases',
-              label: '5-е созвездие повышает:',
-              type: 'select',
-              options: [
-                { value: 'Normal Attack', label: 'Обычная атака' },
-                { value: 'Elemental Skill', label: 'Элементальный навык' },
-                { value: 'Elemental Burst', label: 'Взрыв стихии' },
-              ],
-            },
+            { key: 'namecard_url', label: 'URL Namecard' },
+            { key: 'constellation_icon_url', label: 'URL иконки созвездия (общая)' },
+            { key: 'element', label: 'Элемент', type: 'select', options: [
+              { value: 'anemo', label: 'Анемо' }, { value: 'geo', label: 'Гео' },
+              { value: 'electro', label: 'Электро' }, { value: 'dendro', label: 'Дендро' },
+              { value: 'hydro', label: 'Гидро' }, { value: 'pyro', label: 'Пиро' },
+              { value: 'cryo', label: 'Крио' },
+            ]},
+            { key: 'weapon_type', label: 'Тип оружия', type: 'select', options: [
+              { value: 'sword', label: 'Одноручный' }, { value: 'claymore', label: 'Двуручный' },
+              { value: 'polearm', label: 'Древковое' }, { value: 'catalyst', label: 'Катализатор' },
+              { value: 'bow', label: 'Лук' },
+            ]},
+
+            // --- АКТИВНЫЕ ТАЛАНТЫ ---
+            { key: 'talent_normal_url', label: 'Иконка: Обычная атака' },
+            { key: 'talent_skill_url', label: 'Иконка: Элем. навык' },
+            { key: 'talent_burst_url', label: 'Иконка: Взрыв стихии' },
+
+            // --- ПАССИВНЫЕ ТАЛАНТЫ ---
+            { key: 'talent_passive_1_url', label: 'Иконка: 1st Ascension Passive' },
+            { key: 'talent_passive_4_url', label: 'Иконка: 4th Ascension Passive' },
+            { key: 'talent_passive_util_url', label: 'Иконка: Utility Passive' },
+
+            // --- БУСТЫ C3 / C5 (Идут в одной строке) ---
+            { key: 'c3_increases', label: '3-е созвездие повышает:', type: 'select', options: [
+              { value: 'Normal Attack', label: 'Обычная атака' }, { value: 'Elemental Skill', label: 'Элем. навык' }, { value: 'Elemental Burst', label: 'Взрыв стихии' }
+            ]},
+            { key: 'c5_increases', label: '5-е созвездие повышает:', type: 'select', options: [
+              { value: 'Normal Attack', label: 'Обычная атака' }, { value: 'Elemental Skill', label: 'Элем. навык' }, { value: 'Elemental Burst', label: 'Взрыв стихии' }
+            ]},
+
+            // --- СОЗВЕЗДИЯ (Пары: Ссылка + Описание) ---
+            { key: 'c1_icon', label: 'C1: URL иконки' },
+            { key: 'c1_desc', label: 'C1: Описание', type: 'textarea' },
+
+            { key: 'c2_icon', label: 'C2: URL иконки' },
+            { key: 'c2_desc', label: 'C2: Описание', type: 'textarea' },
+
+            { key: 'c3_icon', label: 'C3: URL иконки' },
+            { key: 'c3_desc', label: 'C3: Описание', type: 'textarea' },
+
+            { key: 'c4_icon', label: 'C4: URL иконки' },
+            { key: 'c4_desc', label: 'C4: Описание', type: 'textarea' },
+
+            { key: 'c5_icon', label: 'C5: URL иконки' },
+            { key: 'c5_desc', label: 'C5: Описание', type: 'textarea' },
+
+            { key: 'c6_icon', label: 'C6: URL иконки' },
+            { key: 'c6_desc', label: 'C6: Описание', type: 'textarea' },
           ]}
-          onSave={(values) =>
-            updateCharacter.mutate({
-              id: editing.row.id,
-              payload: values as AdminCharacterUpdate,
-            })
-          }
+          onSave={(values) => {
+            // Собираем обратно в JSON объекты
+            const payload: any = { ...values }
+
+            payload.talents = {
+              "Normal Attack": { icon: values.talent_normal_url },
+              "Elemental Skill": { icon: values.talent_skill_url },
+              "Elemental Burst": { icon: values.talent_burst_url },
+
+              // --- ПАССИВКИ ---
+              "1st Ascension Passive": { icon: values.talent_passive_1_url },
+              "4th Ascension Passive": { icon: values.talent_passive_4_url },
+              "Utility Passive": { icon: values.talent_passive_util_url },
+            }
+
+            payload.constellations = {
+              "1": { icon: values.c1_icon, description: values.c1_desc },
+              "2": { icon: values.c2_icon, description: values.c2_desc },
+              "3": { icon: values.c3_icon, description: values.c3_desc, increases: values.c3_increases },
+              "4": { icon: values.c4_icon, description: values.c4_desc },
+              "5": { icon: values.c5_icon, description: values.c5_desc, increases: values.c5_increases },
+              "6": { icon: values.c6_icon, description: values.c6_desc },
+            }
+
+            // Чистим плоские поля, чтобы не засорять бэкенд
+            const flatFields = [
+              'talent_normal_url', 'talent_skill_url', 'talent_burst_url',
+              'c1_icon', 'c1_desc', 'c2_icon', 'c2_desc', 'c3_icon', 'c3_desc',
+              'c4_icon', 'c4_desc', 'c5_icon', 'c5_desc', 'c6_icon', 'c6_desc'
+            ]
+            flatFields.forEach(f => delete payload[f])
+
+            updateCharacter.mutate({ id: editing.row.id, payload })
+          }}
           onClose={() => {
             setEditing(null)
             setError(null)
           }}
-          onImport={(file) =>
-            importParser.mutate({ id: editing.row.id, file })
-          }
+          onImport={(file) => importParser.mutate({ id: editing.row.id, file })}
           onDelete={() => deleteCharacter.mutate(editing.row.id)}
         />
       )}

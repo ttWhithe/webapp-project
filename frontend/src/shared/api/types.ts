@@ -194,6 +194,8 @@ export interface AdminCharacterUpdate {
   version_added?: string | null
   element?: Element
   weapon_type?: WeaponType
+  talents?: Record<string, any> | null;
+  constellations?: Record<string, any> | null;
 }
 
 export interface AdminWeaponUpdate {
