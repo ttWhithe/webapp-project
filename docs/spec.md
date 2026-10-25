@@ -1,9 +1,9 @@
 # Software Requirements Specification
 ## Web Application "Genshin Progress Tracker"
 
-**Version:** 2.1
+**Version:** 2.2
 **Date:** 2026
-**Status:** MVP backend + frontend mostly delivered; Zone 4 in progress; CI fully fixed
+**Status:** MVP backend + frontend mostly delivered; Zone 4 in progress; Admin panel updated; CI fully fixed
 
 ---
 
@@ -94,6 +94,11 @@ Final percentage = sum of weighted components (weights sum = 1.0):
 | `w_friendship` | 0.20 | Friendship 10 = 100%. |
 
 **Crown counter (display only):** number of talents at level ≥ 10 (0-3). Shown on cards and in zone 2.
+
+**Constellation Talent Boosts (C3 / C5):**
+- C3 increases Elemental Burst level by 3 (minimum level becomes 4, maximum becomes 13).
+- C5 increases Elemental Skill level by 3 (minimum level becomes 4, maximum becomes 13).
+- **Gold Crown Logic:** The golden crown badge and gold text appear **only** when the talent reaches the absolute maximum level (13 for boosted talents, 10 for unboosted). A level 12 talent buffed by C3 does *not* get the crown (the player hasn't used a Crown of Insight).
 
 **Masterless Stella Fortuna (display only):** count of 0-3 items used to extend level cap beyond 90. Not part of the percentage.
 
@@ -305,6 +310,9 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 5. **Profile** — user info, role, "Donate" and "Premium" buttons.
 6. **Payment** — Stripe Checkout / YooKassa redirect.
 7. **Admin panel** — catalog sync, weights, users, manual CRUD, backups.
+   - Advanced UI: Split columns for character images, active talents, passive talents, and 6 constellations.
+   - Sticky table headers with independent scrolling.
+   - Edit modal includes fields for passive talents, constellation icons, and descriptions.
 8. **404 / 500** — standard pages.
 
 ### 7.2. Design
@@ -475,7 +483,14 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 
 ## 18. Changelog
 
-### v2.1 (current)
+### v2.2 (current)
+- **Admin Panel Refactored:** Split massive `AdminCatalogPage` into modular components (`AdminCharacterTab`, `AdminCharacterModal`, `AdminBulkImportModal`, etc.).
+- **Admin UI Improvements:** Added passive talents, constellation icons, and descriptions to the character table and edit modal. Sticky table headers.
+- **Progress Logic:** Clarified C3/C5 behavior (raises talent cap to 13, crown logic applies only at max level).
+- **Zone 4 (Constellations):** Added UI arc layout and tooltips (polishing and bug fixes in progress).
+
+### v2.1
+- **CI Fixed:** Added automatic test database creation in `conftest.py`.
 - **CI Fixed:** Added automatic test database creation in `conftest.py`.
 - **CI Fixed:** Fixed 63 `mypy` typing errors in `admin.py`.
 - **CI Fixed:** Fixed `ruff` ambiguous character and formatting warnings.
@@ -510,7 +525,7 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 - Password reset flow.
 
 ### Catalog & Data
-- Local image storage (S3).
+- **Local image storage (S3):** Download external images (talents, constellations, character icons) and store them locally to avoid hotlinking and broken links. *(Note: currently using temporary URLs from the parser JSON).*
 - Fandom parser for RU localization.
 - Enka.Network import.
 
