@@ -11,6 +11,8 @@ interface OuterSlotConfig {
   goldenAt?: number
   goldenColor?: string
   textColor?: string
+  grayscale?: boolean
+  hideValue?: boolean
   customRender?: React.ReactNode
 }
 
@@ -21,6 +23,9 @@ export interface RadialItem {
   icon: string
   rawValue?: string | number
   stars?: number
+  disabled?: boolean
+  grayscale?: boolean
+  hideValue?: boolean
 }
 
 interface Props {
@@ -31,12 +36,13 @@ interface Props {
   onOuterClick?: (i: number) => void
   onMiddleClick?: (key: string, i: number) => void
   outerSlotsConfig?: OuterSlotConfig[]
+  isUnowned?: boolean // <--- ДОБАВИЛИ
 }
 
 const OUTER_DOTS = 14
 
 export default function RadialProgress({
-  total, items, colors, size = 480, onOuterClick, onMiddleClick, outerSlotsConfig,
+  total, items, colors, size = 480, onOuterClick, onMiddleClick, outerSlotsConfig, isUnowned = false,
 }: Props) {
   const half = size / 2
   const outerRadius = size * 0.44 + 10
@@ -71,13 +77,14 @@ export default function RadialProgress({
                   height: outerSize,
                   left,
                   top,
-                  zIndex: 30 // Чтобы кнопка была поверх
+                  zIndex: 30
                 }}
               >
                 {cfg.customRender}
               </div>
             )
           }
+
           const isImage = cfg.icon?.startsWith('http') || cfg.icon?.startsWith('/')
           return (
             <button
@@ -99,7 +106,8 @@ export default function RadialProgress({
                 boxShadow: `0 0 14px ${colors.main}77`,
                 fontSize: outerSize * 0.42,
                 opacity: cfg.disabled ? 0.3 : (cfg.opacity ?? 1),
-                overflow: 'hidden'
+                overflow: 'hidden',
+                filter: cfg.grayscale ? 'grayscale(100%)' : 'none',
               }}
             >
               {isImage ? (
@@ -127,7 +135,16 @@ export default function RadialProgress({
             className={`absolute transition-transform duration-300 ${
               cfg.disabled ? 'cursor-not-allowed' : 'hover:scale-110 cursor-pointer'
             }`}
-            style={{ width: outerSize, left, top, background: 'transparent', border: 'none', padding: 0, opacity: cfg.disabled ? 0.4 : (cfg.opacity ?? 1) }}
+            style={{
+              width: outerSize,
+              left,
+              top,
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              opacity: cfg.disabled ? 0.4 : (cfg.opacity ?? 1),
+              filter: cfg.grayscale ? 'grayscale(100%)' : 'none',
+            }}
           >
             <div className="relative rounded-full" style={{ width: outerSize, height: outerSize }}>
               <div
@@ -156,21 +173,22 @@ export default function RadialProgress({
                   )}
                 </div>
               )}
-              <div
-                className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none flex items-center gap-0.5"
-                style={{
-                  bottom: outerSize * 0.07,
-                  fontSize: outerSize * 0.22,
-                  color: isGolden ? (cfg.goldenColor ?? '#fde047') : (cfg.textColor ?? colors.accent),
-                  textShadow: `0 0 2px ${colors.secondary}, 0 0 4px ${colors.secondary}88`,
-                  fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
-                  lineHeight: 1,
-                  fontWeight: 900,
-                }}
-              >
-                {/* Только цифра, никаких корон */}
-                <span>{Math.round(outerValue)}</span>
-              </div>
+              {!cfg.hideValue && (
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none flex items-center gap-0.5"
+                  style={{
+                    bottom: outerSize * 0.07,
+                    fontSize: outerSize * 0.22,
+                    color: isGolden ? (cfg.goldenColor ?? '#fde047') : (cfg.textColor ?? colors.accent),
+                    textShadow: `0 0 2px ${colors.secondary}, 0 0 4px ${colors.secondary}88`,
+                    fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
+                    lineHeight: 1,
+                    fontWeight: 900,
+                  }}
+                >
+                  <span>{Math.round(outerValue)}</span>
+                </div>
+              )}
             </div>
           </button>
         )
@@ -188,10 +206,22 @@ export default function RadialProgress({
           <button
             key={item.key}
             type="button"
-            onClick={() => onMiddleClick?.(item.key, i)}
+            onClick={() => !item.disabled && onMiddleClick?.(item.key, i)}
+            disabled={item.disabled}
             title={item.label}
-            className="absolute transition-transform duration-300 hover:scale-110 cursor-pointer"
-            style={{ width: middleSize, left: x - middleSize / 2, top: y - middleSize / 2, background: 'transparent', border: 'none', padding: 0 }}
+            className={`absolute transition-transform duration-300 ${
+              item.disabled ? 'cursor-not-allowed' : 'hover:scale-110 cursor-pointer'
+            }`}
+            style={{
+              width: middleSize,
+              left: x - middleSize / 2,
+              top: y - middleSize / 2,
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              opacity: item.disabled ? 0.4 : 1,
+              filter: item.grayscale ? 'grayscale(100%)' : 'none',
+            }}
           >
             <div className="relative" style={{ width: middleSize, height: middleSize }}>
               <div
@@ -202,14 +232,17 @@ export default function RadialProgress({
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ fontSize: middleSize * 0.4, lineHeight: 1, paddingBottom: middleSize * 0.1 }}>
                 {isImage ? <img src={item.icon} alt="" className="w-[75%] h-[75%] object-contain" /> : item.icon}
               </div>
-              <div className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none flex items-start" style={{ bottom: middleSize * 0.06, fontSize: middleSize * 0.22, color: colors.accent, textShadow: `0 0 2px ${colors.secondary}, 0 0 4px ${colors.secondary}88`, fontFamily: "'Comic Sans MS', 'Comic Sans', cursive", lineHeight: 1, fontWeight: 900 }}>
-                {item.rawValue != null && item.rawValue !== '' ? (
-                  <>
-                    <span>{item.rawValue}</span>
-                    {item.stars != null && item.stars > 0 && <span style={{ fontSize: '0.6em', color: '#fde047', marginLeft: 2, marginTop: -2 }}>★{item.stars}</span>}
-                  </>
-                ) : item.value > 0 ? <span>{Math.round(item.value)}%</span> : null}
-              </div>
+
+              {!item.hideValue && (
+                <div className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none flex items-start" style={{ bottom: middleSize * 0.06, fontSize: middleSize * 0.22, color: colors.accent, textShadow: `0 0 2px ${colors.secondary}, 0 0 4px ${colors.secondary}88`, fontFamily: "'Comic Sans MS', 'Comic Sans', cursive", lineHeight: 1, fontWeight: 900 }}>
+                  {item.rawValue != null && item.rawValue !== '' ? (
+                    <>
+                      <span>{item.rawValue}</span>
+                      {item.stars != null && item.stars > 0 && <span style={{ fontSize: '0.6em', color: '#fde047', marginLeft: 2, marginTop: -2 }}>★{item.stars}</span>}
+                    </>
+                  ) : item.value > 0 ? <span>{Math.round(item.value)}%</span> : null}
+                </div>
+              )}
             </div>
             <div className="absolute left-1/2 -translate-x-1/2 text-[10px] whitespace-nowrap pointer-events-none" style={{ top: middleSize + 2, color: colors.accent }}>
               {item.label}
@@ -221,10 +254,16 @@ export default function RadialProgress({
       {/* ---- Center: total ---- */}
       <button
         type="button"
-        onClick={() => onMiddleClick?.('total', -1)}
+        onClick={() => !isUnowned && onMiddleClick?.('total', -1)}
+        disabled={isUnowned}
         title={`Общий прогресс: ${total}%`}
-        className="absolute transition-transform duration-300 hover:scale-105 cursor-pointer"
-        style={{ width: centerSize, height: centerSize, left: half - centerSize / 2, top: half - centerSize / 2, background: 'transparent', border: 'none', padding: 0 }}
+        className={`absolute transition-transform duration-300 ${isUnowned ? 'cursor-not-allowed' : 'hover:scale-105 cursor-pointer'}`}
+        style={{
+          width: centerSize, height: centerSize, left: half - centerSize / 2, top: half - centerSize / 2,
+          background: 'transparent', border: 'none', padding: 0,
+          filter: isUnowned ? 'grayscale(100%)' : 'none', // <--- ДЕЛАЕМ ЦЕНТР СЕРЫМ
+          opacity: isUnowned ? 0.6 : 1,                  // <--- ЧУТЬ ТУСКНЕЕ
+        }}
       >
         <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(${colors.secondary} 0deg ${Math.min(100, total) * 3.6}deg, ${colors.main} ${Math.min(100, total) * 3.6}deg 360deg)`, border: `3px solid ${colors.secondary}`, boxSizing: 'border-box' }} />
         <div className="absolute rounded-full flex items-center justify-center" style={{ top: centerSize * 0.14, left: centerSize * 0.14, right: centerSize * 0.14, bottom: centerSize * 0.14, backgroundColor: colors.main, border: `3px solid ${colors.secondary}`, boxSizing: 'border-box' }}>

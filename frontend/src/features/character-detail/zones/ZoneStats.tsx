@@ -18,19 +18,26 @@ export function ZoneStats({ character, detail, draft, progress, onUpdate, isSavi
     </section>
   )
 
-  const c3Inc = character.c3_increases || ''
-  const c5Inc = character.c5_increases || ''
+  let consts: any = character.constellations || {}
+  if (typeof consts === 'string') {
+    try { consts = JSON.parse(consts) } catch (e) { consts = {} }
+  }
+  const c3Inc = character.c3_increases || consts['3']?.increases || ''
+  const c5Inc = character.c5_increases || consts['5']?.increases || ''
   const cLevel = draft.constellation || 0
 
-  const isBurstBuffed = cLevel >= 3 && (c3Inc.includes('Взрыв') || c3Inc.includes('Burst'))
-  const isSkillBuffed = cLevel >= 5 && (c5Inc.includes('навык') || c5Inc.includes('Skill'))
+  // Проверяем, повышает ли C3 или C5 конкретный талант
+  const isNormalBuffed = (cLevel >= 3 && c3Inc.includes('Normal')) || (cLevel >= 5 && c5Inc.includes('Normal'))
+  const isSkillBuffed = (cLevel >= 3 && c3Inc.includes('Skill')) || (cLevel >= 5 && c5Inc.includes('Skill'))
+  const isBurstBuffed = (cLevel >= 3 && c3Inc.includes('Burst')) || (cLevel >= 5 && c5Inc.includes('Burst'))
 
   const baseSkill = draft.talent_skill ?? 1
   const baseBurst = draft.talent_burst ?? 1
 
-  const normalMax = 10
-  const normalCrownAt = 10
-  const normalRingCap = 9
+  const normalMin = isNormalBuffed ? 4 : 1
+  const normalMax = isNormalBuffed ? 13 : 10
+  const normalCrownAt = isNormalBuffed ? 13 : 10
+  const normalRingCap = isNormalBuffed ? 12 : 9
 
   const skillMin = isSkillBuffed ? 4 : 1
   const skillMax = isSkillBuffed ? 13 : 10
@@ -86,11 +93,16 @@ export function ZoneStats({ character, detail, draft, progress, onUpdate, isSavi
           <div className="flex items-center gap-3 my-2"><div className="flex-1 h-[2px] rounded-full" style={{ backgroundColor: colors.secondary }} /><span className="text-xs uppercase tracking-widest font-semibold" style={{ color: colors.accent }}>Таланты</span><div className="flex-1 h-[2px] rounded-full" style={{ backgroundColor: colors.secondary }} /></div>
 
           <ProgressSlider
-            label="Обычная атака" value={draft.talent_normal} min={1} max={normalMax}
-            onChange={(v: any) => onUpdate('talent_normal', v)}
-            icon={character.talents?.['Normal Attack']?.icon || '⚔️'} // <--- ИКОНКА ИЗ БД
+            label="Обычная атака"
+            value={isNormalBuffed ? draft.talent_normal + 3 : draft.talent_normal}
+            min={normalMin}
+            max={normalMax}
+            onChange={(v: any) => onUpdate('talent_normal', isNormalBuffed ? v - 3 : v)}
+            icon={character.talents?.['Normal Attack']?.icon || '⚔️'}
             colors={normalColors}
-            goldenAt={normalCrownAt} ringCap={normalRingCap} valueColor={getValueColor(draft.talent_normal >= normalCrownAt, false)}
+            goldenAt={normalCrownAt}
+            ringCap={normalRingCap}
+            valueColor={getValueColor(draft.talent_normal >= normalCrownAt, isNormalBuffed)}
           />
           <ProgressSlider
             label="Элементарный навык"

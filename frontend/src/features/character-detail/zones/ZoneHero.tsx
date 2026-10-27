@@ -3,32 +3,38 @@ import RadialProgress, { type OuterSlotConfig, type RadialItem } from '@/shared/
 import { ARTIFACT_MAX_LEVEL, PLACEHOLDER_ICONS } from '../constants'
 import { getSetSlotIcon } from '../utils'
 import { HeroActionArc } from '../components/HeroActionArc'
-import type { EquipmentSlotKey } from '../constants'
 import { CharacterToggleButton } from '../components/CharacterToggleButton'
+import type { EquipmentSlotKey } from '../constants'
 
 export function ZoneHero({
   character, detail, draft, goTo, onToggleOwned, isOwned, totalOverride, artifactSets, weapons, defaultWeapon, onSelectSlot
 }: any) {
   const colors = ELEMENT_HEX[character.element as keyof typeof ELEMENT_HEX]
   const portraitSrc = detail?.custom_portrait_url ?? character.portrait_url ?? character.icon_url ?? ''
-  const weaponPct = draft?.weapon_level ? Math.min(100, (draft.weapon_level / 90) * 100) : 0
 
+  const isUnowned = !isOwned;
+
+  const weaponPct = (isUnowned || !draft?.weapon_level) ? 0 : Math.min(100, (draft.weapon_level / 90) * 100)
   const selectedWeapon = weapons.find((w: any) => w.id === draft?.weapon_id)
 
   const items: RadialItem[] = [
     {
       key: 'weapon', label: 'Оружие', value: weaponPct,
       icon: selectedWeapon?.icon_url || defaultWeapon?.icon_url || '⚔️',
-      rawValue: draft?.weapon_level ?? 1, stars: draft?.weapon_refinement ?? 1
+      rawValue: isUnowned ? '' : (draft?.weapon_level ?? 1),
+      stars: isUnowned ? undefined : (draft?.weapon_refinement ?? 1),
+      disabled: isUnowned,
+      grayscale: isUnowned,
+      hideValue: isUnowned,
     },
-    { key: 'flower', label: 'Цветок', value: 0, icon: PLACEHOLDER_ICONS.flower, rawValue: '' },
-    { key: 'plume', label: 'Перо', value: 0, icon: PLACEHOLDER_ICONS.plume, rawValue: '' },
-    { key: 'sands', label: 'Часы', value: 0, icon: PLACEHOLDER_ICONS.sands, rawValue: '' },
-    { key: 'goblet', label: 'Кубок', value: 0, icon: PLACEHOLDER_ICONS.goblet, rawValue: '' },
-    { key: 'circlet', label: 'Шапка', value: 0, icon: PLACEHOLDER_ICONS.circlet, rawValue: '' },
+    { key: 'flower', label: 'Цветок', value: 0, icon: PLACEHOLDER_ICONS.flower, rawValue: '', disabled: isUnowned, grayscale: isUnowned },
+    { key: 'plume', label: 'Перо', value: 0, icon: PLACEHOLDER_ICONS.plume, rawValue: '', disabled: isUnowned, grayscale: isUnowned },
+    { key: 'sands', label: 'Часы', value: 0, icon: PLACEHOLDER_ICONS.sands, rawValue: '', disabled: isUnowned, grayscale: isUnowned },
+    { key: 'goblet', label: 'Кубок', value: 0, icon: PLACEHOLDER_ICONS.goblet, rawValue: '', disabled: isUnowned, grayscale: isUnowned },
+    { key: 'circlet', label: 'Шапка', value: 0, icon: PLACEHOLDER_ICONS.circlet, rawValue: '', disabled: isUnowned, grayscale: isUnowned },
   ]
 
-  if (detail) {
+  if (!isUnowned && detail) {
     const slotOrder: Record<string, number> = { flower: 1, plume: 2, sands: 3, goblet: 4, circlet: 5 }
     for (const a of detail.artifacts) {
       const idx = slotOrder[a.slot]
@@ -46,43 +52,43 @@ export function ZoneHero({
     }
   }
 
-  const total = totalOverride ?? detail?.progress.total ?? 0
+  const total = isUnowned ? 0 : (totalOverride ?? detail?.progress.total ?? 0)
 
+  let consts: any = character.constellations || {}
+  if (typeof consts === 'string') {
+    try { consts = JSON.parse(consts) } catch (e) { consts = {} }
+  }
   const cLevel = draft?.constellation || 0
-  const c3Inc = character.c3_increases || ''
-  const c5Inc = character.c5_increases || ''
+  const c3Inc = character.c3_increases || consts['3']?.increases || ''
+  const c5Inc = character.c5_increases || consts['5']?.increases || ''
 
-  const isBurstBuffed = cLevel >= 3 && (c3Inc.includes('Взрыв') || c3Inc.includes('Burst'))
-  const isSkillBuffed = cLevel >= 5 && (c5Inc.includes('навык') || c5Inc.includes('Skill'))
+  const isNormalBuffed = !isUnowned && ((cLevel >= 3 && c3Inc.includes('Normal')) || (cLevel >= 5 && c5Inc.includes('Normal')))
+  const isSkillBuffed = !isUnowned && ((cLevel >= 3 && c3Inc.includes('Skill')) || (cLevel >= 5 && c5Inc.includes('Skill')))
+  const isBurstBuffed = !isUnowned && ((cLevel >= 3 && c3Inc.includes('Burst')) || (cLevel >= 5 && c5Inc.includes('Burst')))
 
   const baseNormal = draft?.talent_normal ?? 1
   const baseSkill = draft?.talent_skill ?? 1
   const baseBurst = draft?.talent_burst ?? 1
 
-  // Эффективные уровни (с учетом созвездий)
-  const effNormal = baseNormal
-  const effSkill = isSkillBuffed ? baseSkill + 3 : baseSkill
-  const effBurst = isBurstBuffed ? baseBurst + 3 : baseBurst
+  const effNormal = isUnowned ? 0 : (isNormalBuffed ? baseNormal + 3 : baseNormal)
+  const effSkill = isUnowned ? 0 : (isSkillBuffed ? baseSkill + 3 : baseSkill)
+  const effBurst = isUnowned ? 0 : (isBurstBuffed ? baseBurst + 3 : baseBurst)
 
-  // Максимальный уровень для короны (10 или 13)
+  const normalCrownAt = isNormalBuffed ? 13 : 10
   const skillCrownAt = isSkillBuffed ? 13 : 10
   const burstCrownAt = isBurstBuffed ? 13 : 10
-
-  // Берем данные из БД
-  let consts: any = character.constellations || {}
-  if (typeof consts === 'string') {
-    try { consts = JSON.parse(consts) } catch (e) { consts = {} }
-  }
 
   const outerConsts: OuterSlotConfig[] = Array.from({ length: 6 }, (_, i) => {
     const level = i + 1
     const data = consts[String(level)] || {}
+
     return {
       variant: 'plain',
       icon: data.icon || character.constellation_icon_url || '🌟',
       label: data.name || `Созвездие ${level}`,
-      disabled: false, // <--- ВСЕГДА КЛИКАБЕЛЬНО
-      opacity: cLevel >= level ? 1 : 0.4, // <--- Но прозрачно, если не открыто
+      disabled: isUnowned, // <--- БЛОКИРУЕМ ТОЛЬКО ЕСЛИ ПЕРСОНАЖА НЕТ
+      opacity: isUnowned ? 0.3 : (cLevel >= level ? 1 : 0.4),
+      grayscale: isUnowned || cLevel < level, // Остается серым, если созвездие не открыто
     }
   })
 
@@ -91,24 +97,33 @@ export function ZoneHero({
     ...outerConsts,
     {
       icon: character.talents?.['Elemental Burst']?.icon || '💥',
-      label: 'Взрыв стихии', value: effBurst,
-      ringPercent: Math.min(100, (effBurst / (isBurstBuffed ? 12 : 9)) * 100), // <--- Обновляем прогресс кольца
+      label: 'Взрыв стихии', value: isUnowned ? 0 : effBurst,
+      ringPercent: isUnowned ? 0 : Math.min(100, (effBurst / (isBurstBuffed ? 12 : 9)) * 100),
       goldenAt: burstCrownAt,
-      textColor: effBurst >= burstCrownAt ? TALENT_COLORS.crown.accent : (isBurstBuffed ? TALENT_COLORS.constellation.accent : undefined)
+      textColor: isUnowned ? undefined : (effBurst >= burstCrownAt ? TALENT_COLORS.crown.accent : (isBurstBuffed ? TALENT_COLORS.constellation.accent : undefined)),
+      disabled: isUnowned,
+      grayscale: isUnowned,
+      hideValue: isUnowned,
     },
     {
       icon: character.talents?.['Elemental Skill']?.icon || '⚡',
-      label: 'Элем. навык', value: effSkill, // <--- ИСПОЛЬЗУЕМ effSkill
-      ringPercent: Math.min(100, (effSkill / (isSkillBuffed ? 12 : 9)) * 100),
+      label: 'Элем. навык', value: isUnowned ? 0 : effSkill,
+      ringPercent: isUnowned ? 0 : Math.min(100, (effSkill / (isSkillBuffed ? 12 : 9)) * 100),
       goldenAt: skillCrownAt,
-      textColor: effSkill >= skillCrownAt ? TALENT_COLORS.crown.accent : (isSkillBuffed ? TALENT_COLORS.constellation.accent : undefined)
+      textColor: isUnowned ? undefined : (effSkill >= skillCrownAt ? TALENT_COLORS.crown.accent : (isSkillBuffed ? TALENT_COLORS.constellation.accent : undefined)),
+      disabled: isUnowned,
+      grayscale: isUnowned,
+      hideValue: isUnowned,
     },
     {
       icon: character.talents?.['Normal Attack']?.icon || '⚔️',
-      label: 'Обычная атака', value: effNormal,
-      ringPercent: Math.min(100, (effNormal / 9) * 100),
-      goldenAt: 10,
-      textColor: effNormal >= 10 ? TALENT_COLORS.crown.accent : undefined
+      label: 'Обычная атака', value: isUnowned ? 0 : effNormal,
+      ringPercent: isUnowned ? 0 : Math.min(100, (effNormal / (isNormalBuffed ? 12 : 9)) * 100),
+      goldenAt: normalCrownAt,
+      textColor: isUnowned ? undefined : (effNormal >= normalCrownAt ? TALENT_COLORS.crown.accent : (isNormalBuffed ? TALENT_COLORS.constellation.accent : undefined)),
+      disabled: isUnowned,
+      grayscale: isUnowned,
+      hideValue: isUnowned,
     },
     { hidden: true },
     {
@@ -118,19 +133,25 @@ export function ZoneHero({
       customRender: <CharacterToggleButton isOwned={isOwned} onClick={onToggleOwned} colors={colors} />
     },
     {
-      icon: '📊', label: 'Уровень', value: draft?.level ?? 1,
-      ringPercent: Math.min(100, ((draft?.level ?? 1) / 90) * 100),
+      icon: '📊', label: 'Уровень', value: isUnowned ? 0 : (draft?.level ?? 1),
+      ringPercent: isUnowned ? 0 : Math.min(100, ((draft?.level ?? 1) / 90) * 100),
       goldenAt: 91,
-      goldenIcon: 'none'
+      disabled: isUnowned,
+      grayscale: isUnowned,
+      hideValue: isUnowned,
     },
     {
-      icon: '💚',
-      label: 'Дружба',
-      value: draft?.friendship ?? 1,
-      ringPercent: Math.min(100, ((draft?.friendship ?? 1) / 10) * 100) },
+      icon: '💚', label: 'Дружба', value: isUnowned ? 0 : (draft?.friendship ?? 1),
+      ringPercent: isUnowned ? 0 : Math.min(100, ((draft?.friendship ?? 1) / 10) * 100),
+      disabled: isUnowned,
+      grayscale: isUnowned,
+      hideValue: isUnowned,
+    },
   ]
 
   function handleOuterClick(i: number) {
+    if (isUnowned && i !== 10) return
+
     if (i >= 1 && i <= 6) goTo(3)
     else if (i >= 7 && i <= 9) goTo(1)
     else if (i === 10) onToggleOwned()
@@ -140,10 +161,11 @@ export function ZoneHero({
   return (
     <section className="h-screen relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
       <div className="h-full w-full flex items-center justify-center gap-6 md:gap-12 lg:gap-24 px-6 pt-4 pb-20">
-        <div className="relative shrink-0 rounded-2xl overflow-hidden" style={{ aspectRatio: '3 / 4', height: 'min(84vh, 780px)', maxWidth: '42vw', boxShadow: `0 0 55px ${colors.main}99` }}>
+        {/* Убрали grayscale у контейнера с портретом */}
+        <div className="relative shrink-0 rounded-2xl overflow-hidden transition-all duration-500" style={{ aspectRatio: '3 / 4', height: 'min(84vh, 780px)', maxWidth: '42vw', boxShadow: `0 0 55px ${colors.main}99` }}>
           {portraitSrc && <img src={portraitSrc} alt={character.name} className="absolute inset-0 w-full h-full object-cover object-center" />}
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50 pointer-events-none" />
-          <HeroActionArc colors={colors} />
+          <HeroActionArc colors={colors} isUnowned={isUnowned} />
         </div>
 
         <RadialProgress
@@ -154,10 +176,12 @@ export function ZoneHero({
           outerSlotsConfig={OUTER_CONFIG}
           onOuterClick={handleOuterClick}
           onMiddleClick={(key) => {
+            if (isUnowned) return
             if (key === 'total') return
             if (key === 'weapon') { onSelectSlot('weapon'); return }
             onSelectSlot(key as EquipmentSlotKey)
           }}
+          isUnowned={isUnowned} // <--- ПЕРЕДАЕМ ФЛАГ
           hideCenter
         />
       </div>
