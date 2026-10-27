@@ -96,7 +96,8 @@ export interface CharacterListParams {
   element?: Element
   weapon_type?: WeaponType
   rarity?: number
-  sort?: 'name_asc' | 'rarity_desc' | 'version_desc'
+  region?: string
+  sort?: 'name_asc' | 'rarity_desc' | 'release_date_desc'
   limit?: number
   offset?: number
 }
