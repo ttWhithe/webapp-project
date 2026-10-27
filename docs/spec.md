@@ -1,9 +1,9 @@
 # Software Requirements Specification
 ## Web Application "Genshin Progress Tracker"
 
-**Version:** 2.3
+**Version:** 2.4
 **Date:** 2026
-**Status:** MVP backend + frontend mostly delivered; Zones 1-4 completed; Admin panel refactored; ready for deployment
+**Status:** MVP frontend fully polished (Catalog, Tracker, Admin); ready for payments & deployment
 
 ---
 
@@ -444,7 +444,7 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 | 8 | Frontend zone 2 (stats, sliders) | ✅ Done |
 | 9 | Frontend zone 3 (weapon + artifacts) | ✅ Done |
 | 10 | Frontend zone 4 (constellations) | ✅ Done |
-| 11 | Add/Remove character toggle (Zone UI adaptations for empty state) | ⏳ Planned |
+| 11 | Add/Remove character toggle (Zone UI adaptations for empty state) | ✅ Done |
 | 12 | Payments: Stripe + YooKassa | ⏳ Planned |
 | 13 | Deployment | ⏳ Planned |
 | 14 | Fix CI tests and linters | ✅ Done |
@@ -484,7 +484,13 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 
 ## 18. Changelog
 
-### v2.3 (current)
+### v2.4 (current)
+- **UX/UI Catalog:** Removed pagination (loads up to 200 characters), added smart sorting (owned characters first), added region filter, and release date sorting.
+- **Tracker:** Implemented custom "Add/Remove" character button with confirmation modal. Locked further zones for unowned characters.
+- **Dynamic Talents:** C3/C5 boosts now dynamically pull from DB and correctly apply to Normal Attack, Skill, or Burst.
+- **Navigation:** Catalog becomes the default landing page. Removed broken "My Characters" link.
+
+### v2.3
 - **Zones 1-4 UI:** Fully completed. Added dynamic talent/constellation icons from DB, corrected level/crown logic, and polished Zone 4 (center image + arc layout).
 - **Admin Panel:** Added passive talents, constellation descriptions, and icons to the table and edit modal. Fixed table scroll and z-index issues.
 - **Backend:** Updated `CharacterRead` schema to serve `talents` and `constellations` to the public API.

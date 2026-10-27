@@ -66,6 +66,7 @@ def _to_list_item(uc: UserCharacter) -> UserCharacterListItem:
         friendship=uc.friendship,
         crowns_used=uc.crowns_used,
         progress=_progress_for(uc).total,
+        updated_at=uc.updated_at,
     )
 
 

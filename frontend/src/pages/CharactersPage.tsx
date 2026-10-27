@@ -83,7 +83,7 @@ export default function CharactersPage() {
   }, [catalogQuery.data?.items, progressMap, filters])
 
   return (
-    <div className="space-y-6">
+   <div className="space-y-6 select-none">
       <div>
         <h1 className="text-3xl font-bold">Каталог персонажей</h1>
         <p className="text-slate-400 mt-1">

@@ -157,6 +157,7 @@ class UserCharacterListItem(BaseModel):
     friendship: int
     crowns_used: int
     progress: float
+    updated_at: datetime | None = None
 
 
 class UserCharacterDetail(BaseModel):

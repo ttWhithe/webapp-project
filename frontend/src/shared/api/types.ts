@@ -55,6 +55,7 @@ export interface Character {
   icon_url: string | null
   portrait_url: string | null
   version_added: string | null
+  namecard_url: string | null;
   constellation_icon_url: string | null;
   constellations: Record<string, ConstellationData> | null;
   c3_increases: string | null;
@@ -123,6 +124,7 @@ export interface UserCharacterListItem {
   friendship: number
   crowns_used: number
   progress: number
+  updated_at: string;
 }
 
 // Admin types

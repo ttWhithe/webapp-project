@@ -117,7 +117,7 @@ export default function CharacterDetailPage() {
   const character = catalogQuery.data
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="relative h-screen w-full overflow-hidden select-none">
       <div
         className="transition-transform duration-700 ease-in-out"
         style={{ transform: `translateY(-${safeCurrent * 100}vh)` }}
