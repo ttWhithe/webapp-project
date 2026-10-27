@@ -11,6 +11,7 @@ interface OuterSlotConfig {
   goldenAt?: number
   goldenColor?: string
   textColor?: string
+  customRender?: React.ReactNode
 }
 
 export interface RadialItem {
@@ -60,6 +61,23 @@ export default function RadialProgress({
         }
 
         if (cfg.variant === 'plain') {
+          if (cfg.customRender) {
+            return (
+              <div
+                key={`outer-${i}`}
+                className="absolute flex items-center justify-center"
+                style={{
+                  width: outerSize,
+                  height: outerSize,
+                  left,
+                  top,
+                  zIndex: 30 // Чтобы кнопка была поверх
+                }}
+              >
+                {cfg.customRender}
+              </div>
+            )
+          }
           const isImage = cfg.icon?.startsWith('http') || cfg.icon?.startsWith('/')
           return (
             <button

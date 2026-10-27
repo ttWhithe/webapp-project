@@ -15,11 +15,13 @@ import { ZoneStats } from '@/features/character-detail/zones/ZoneStats'
 import { ZoneWeaponArtifacts } from '@/features/character-detail/zones/ZoneWeaponArtifacts'
 import { ZoneConstellations } from '@/features/character-detail/zones/ZoneConstellations'
 import type { EquipmentSlotKey } from '@/features/character-detail/constants'
+import { ConfirmDeleteModal } from '@/features/character-detail/components/ConfirmDeleteModal'
 
 export default function CharacterDetailPage() {
   const { slug } = useParams<{ slug: string }>()
   const qc = useQueryClient()
   const [selectedSlot, setSelectedSlot] = useState<EquipmentSlotKey>('weapon')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const catalogQuery = useQuery({
     queryKey: ['character', slug],
@@ -70,18 +72,31 @@ export default function CharacterDetailPage() {
 
   const handleToggleOwned = async () => {
     if (!catalogQuery.data) return
-    try {
-      if (tracked) {
-        await trackerApi.deleteMine(tracked.id)
-      } else {
+    if (!tracked) {
+      // ДОБАВЛЕНИЕ
+      try {
         await trackerApi.addMine(catalogQuery.data.id)
+        await qc.invalidateQueries({ queryKey: ['me', 'characters'] })
+        await qc.invalidateQueries({ queryKey: ['me', 'characters', 'detail'] })
+      } catch (e: any) {
+        alert(e.response?.data?.detail || 'Ошибка добавления')
       }
-      // Даем кэшу обновиться, чтобы UI сразу показал изменения
+    } else {
+      // УДАЛЕНИЕ (вызываем модалку)
+      setShowDeleteConfirm(true)
+    }
+  }
+
+  const confirmDelete = async () => {
+    if (!tracked) return
+    try {
+      await trackerApi.deleteMine(tracked.id)
       await qc.invalidateQueries({ queryKey: ['me', 'characters'] })
       await qc.invalidateQueries({ queryKey: ['me', 'characters', 'detail'] })
+      setShowDeleteConfirm(false)
+      goTo(0) // Возвращаемся в первую зону
     } catch (e: any) {
-      console.error('Не удалось обновить трекер', e)
-      alert(e.response?.data?.detail || 'Ошибка: не удалось добавить/удалить персонажа')
+      alert(e.response?.data?.detail || 'Ошибка удаления')
     }
   }
 
@@ -90,8 +105,10 @@ export default function CharacterDetailPage() {
     onSave: handleSave,
   })
 
-  const { current, goTo } = useSectionScroll(ZONES)
-  const safeCurrent = Math.min(current, ZONES - 1)
+  // Если персонажа нет в трекере, доступна только 1 зона
+  const totalZones = tracked ? 4 : 1
+  const { current, goTo } = useSectionScroll(totalZones)
+  const safeCurrent = Math.min(current, totalZones - 1)
 
   if (catalogQuery.isLoading) return <LoadingSpinner />
   if (catalogQuery.isError || !catalogQuery.data)
@@ -156,6 +173,13 @@ export default function CharacterDetailPage() {
           goTo={goTo}
         />
       </div>
+        {showDeleteConfirm && (
+        <ConfirmDeleteModal
+          characterName={character.name_ru || character.name}
+          onConfirm={confirmDelete}
+          onCancel={() => setShowDeleteConfirm(false)}
+        />
+      )}
     </div>
   )
 }

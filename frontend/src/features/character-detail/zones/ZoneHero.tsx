@@ -4,6 +4,7 @@ import { ARTIFACT_MAX_LEVEL, PLACEHOLDER_ICONS } from '../constants'
 import { getSetSlotIcon } from '../utils'
 import { HeroActionArc } from '../components/HeroActionArc'
 import type { EquipmentSlotKey } from '../constants'
+import { CharacterToggleButton } from '../components/CharacterToggleButton'
 
 export function ZoneHero({
   character, detail, draft, goTo, onToggleOwned, isOwned, totalOverride, artifactSets, weapons, defaultWeapon, onSelectSlot
@@ -112,9 +113,10 @@ export function ZoneHero({
     { hidden: true },
     {
       variant: 'plain',
-      icon: isOwned ? '👤' : '➕',
       label: isOwned ? 'Убрать из трекера' : 'Добавить в трекер',
-      angle: 180 },
+      angle: 180,
+      customRender: <CharacterToggleButton isOwned={isOwned} onClick={onToggleOwned} colors={colors} />
+    },
     {
       icon: '📊', label: 'Уровень', value: draft?.level ?? 1,
       ringPercent: Math.min(100, ((draft?.level ?? 1) / 90) * 100),
