@@ -1,10 +1,37 @@
 import { useAuthStore } from '@/shared/lib/auth-store'
+import { paymentApi } from '@/shared/api/payment'
+import { useMutation } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 export default function ProfilePage() {
   const user = useAuthStore((s) => s.user)
+  const [error, setError] = useState<string | null>(null)
+
+  const donateMutation = useMutation({
+    mutationFn: () => paymentApi.createDonation(500), // Донат на 500 рублей
+    onSuccess: (data) => {
+      // Перенаправляем пользователя на страницу оплаты Stripe
+      window.location.href = data.confirmation_url
+    },
+    onError: (err: any) => {
+      setError(err.response?.data?.detail || 'Ошибка создания платежа')
+    }
+  })
+
+  const subscribeMutation = useMutation({
+    mutationFn: () => paymentApi.createSubscription(),
+    onSuccess: (data) => {
+      window.location.href = data.confirmation_url
+    },
+    onError: (err: any) => {
+      setError(err.response?.data?.detail || 'Ошибка создания подписки')
+    }
+  })
 
   if (!user) return null
+
+  const isPending = donateMutation.isPending || subscribeMutation.isPending
 
   return (
     <div className="max-w-4xl mx-auto select-none">
@@ -12,6 +39,12 @@ export default function ProfilePage() {
         <h1 className="text-4xl font-bold mb-2">Мой профиль</h1>
         <p className="text-slate-400">Управление аккаунтом и настройками подписки.</p>
       </div>
+
+      {error && (
+        <div className="bg-red-900/40 text-red-300 p-3 rounded-lg mb-6">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -55,10 +88,11 @@ export default function ProfilePage() {
               Получите доступ к эксклюзивным темам оформления, кастомным иконкам персонажей, уникальным анимациям и значкам профиля.
             </p>
             <button
-              onClick={() => alert('Интеграция с платежной системой появится в ближайшее время!')}
-              className="px-6 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/50"
+              onClick={() => subscribeMutation.mutate()}
+              disabled={isPending}
+              className="px-6 py-3 bg-indigo-500 hover:bg-indigo-400 disabled:opacity-50 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/50"
             >
-              Оформить подписку
+              {subscribeMutation.isPending ? 'Загрузка...' : 'Оформить подписку'}
             </button>
           </div>
 
@@ -70,10 +104,11 @@ export default function ProfilePage() {
               Если вам нравится трекер и вы хотите помочь с оплатой серверов, вы можете сделать разовый донат любой удобной суммой.
             </p>
             <button
-              onClick={() => alert('Интеграция с платежной системой появится в ближайшее время!')}
-              className="px-6 py-3 bg-slate-700 hover:bg-slate-600 border border-slate-500 text-white font-bold rounded-xl transition-all"
+              onClick={() => donateMutation.mutate()}
+              disabled={isPending}
+              className="px-6 py-3 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 border border-slate-500 text-white font-bold rounded-xl transition-all"
             >
-              Сделать донат
+              {donateMutation.isPending ? 'Загрузка...' : 'Сделать донат (500 ₽)'}
             </button>
           </div>
 

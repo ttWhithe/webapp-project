@@ -1,6 +1,7 @@
 from app.models.artifact_set import ArtifactSet
 from app.models.character import Character
 from app.models.enums import ArtifactSlot, Element, Role, WeaponType
+from app.models.payment import Payment, Subscription
 from app.models.user import User
 from app.models.user_artifact import UserArtifact
 from app.models.user_character import UserCharacter
@@ -17,4 +18,6 @@ __all__ = [
     "UserCharacter",
     "Weapon",
     "WeaponType",
+    "Payment",
+    "Subscription",
 ]

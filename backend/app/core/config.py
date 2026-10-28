@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     genshin_db_api_concurrency: int = 5
     catalog_cache_ttl: int = 86400
 
+    # Payments: Stripe
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_publishable_key: str = ""
+
     # CORS
     cors_origins: str = "http://localhost:5173"
 
