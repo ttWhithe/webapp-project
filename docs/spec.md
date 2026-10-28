@@ -1,9 +1,9 @@
 # Software Requirements Specification
 ## Web Application "Genshin Progress Tracker"
 
-**Version:** 2.4
+**Version:** 2.5
 **Date:** 2026
-**Status:** MVP frontend fully polished (Catalog, Tracker, Admin); ready for payments & deployment
+**Status:** MVP backend + frontend mostly delivered; Stripe integration complete; UI polishing in progress
 
 ---
 
@@ -444,8 +444,8 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 | 8 | Frontend zone 2 (stats, sliders) | ✅ Done |
 | 9 | Frontend zone 3 (weapon + artifacts) | ✅ Done |
 | 10 | Frontend zone 4 (constellations) | ✅ Done |
-| 11 | Add/Remove character toggle (Zone UI adaptations for empty state) | ✅ Done |
-| 12 | Payments: Stripe + YooKassa | ⏳ Planned |
+| 11 | Add/Remove character toggle | ✅ Done |
+| 12 | Payments: Stripe (Test Mode + Webhooks) | ✅ Done |
 | 13 | Deployment | ⏳ Planned |
 | 14 | Fix CI tests and linters | ✅ Done |
 
@@ -484,7 +484,12 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 
 ## 18. Changelog
 
-### v2.4 (current)
+### v2.5 (current)
+- **Payments (Stripe):** Integrated Stripe Checkout for subscriptions and donations. Added secure webhook handling with signature verification.
+- **Database:** Added `payments` and `subscriptions` tables via Alembic migrations.
+- **Profile Page:** Added UI for Premium subscription and Donations.
+
+### v2.4
 - **UX/UI Catalog:** Removed pagination (loads up to 200 characters), added smart sorting (owned characters first), added region filter, and release date sorting.
 - **Tracker:** Implemented custom "Add/Remove" character button with confirmation modal. Locked further zones for unowned characters.
 - **Dynamic Talents:** C3/C5 boosts now dynamically pull from DB and correctly apply to Normal Attack, Skill, or Burst.
@@ -552,6 +557,8 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 - Shared element transitions (Framer Motion).
 - Dark / light theme toggle.
 - PWA installation.
+- Premium UI customizations (custom PNG icons for Premium users).
+- Public Landing Page for unauthenticated users.
 
 ### Payments
 - Stripe + YooKassa providers.
@@ -561,3 +568,5 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 - Deployment to free hosting.
 - E2E tests (Playwright).
 - Prometheus metrics.
+- Admin panel: User management page (view roles, grant/revoke Premium).
+- Document local webhook tunneling (localhost.run / ngrok) in README.
