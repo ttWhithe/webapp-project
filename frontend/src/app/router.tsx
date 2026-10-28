@@ -9,6 +9,7 @@ import AuthPage from '@/pages/AuthPage'
 import CharacterDetailPage from '@/pages/CharacterDetailPage'
 import CharactersPage from '@/pages/CharactersPage'
 import Dashboard from '@/pages/Dashboard'
+import ErrorPage from '@/pages/ErrorPage'
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,
+    errorElement: <ErrorPage />,
     children: [
       {
         element: <ProtectedRoute />,

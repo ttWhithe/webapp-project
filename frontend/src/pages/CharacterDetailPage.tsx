@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 
 import { catalogApi } from '@/shared/api/catalog'
 import { trackerApi } from '@/shared/api/tracker'
 import { useCharacterDraft } from '@/shared/lib/useCharacterDraft'
 import { useSectionScroll } from '@/shared/lib/useSectionScroll'
+
 import ErrorState from '@/shared/ui/ErrorState'
 import LoadingSpinner from '@/shared/ui/LoadingSpinner'
-
 import { ZONES } from '@/features/character-detail/constants'
 import { ZoneHero } from '@/features/character-detail/zones/ZoneHero'
 import { ZoneStats } from '@/features/character-detail/zones/ZoneStats'
@@ -19,6 +19,7 @@ import { ConfirmDeleteModal } from '@/features/character-detail/components/Confi
 
 export default function CharacterDetailPage() {
   const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
   const qc = useQueryClient()
   const [selectedSlot, setSelectedSlot] = useState<EquipmentSlotKey>('weapon')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -58,13 +59,9 @@ export default function CharacterDetailPage() {
   const detail = detailQuery.data
   const artifactSets = setsQuery.data?.items || []
   const weapons = weaponsQuery.data?.items || []
-
-  // Ищем однозвездочное оружие для заглушки (например, "Dull Blade")
   const defaultWeapon = weapons.find((w: any) => w.rarity === 1)
 
-  const handleSave = async (
-    patch: Parameters<typeof trackerApi.updateMine>[1],
-  ) => {
+  const handleSave = async (patch: Parameters<typeof trackerApi.updateMine>[1]) => {
     if (!tracked) return
     await trackerApi.updateMine(tracked.id, patch)
     qc.invalidateQueries({ queryKey: ['me', 'characters', 'detail', tracked.id] })
@@ -73,7 +70,6 @@ export default function CharacterDetailPage() {
   const handleToggleOwned = async () => {
     if (!catalogQuery.data) return
     if (!tracked) {
-      // ДОБАВЛЕНИЕ
       try {
         await trackerApi.addMine(catalogQuery.data.id)
         await qc.invalidateQueries({ queryKey: ['me', 'characters'] })
@@ -82,7 +78,6 @@ export default function CharacterDetailPage() {
         alert(e.response?.data?.detail || 'Ошибка добавления')
       }
     } else {
-      // УДАЛЕНИЕ (вызываем модалку)
       setShowDeleteConfirm(true)
     }
   }
@@ -94,7 +89,7 @@ export default function CharacterDetailPage() {
       await qc.invalidateQueries({ queryKey: ['me', 'characters'] })
       await qc.invalidateQueries({ queryKey: ['me', 'characters', 'detail'] })
       setShowDeleteConfirm(false)
-      goTo(0) // Возвращаемся в первую зону
+      goTo(0)
     } catch (e: any) {
       alert(e.response?.data?.detail || 'Ошибка удаления')
     }
@@ -105,7 +100,6 @@ export default function CharacterDetailPage() {
     onSave: handleSave,
   })
 
-  // Если персонажа нет в трекере, доступна только 1 зона
   const totalZones = tracked ? 4 : 1
   const { current, goTo } = useSectionScroll(totalZones)
   const safeCurrent = Math.min(current, totalZones - 1)
@@ -117,63 +111,82 @@ export default function CharacterDetailPage() {
   const character = catalogQuery.data
 
   return (
-    <div className="relative h-screen w-full overflow-hidden select-none">
-      <div
-        className="transition-transform duration-700 ease-in-out"
-        style={{ transform: `translateY(-${safeCurrent * 100}vh)` }}
-      >
-        <ZoneHero
-          character={character}
-          detail={detail}
-          draft={draft}
-          goTo={goTo}
-          onToggleOwned={handleToggleOwned}
-          isOwned={!!tracked}
-          totalOverride={progress?.total}
-          artifactSets={artifactSets}
-          weapons={weapons}
-          defaultWeapon={defaultWeapon}
-          onSelectSlot={(key) => {
-            setSelectedSlot(key)
-            goTo(2)
-          }}
-        />
-        <ZoneStats
-          character={character}
-          detail={detail}
-          draft={draft}
-          progress={progress}
-          onUpdate={update}
-          isSaving={isSaving}
-          lastSaved={lastSaved}
-          goTo={goTo}
-        />
-        <ZoneWeaponArtifacts
-          character={character}
-          detail={detail}
-          draft={draft}
-          progress={progress}
-          onUpdate={update}
-          goTo={goTo}
-          isSaving={isSaving}
-          lastSaved={lastSaved}
-          artifactSets={artifactSets}
-          weapons={weapons}
-          defaultWeapon={defaultWeapon}
-          weaponsQuery={weaponsQuery}
-          selectedSlot={selectedSlot}
-          setSelectedSlot={setSelectedSlot}
-        />
-        <ZoneConstellations
-          character={character}
-          draft={draft}
-          onUpdate={update}
-          isSaving={isSaving}
-          lastSaved={lastSaved}
-          goTo={goTo}
-        />
+    <div className="relative w-full overflow-hidden">
+
+      {/* ЗАГЛУШКА ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ */}
+      <div className="flex lg:hidden h-screen items-center justify-center p-6 text-center">
+        <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl max-w-sm">
+          <div className="text-6xl mb-6">🖥️</div>
+          <h2 className="text-2xl font-bold mb-4">Требуется ПК</h2>
+          <p className="text-slate-400 mb-8">
+            Пожалуйста, откройте эту страницу на компьютере или планшете в горизонтальной ориентации, чтобы увидеть интерактивный трекер персонажа.
+          </p>
+          <button onClick={() => navigate(-1)} className="w-full py-3 bg-indigo-600 rounded-xl font-bold hover:bg-indigo-500 transition-colors">
+            Вернуться назад
+          </button>
+        </div>
       </div>
-        {showDeleteConfirm && (
+
+      {/* ОСНОВНОЙ КОНТЕНТ (ТОЛЬКО ДЛЯ ПК) */}
+      <div className="hidden lg:block h-screen">
+        <div
+          className="transition-transform duration-700 ease-in-out"
+          style={{ transform: `translateY(-${safeCurrent * 100}vh)` }}
+        >
+          <ZoneHero
+            character={character}
+            detail={detail}
+            draft={draft}
+            goTo={goTo}
+            onToggleOwned={handleToggleOwned}
+            isOwned={!!tracked}
+            totalOverride={progress?.total}
+            artifactSets={artifactSets}
+            weapons={weapons}
+            defaultWeapon={defaultWeapon}
+            onSelectSlot={(key) => {
+              setSelectedSlot(key)
+              goTo(2)
+            }}
+          />
+          <ZoneStats
+            character={character}
+            detail={detail}
+            draft={draft}
+            progress={progress}
+            onUpdate={update}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
+            goTo={goTo}
+          />
+          <ZoneWeaponArtifacts
+            character={character}
+            detail={detail}
+            draft={draft}
+            progress={progress}
+            onUpdate={update}
+            goTo={goTo}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
+            artifactSets={artifactSets}
+            weapons={weapons}
+            defaultWeapon={defaultWeapon}
+            weaponsQuery={weaponsQuery}
+            selectedSlot={selectedSlot}
+            setSelectedSlot={setSelectedSlot}
+          />
+          <ZoneConstellations
+            character={character}
+            draft={draft}
+            onUpdate={update}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
+            goTo={goTo}
+          />
+        </div>
+      </div>
+
+      {showDeleteConfirm && (
         <ConfirmDeleteModal
           characterName={character.name_ru || character.name}
           onConfirm={confirmDelete}
