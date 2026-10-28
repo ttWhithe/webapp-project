@@ -66,7 +66,7 @@ export default function Layout() {
                   <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white shadow-inner">
                     {user.username.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-slate-200 font-medium">{user.username}</span>
+                  <span className="text-slate-200 font-medium max-w-[150px] truncate">{user.username}</span>
                   {user.role === 'premium' && (
                     <span className="bg-gradient-to-r from-yellow-500 to-amber-300 text-black text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm">
                       PRO

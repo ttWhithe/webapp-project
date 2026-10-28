@@ -10,6 +10,7 @@ import CharacterDetailPage from '@/pages/CharacterDetailPage'
 import CharactersPage from '@/pages/CharactersPage'
 import Dashboard from '@/pages/Dashboard'
 import ErrorPage from '@/pages/ErrorPage'
+import ProfilePage from '@/pages/ProfilePage'
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <Dashboard />,
+          },
+          {
+            path: 'profile',
+            element: <ProfilePage />,
           },
           {
             path: 'characters',
