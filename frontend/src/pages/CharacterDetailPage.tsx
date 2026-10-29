@@ -16,10 +16,12 @@ import { ZoneWeaponArtifacts } from '@/features/character-detail/zones/ZoneWeapo
 import { ZoneConstellations } from '@/features/character-detail/zones/ZoneConstellations'
 import type { EquipmentSlotKey } from '@/features/character-detail/constants'
 import { ConfirmDeleteModal } from '@/features/character-detail/components/ConfirmDeleteModal'
+import { useAuthStore } from '@/shared/lib/auth-store'
 
 export default function CharacterDetailPage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
+  const user = useAuthStore((s) => s.user)
   const qc = useQueryClient()
   const [selectedSlot, setSelectedSlot] = useState<EquipmentSlotKey>('weapon')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -75,6 +77,12 @@ export default function CharacterDetailPage() {
 
   const handleToggleOwned = async () => {
     if (!catalogQuery.data) return
+
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
     if (!tracked) {
       try {
         await trackerApi.addMine(catalogQuery.data.id)

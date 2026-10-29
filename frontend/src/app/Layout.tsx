@@ -56,6 +56,12 @@ export default function Layout() {
           <nav className="flex items-center gap-6 text-sm">
             {user?.role === 'admin' && <NavItem to="/admin/catalog">Админка</NavItem>}
 
+            {!user && (
+              <Link to="/login" className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition-colors">
+                Войти
+              </Link>
+            )}
+
             {user && (
               <div className="relative pl-4 border-l border-slate-700 flex items-center" ref={menuRef}>
                 {/* Кнопка профиля (Аватарка + Имя) */}

@@ -11,8 +11,13 @@ import CharactersPage from '@/pages/CharactersPage'
 import Dashboard from '@/pages/Dashboard'
 import ErrorPage from '@/pages/ErrorPage'
 import ProfilePage from '@/pages/ProfilePage'
+import LandingPage from '@/pages/LandingPage'
 
 export const router = createBrowserRouter([
+  {
+    path: '/welcome',
+    element: <LandingPage />,
+  },
   {
     path: '/login',
     element: <AuthPage initialTab="login" />,
@@ -26,6 +31,17 @@ export const router = createBrowserRouter([
     element: <Layout />,
     errorElement: <ErrorPage />,
     children: [
+      // --- ПУБЛИЧНЫЕ СТРАНИЦЫ (Доступны всем) ---
+      {
+        path: 'characters',
+        element: <CharactersPage />,
+      },
+      {
+        path: 'characters/:slug',
+        element: <CharacterDetailPage />,
+      },
+
+      // --- ЗАЩИЩЕННЫЕ СТРАНИЦЫ (Только для авторизованных) ---
       {
         element: <ProtectedRoute />,
         children: [
@@ -36,14 +52,6 @@ export const router = createBrowserRouter([
           {
             path: 'profile',
             element: <ProfilePage />,
-          },
-          {
-            path: 'characters',
-            element: <CharactersPage />,
-          },
-          {
-            path: 'characters/:slug',
-            element: <CharacterDetailPage />,
           },
           {
             element: <AdminRoute />,
