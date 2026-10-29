@@ -160,27 +160,14 @@ def calculate_progress(
     weapon_level: int | None,
     weapon_refinement: int | None,
     artifacts: list[tuple[int, int]],
+    weights: dict[str, float] | None = None,
 ) -> ProgressBreakdown:
-    """Compute the progress breakdown.
+    w = weights or WEIGHTS
 
-    Args:
-        level: character level (1-100).
-        level_cap: user's chosen cap (90 / 95 / 100).
-        friendship: 1-10.
-        talent_normal / skill / burst: 1-13.
-        weapon_level: 1-90 (None if not set).
-        weapon_refinement: 1-5 (None if not set).
-        artifacts: list of (level, rarity) for equipped artifacts, 0-5 items.
-
-    Returns:
-        ProgressBreakdown with weighted components in [0, 100].
-    """
     return ProgressBreakdown(
-        level=WEIGHTS["level"] * 100 * _level_fraction(level, level_cap),
-        talents=WEIGHTS["talents"]
-        * 100
-        * _talents_fraction(talent_normal, talent_skill, talent_burst),
-        weapon=WEIGHTS["weapon"] * 100 * _weapon_fraction(weapon_level),
-        artifacts=WEIGHTS["artifacts"] * 100 * _artifacts_fraction(artifacts),
-        friendship=WEIGHTS["friendship"] * 100 * _friendship_fraction(friendship),
+        level=w["level"] * 100 * _level_fraction(level, level_cap),
+        talents=w["talents"] * 100 * _talents_fraction(talent_normal, talent_skill, talent_burst),
+        weapon=w["weapon"] * 100 * _weapon_fraction(weapon_level),
+        artifacts=w["artifacts"] * 100 * _artifacts_fraction(artifacts),
+        friendship=w["friendship"] * 100 * _friendship_fraction(friendship),
     )

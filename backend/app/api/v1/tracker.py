@@ -11,6 +11,7 @@ from app.api.deps import (
     get_weapon_repo,
 )
 from app.db.session import get_db
+from app.models.progress_weights import ProgressWeights
 from app.models.user_artifact import UserArtifact
 from app.models.user_character import UserCharacter
 from app.repositories.catalog import (
@@ -32,7 +33,7 @@ from app.schemas.tracker import (
 )
 from app.services.progress import ProgressBreakdown, calculate_progress
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/me/characters", tags=["tracker"])
@@ -41,7 +42,21 @@ router = APIRouter(prefix="/me/characters", tags=["tracker"])
 # --- Helpers ---------------------------------------------------------------
 
 
-def _progress_for(uc: UserCharacter) -> ProgressBreakdown:
+async def _get_weights_dict(db: AsyncSession) -> dict[str, float] | None:
+    """Достает веса из БД. Если их нет, возвращает None (сработают дефолтные)."""
+    weights_db = await db.scalar(select(ProgressWeights).limit(1))
+    if not weights_db:
+        return None
+    return {
+        "level": weights_db.w_level,
+        "talents": weights_db.w_talents,
+        "weapon": weights_db.w_weapon,
+        "artifacts": weights_db.w_artifacts,
+        "friendship": weights_db.w_friendship,
+    }
+
+
+def _progress_for(uc: UserCharacter, weights: dict[str, float] | None) -> ProgressBreakdown:
     artifacts = [(a.level, a.rarity) for a in uc.artifacts]
     return calculate_progress(
         level=uc.level,
@@ -53,10 +68,11 @@ def _progress_for(uc: UserCharacter) -> ProgressBreakdown:
         weapon_level=uc.weapon_level,
         weapon_refinement=uc.weapon_refinement,
         artifacts=artifacts,
+        weights=weights,
     )
 
 
-def _to_list_item(uc: UserCharacter) -> UserCharacterListItem:
+def _to_list_item(uc: UserCharacter, weights: dict[str, float] | None) -> UserCharacterListItem:
     return UserCharacterListItem(
         id=uc.id,
         character=CharacterBrief.model_validate(uc.character),
@@ -65,7 +81,7 @@ def _to_list_item(uc: UserCharacter) -> UserCharacterListItem:
         constellation=uc.constellation,
         friendship=uc.friendship,
         crowns_used=uc.crowns_used,
-        progress=_progress_for(uc).total,
+        progress=_progress_for(uc, weights).total,
         updated_at=uc.updated_at,
     )
 
@@ -84,8 +100,8 @@ def _to_artifact_read(a: UserArtifact) -> UserArtifactRead:
     )
 
 
-def _to_detail(uc: UserCharacter) -> UserCharacterDetail:
-    breakdown = _progress_for(uc)
+def _to_detail(uc: UserCharacter, weights: dict[str, float] | None) -> UserCharacterDetail:
+    breakdown = _progress_for(uc, weights)
     return UserCharacterDetail(
         id=uc.id,
         character=CharacterBrief.model_validate(uc.character),
@@ -148,10 +164,8 @@ async def _apply_artifacts(
     uc: UserCharacter, payloads: list[UserArtifactIn], db: AsyncSession
 ) -> None:
     """Replace uc.artifacts with the given payloads."""
-    # Удаляем старые артефакты из БД
     await db.execute(delete(UserArtifact).where(UserArtifact.user_character_id == uc.id))
 
-    # Добавляем новые
     for p in payloads:
         db.add(
             UserArtifact(
@@ -173,10 +187,12 @@ async def _apply_artifacts(
 async def list_my_characters(
     current_user: CurrentUser,
     repo: Annotated[UserCharacterRepository, Depends(get_user_character_repo)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> list[UserCharacterListItem]:
     """List the current user's tracked characters with progress."""
     items = await repo.list_for_user(current_user.id)
-    return [_to_list_item(uc) for uc in items]
+    weights = await _get_weights_dict(db)
+    return [_to_list_item(uc, weights) for uc in items]
 
 
 @router.post("", response_model=UserCharacterDetail, status_code=status.HTTP_201_CREATED)
@@ -211,10 +227,10 @@ async def create_my_character(
 
     await repo.commit()
 
-    # Reload with all relations for the response
     fresh = await repo.get_by_id_for_user(uc.id, current_user.id)
     assert fresh is not None
-    return _to_detail(fresh)
+    weights = await _get_weights_dict(db)
+    return _to_detail(fresh, weights)
 
 
 @router.get("/{user_character_id}", response_model=UserCharacterDetail)
@@ -222,11 +238,13 @@ async def get_my_character(
     user_character_id: uuid.UUID,
     current_user: CurrentUser,
     repo: Annotated[UserCharacterRepository, Depends(get_user_character_repo)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> UserCharacterDetail:
     uc = await repo.get_by_id_for_user(user_character_id, current_user.id)
     if uc is None:
         raise HTTPException(404, "Tracked character not found")
-    return _to_detail(uc)
+    weights = await _get_weights_dict(db)
+    return _to_detail(uc, weights)
 
 
 @router.patch("/{user_character_id}", response_model=UserCharacterDetail)
@@ -263,7 +281,8 @@ async def update_my_character(
 
     fresh = await repo.get_by_id_for_user(uc.id, current_user.id)
     assert fresh is not None
-    return _to_detail(fresh)
+    weights = await _get_weights_dict(db)
+    return _to_detail(fresh, weights)
 
 
 @router.delete("/{user_character_id}", status_code=status.HTTP_204_NO_CONTENT)

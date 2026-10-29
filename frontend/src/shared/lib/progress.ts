@@ -1,10 +1,3 @@
-/**
- * Client-side mirror of the backend progress formula.
- * Used for live-updating the UI while sliders move — before the PATCH lands.
- *
- * MUST stay in sync with backend/app/services/progress.py
- */
-
 export interface ProgressInputs {
   level: number
   levelCap: number
@@ -14,8 +7,14 @@ export interface ProgressInputs {
   talentBurst: number
   weaponLevel: number | null
   weaponRefinement: number | null
-  /** Array of (level, rarity) for equipped artifacts. Length 0..5 */
   artifacts: Array<[level: number, rarity: number]>
+  weights?: {
+    level: number
+    talents: number
+    weapon: number
+    artifacts: number
+    friendship: number
+  }
 }
 
 export interface ProgressBreakdown {
@@ -29,27 +28,14 @@ export interface ProgressBreakdown {
 
 export const PROGRESS_LEVEL_CAP = 90
 
-const WEIGHTS = {
-  level: 0.2,
-  talents: 0.2,
-  weapon: 0.2,
-  artifacts: 0.2,
-  friendship: 0.2,
-}
-
 const TALENT_PROGRESS_CAP = 9
 const FRIENDSHIP_MAX = 10
 const WEAPON_MAX_LEVEL = 90
 const WEAPON_MAX_REFINEMENT = 5
 
 const ARTIFACT_MAX_LEVEL: Record<number, number> = {
-  1: 4,
-  2: 4,
-  3: 12,
-  4: 16,
-  5: 20,
+  1: 4, 2: 4, 3: 12, 4: 16, 5: 20,
 }
-
 const ARTIFACT_SLOT_COUNT = 5
 
 function clamp01(v: number): number {
@@ -95,14 +81,14 @@ function friendshipFraction(f: number): number {
 }
 
 export function calculateProgress(input: ProgressInputs): ProgressBreakdown {
-  const level = WEIGHTS.level * 100 * levelFraction(input.level, input.levelCap)
-  const talents =
-    WEIGHTS.talents *
-    100 *
-    talentsFraction(input.talentNormal, input.talentSkill, input.talentBurst)
-  const weapon = WEIGHTS.weapon * 100 * weaponFraction(input.weaponLevel)
-  const artifacts = WEIGHTS.artifacts * 100 * artifactsFraction(input.artifacts)
-  const friendship = WEIGHTS.friendship * 100 * friendshipFraction(input.friendship)
+  // Если веса не переданы, используем дефолтные (для обратной совместимости)
+  const w = input.weights || { level: 0.2, talents: 0.2, weapon: 0.2, artifacts: 0.2, friendship: 0.2 }
+
+  const level = w.level * 100 * levelFraction(input.level, input.levelCap)
+  const talents = w.talents * 100 * talentsFraction(input.talentNormal, input.talentSkill, input.talentBurst)
+  const weapon = w.weapon * 100 * weaponFraction(input.weaponLevel)
+  const artifacts = w.artifacts * 100 * artifactsFraction(input.artifacts)
+  const friendship = w.friendship * 100 * friendshipFraction(input.friendship)
 
   return {
     total: Math.round((level + talents + weapon + artifacts + friendship) * 100) / 100,

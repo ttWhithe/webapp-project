@@ -78,7 +78,9 @@ export default function AdminCatalogPage() {
     mutationFn: (weights: ProgressWeights) => adminApi.updateWeights(weights),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'weights'] })
-      alert('Веса сохранены! Прогресс будет пересчитан.')
+      qc.invalidateQueries({ queryKey: ['characters'] })
+      qc.invalidateQueries({ queryKey: ['me', 'characters'] })
+      alert('Веса сохранены! Прогресс пересчитан.')
     },
     onError: (e: unknown) => setError(extractError(e)),
   })

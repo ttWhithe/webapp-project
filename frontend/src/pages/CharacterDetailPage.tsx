@@ -56,6 +56,12 @@ export default function CharacterDetailPage() {
     staleTime: 5 * 60_000,
   })
 
+  const weightsQuery = useQuery({
+    queryKey: ['stats', 'weights'],
+    queryFn: () => catalogApi.getWeights(),
+    staleTime: 5 * 60_000,
+  })
+
   const detail = detailQuery.data
   const artifactSets = setsQuery.data?.items || []
   const weapons = weaponsQuery.data?.items || []
@@ -98,6 +104,7 @@ export default function CharacterDetailPage() {
   const { draft, progress, isSaving, lastSaved, update } = useCharacterDraft({
     detail,
     onSave: handleSave,
+    weights: weightsQuery.data,
   })
 
   const totalZones = tracked ? 4 : 1

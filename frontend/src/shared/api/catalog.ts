@@ -29,4 +29,9 @@ export const catalogApi = {
     const { data } = await apiClient.get<Page<ArtifactSet>>('/artifact-sets')
     return data
   },
+
+  async getWeights(): Promise<Weights> {
+    const { data } = await apiClient.get<Weights>('/stats/weights')
+    return data
+  },
 }

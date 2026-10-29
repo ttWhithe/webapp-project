@@ -329,3 +329,11 @@ export interface ProgressWeights {
   w_artifacts: number
   w_friendship: number
 }
+
+export interface Weights {
+  level: number
+  talents: number
+  weapon: number
+  artifacts: number
+  friendship: number
+}

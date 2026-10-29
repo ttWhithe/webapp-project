@@ -1,31 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-
 import type { UserCharacterDetail, UserArtifactRead } from '@/shared/api/types'
 import { calculateProgress, type ProgressBreakdown } from '@/shared/lib/progress'
 
 type Draft = Pick<
   UserCharacterDetail,
-  | 'level'
-  | 'level_cap'
-  | 'friendship'
-  | 'constellation'
-  | 'talent_normal'
-  | 'talent_skill'
-  | 'talent_burst'
-  | 'custom_hp'
-  | 'custom_atk'
-  | 'custom_def'
-  | 'custom_em'
-  | 'custom_crit_rate'
-  | 'custom_crit_dmg'
-  | 'custom_energy_recharge'
-  | 'custom_elemental_dmg_bonus'
-  | 'weapon_id'
-  | 'weapon_level'
-  | 'weapon_refinement'
-> & {
-  artifacts: UserArtifactRead[]
-}
+  | 'level' | 'level_cap' | 'friendship' | 'constellation'
+  | 'talent_normal' | 'talent_skill' | 'talent_burst'
+  | 'custom_hp' | 'custom_atk' | 'custom_def' | 'custom_em'
+  | 'custom_crit_rate' | 'custom_crit_dmg' | 'custom_energy_recharge' | 'custom_elemental_dmg_bonus'
+  | 'weapon_id' | 'weapon_level' | 'weapon_refinement'
+> & { artifacts: UserArtifactRead[] }
 
 export interface UseCharacterDraftResult {
   draft: Draft | null
@@ -39,12 +23,14 @@ export interface UseCharacterDraftResult {
 interface Options {
   detail: UserCharacterDetail | undefined
   onSave: (patch: Partial<Draft>) => Promise<void>
+  weights?: { level: number; talents: number; weapon: number; artifacts: number; friendship: number } // <--- ДОБАВИЛИ
   debounceMs?: number
 }
 
 export function useCharacterDraft({
   detail,
   onSave,
+  weights, // <--- ПРИНИМАЕМ
   debounceMs = 800,
 }: Options): UseCharacterDraftResult {
   const [draft, setDraft] = useState<Draft | null>(null)
@@ -56,9 +42,7 @@ export function useCharacterDraft({
   const pendingPatch = useRef<Partial<Draft>>({})
 
   const onSaveRef = useRef(onSave)
-  useEffect(() => {
-    onSaveRef.current = onSave
-  }, [onSave])
+  useEffect(() => { onSaveRef.current = onSave }, [onSave])
 
   useEffect(() => {
     if (!detail) {
@@ -99,9 +83,8 @@ export function useCharacterDraft({
           talentBurst: draft.talent_burst,
           weaponLevel: draft.weapon_level,
           weaponRefinement: draft.weapon_refinement,
-          artifacts: draft.artifacts.map(
-            (a) => [a.level, a.rarity] as [number, number],
-          ),
+          artifacts: draft.artifacts.map((a) => [a.level, a.rarity] as [number, number]),
+          weights: weights, // <--- ПЕРЕДАЕМ
         })
       : null
 
