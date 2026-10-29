@@ -129,6 +129,14 @@ export interface UserCharacterListItem {
 
 // Admin types
 
+export interface AdminUser {
+  id: string
+  email: string
+  username: string
+  role: Role
+  created_at: string
+}
+
 export interface AdminCharacter {
   id: string
   external_id: number

@@ -9,29 +9,21 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null)
 
   const donateMutation = useMutation({
-    mutationFn: () => paymentApi.createDonation(500), // Донат на 500 рублей
-    onSuccess: (data) => {
-      // Перенаправляем пользователя на страницу оплаты Stripe
-      window.location.href = data.confirmation_url
-    },
-    onError: (err: any) => {
-      setError(err.response?.data?.detail || 'Ошибка создания платежа')
-    }
+    mutationFn: () => paymentApi.createDonation(500),
+    onSuccess: (data) => { window.location.href = data.confirmation_url },
+    onError: (err: any) => { setError(err.response?.data?.detail || 'Ошибка создания платежа') }
   })
 
   const subscribeMutation = useMutation({
     mutationFn: () => paymentApi.createSubscription(),
-    onSuccess: (data) => {
-      window.location.href = data.confirmation_url
-    },
-    onError: (err: any) => {
-      setError(err.response?.data?.detail || 'Ошибка создания подписки')
-    }
+    onSuccess: (data) => { window.location.href = data.confirmation_url },
+    onError: (err: any) => { setError(err.response?.data?.detail || 'Ошибка создания подписки') }
   })
 
   if (!user) return null
 
   const isPending = donateMutation.isPending || subscribeMutation.isPending
+  const isPremium = user.role === 'premium'
 
   return (
     <div className="max-w-4xl mx-auto select-none">
@@ -58,7 +50,7 @@ export default function ProfilePage() {
             <p className="text-slate-400 text-sm mb-4">{user.email}</p>
 
             <div className="px-3 py-1 rounded-full text-xs font-bold bg-slate-900 border border-slate-600 text-slate-300">
-              Роль: <span className="text-indigo-400 uppercase">{user.role}</span>
+              Роль: <span className={isPremium ? "text-yellow-400" : "text-indigo-400 uppercase"}>{user.role}</span>
             </div>
             <button
               onClick={() => alert('Редактирование профиля появится в следующих обновлениях!')}
@@ -79,22 +71,40 @@ export default function ProfilePage() {
         <div className="md:col-span-2 flex flex-col gap-6">
 
           {/* Блок Премиум */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 border border-indigo-500/50 p-8 shadow-[0_0_30px_rgba(99,102,241,0.15)]">
-            <div className="absolute -top-10 -right-10 text-9xl opacity-10">✨</div>
-            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-              Genshin Tracker <span className="text-xs bg-indigo-500 px-2 py-0.5 rounded text-white tracking-widest uppercase">Premium</span>
-            </h2>
-            <p className="text-slate-300 mb-6 max-w-md">
-              Получите доступ к эксклюзивным темам оформления, кастомным иконкам персонажей, уникальным анимациям и значкам профиля.
-            </p>
-            <button
-              onClick={() => subscribeMutation.mutate()}
-              disabled={isPending}
-              className="px-6 py-3 bg-indigo-500 hover:bg-indigo-400 disabled:opacity-50 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/50"
-            >
-              {subscribeMutation.isPending ? 'Загрузка...' : 'Оформить подписку'}
-            </button>
-          </div>
+          {isPremium ? (
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-900/40 to-slate-900 border border-emerald-500/50 p-8 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+              <div className="absolute -top-10 -right-10 text-9xl opacity-10">✨</div>
+              <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                Подписка <span className="text-xs bg-emerald-500 px-2 py-0.5 rounded text-white tracking-widest uppercase">Активна</span>
+              </h2>
+              <p className="text-slate-300 mb-6 max-w-md">
+                Спасибо за поддержку проекта! Вам доступны все эксклюзивные темы оформления, кастомные иконки и уникальные анимации.
+              </p>
+              <button
+                onClick={() => alert('Управление подпиской появится в следующих обновлениях!')}
+                className="px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 font-bold rounded-xl transition-all"
+              >
+                Управление подпиской
+              </button>
+            </div>
+          ) : (
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 border border-indigo-500/50 p-8 shadow-[0_0_30px_rgba(99,102,241,0.15)]">
+              <div className="absolute -top-10 -right-10 text-9xl opacity-10">✨</div>
+              <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                Genshin Tracker <span className="text-xs bg-indigo-500 px-2 py-0.5 rounded text-white tracking-widest uppercase">Premium</span>
+              </h2>
+              <p className="text-slate-300 mb-6 max-w-md">
+                Получите доступ к эксклюзивным темам оформления, кастомным иконкам персонажей, уникальным анимациям и значкам профиля.
+              </p>
+              <button
+                onClick={() => subscribeMutation.mutate()}
+                disabled={isPending}
+                className="px-6 py-3 bg-indigo-500 hover:bg-indigo-400 disabled:opacity-50 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/50"
+              >
+                {subscribeMutation.isPending ? 'Загрузка...' : 'Оформить подписку'}
+              </button>
+            </div>
+          )}
 
           {/* Блок Донат */}
           <div className="relative overflow-hidden rounded-2xl bg-slate-800 border border-slate-700 p-8 shadow-xl">

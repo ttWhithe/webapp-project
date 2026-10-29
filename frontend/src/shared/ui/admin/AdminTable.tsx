@@ -14,9 +14,10 @@ interface Props<T> {
   columns: Column<T>[]
   onEdit: (row: T) => void
   rowKey: (row: T) => string
+  showActions?: boolean
 }
 
-export default function AdminTable<T>({ rows, columns, onEdit, rowKey }: Props<T>) {
+export default function AdminTable<T>({ rows, columns, onEdit, rowKey, showActions = true, }: Props<T>) {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null)
 
   const handleSort = (key: string, sortable: boolean = true) => {
@@ -78,9 +79,11 @@ export default function AdminTable<T>({ rows, columns, onEdit, rowKey }: Props<T
                 )
               })}
               {/* Правая колонка тоже должна быть sticky top-0 */}
-              <th className="sticky right-0 top-0 z-30 bg-slate-900 text-right px-3 py-2 font-medium border-l border-slate-700 shadow-[-4px_0_10px_rgba(0,0,0,0.3)]">
-                Действия
-              </th>
+              {showActions && (
+                <th className="sticky right-0 top-0 z-30 bg-slate-900 text-right px-3 py-2 font-medium border-l border-slate-700 shadow-[-4px_0_10px_rgba(0,0,0,0.3)]">
+                  Действия
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -91,17 +94,19 @@ export default function AdminTable<T>({ rows, columns, onEdit, rowKey }: Props<T
                     {c.render(row)}
                   </td>
                 ))}
-                <td className="sticky right-0 z-10 bg-slate-800 group-hover:bg-[#303d54] px-3 py-2 text-right border-l border-slate-700 shadow-[-4px_0_10px_rgba(0,0,0,0.3)]">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onEdit(row)
-                    }}
-                    className="text-xs px-3 py-1.5 rounded bg-indigo-600/60 hover:bg-indigo-600 whitespace-nowrap cursor-pointer transition-colors"
-                  >
-                    Ред.
-                  </button>
-                </td>
+                {showActions && (
+                  <td className="sticky right-0 z-10 bg-slate-800 group-hover:bg-[#303d54] px-3 py-2 text-right border-l border-slate-700 shadow-[-4px_0_10px_rgba(0,0,0,0.3)]">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onEdit(row)
+                      }}
+                      className="text-xs px-3 py-1.5 rounded bg-indigo-600/60 hover:bg-indigo-600 whitespace-nowrap cursor-pointer transition-colors"
+                    >
+                      Ред.
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

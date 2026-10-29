@@ -8,9 +8,7 @@ interface Props {
   borderColor?: string
   textColor?: string
   textStroke?: string
-  /** If true, the built-in % label is not rendered */
   hideLabel?: boolean
-  /** Thickness of the border around the inner circle */
   borderWidth?: number
   className?: string
 }
@@ -35,6 +33,9 @@ export default function CircularProgress({
   const inner = innerColor ?? emptyColor
   const border = borderColor ?? fillColor
   const text = textColor ?? fillColor
+
+  // УМЕНЬШАЕМ ШРИФТ, ЕСЛИ ЧИСЛО 100 ИЛИ БОЛЬШЕ
+  const dynamicFontSize = clamped >= 100 ? size * 0.24 : size * 0.32
 
   return (
     <div
@@ -63,7 +64,7 @@ export default function CircularProgress({
             style={{
               color: text,
               fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
-              fontSize: size * 0.32,
+              fontSize: dynamicFontSize, // <--- ПРИМЕНЯЕМ
               textShadow: textStroke
                 ? `0 0 2px ${textStroke}, 0 0 4px ${textStroke}66`
                 : `0 0 4px ${text}`,

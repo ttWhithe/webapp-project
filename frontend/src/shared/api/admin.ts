@@ -172,4 +172,15 @@ export const adminApi = {
     })
     return data
   },
+
+  // --- users ---
+  async listUsers(): Promise<AdminUser[]> {
+    const { data } = await apiClient.get<AdminUser[]>('/admin/users')
+    return data
+  },
+
+  async updateUserRole(id: string, role: string): Promise<AdminUser> {
+    const { data } = await apiClient.patch<AdminUser>(`/admin/users/${id}/role`, { role })
+    return data
+  },
 }

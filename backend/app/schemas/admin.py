@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.enums import Element, WeaponType
+from app.models.enums import Element, Role, WeaponType
 
 
 class SyncStatsSchema(BaseModel):
@@ -150,3 +150,7 @@ class AdminWeaponCreate(BaseModel):
 class AdminArtifactSetCreate(BaseModel):
     name: str = Field(..., max_length=150)
     slug: str | None = Field(None, max_length=120)
+
+
+class AdminUserRoleUpdate(BaseModel):
+    role: Role

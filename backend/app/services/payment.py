@@ -121,9 +121,9 @@ class PaymentService:
                 from app.models.enums import Role
                 from app.models.user import User
 
-                user = await db.get(User, user_id)
-                if user:
-                    user.role = Role.PREMIUM.value
+            user = await db.get(User, user_id)
+            if user and user.role != Role.ADMIN:
+                user.role = Role.PREMIUM.value
 
             await db.commit()
             print(f"✅ Успешно обработан платеж {session['id']} для юзера {user_id}")

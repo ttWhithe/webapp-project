@@ -34,6 +34,7 @@ from app.schemas.admin import (
     AdminCharacterCreate,
     AdminCharacterRead,
     AdminCharacterUpdate,
+    AdminUserRoleUpdate,
     AdminWeaponCreate,
     AdminWeaponRead,
     AdminWeaponUpdate,
@@ -117,6 +118,24 @@ async def list_users(
 ) -> list[UserRead]:
     result = await db.scalars(select(User).order_by(User.created_at))
     return [UserRead.model_validate(u) for u in result.all()]
+
+
+@router.patch("/users/{user_id}/role", response_model=UserRead)
+async def admin_update_user_role(
+    user_id: uuid.UUID,
+    payload: AdminUserRoleUpdate,
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> UserRead:
+    """Change user role (e.g., grant/revoke premium)."""
+    user = await db.get(User, user_id)
+    if not user:
+        raise HTTPException(404, "User not found")
+
+    user.role = payload.role.value
+    await db.commit()
+    await db.refresh(user)
+    return UserRead.model_validate(user)
 
 
 # ---------- catalog sync ----------
