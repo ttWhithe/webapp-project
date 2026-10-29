@@ -108,40 +108,56 @@ export default function Dashboard() {
         <p className="text-slate-400">Добро пожаловать в Genshin Tracker. Ваш прогресс под контролем.</p>
       </div>
 
-      {/* 2. СТАТИСТИКА */}
-      {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-            <p className="text-slate-400 text-sm mb-1">Получено персонажей</p>
-            <p className="text-3xl font-bold text-indigo-400">{stats.owned} <span className="text-lg text-slate-500">/ {stats.total}</span></p>
+      {/* БЛОК СТАТИСТИКИ (ДВЕ ПОДЛОЖКИ В ОДИН РЯД) */}
+      <div className="flex flex-col xl:flex-row gap-6">
+
+        {/* ПОДЛОЖКА 1: Моя статистика (занимает больше места) */}
+        {stats && (
+          <div className="flex-[4] bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4">
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">Моя статистика</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px]">
+                <p className="text-slate-400 text-xs mb-1">Получено персонажей</p>
+                <p className="text-2xl font-bold text-indigo-400">{stats.owned} <span className="text-sm text-slate-500">/ {stats.total}</span></p>
+              </div>
+              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px]">
+                <p className="text-slate-400 text-xs mb-1">Средний прогресс</p>
+                <p className="text-2xl font-bold text-emerald-400">{stats.avgProgress}%</p>
+              </div>
+              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px]">
+                <p className="text-slate-400 text-xs mb-1">Использовано корон</p>
+                <p className="text-2xl font-bold text-yellow-400">{stats.crowns}</p>
+              </div>
+              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px]">
+                <p className="text-slate-400 text-xs mb-1">Masterless Stella Fortuna</p>
+                <p className="text-2xl font-bold text-purple-400">{stats.stella}</p>
+              </div>
+            </div>
           </div>
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-            <p className="text-slate-400 text-sm mb-1">Средний прогресс</p>
-            <p className="text-3xl font-bold text-emerald-400">{stats.avgProgress}%</p>
-          </div>
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-            <p className="text-slate-400 text-sm mb-1">Использовано корон</p>
-            <p className="text-3xl font-bold text-yellow-400">{stats.crowns}</p>
-          </div>
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-            <p className="text-slate-400 text-sm mb-1">Masterless Stella Fortuna</p>
-            <p className="text-3xl font-bold text-purple-400">{stats.stella}</p>
-          </div>
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-            <p className="text-slate-400 text-sm mb-1">Всего игроков</p>
-            <p className="text-3xl font-bold text-sky-400">{statsQuery.data?.users || 0}</p>
-          </div>
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-            <p className="text-slate-400 text-sm mb-1">Premium аккаунтов</p>
-            <p className="text-3xl font-bold text-pink-400">{statsQuery.data?.premiums || 0}</p>
-          </div>
-          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-            <p className="text-slate-400 text-sm mb-1">Персонажей в трекере</p>
-            <p className="text-3xl font-bold text-amber-400">{statsQuery.data?.tracked_characters || 0}</p>
+        )}
+
+        {/* ПОДЛОЖКА 2: Глобальная статистика (занимает меньше места) */}
+        <div className="flex-[3] bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4">
+          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">Глобальная статистика</h2>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px] relative overflow-hidden">
+              <div className="absolute -right-2 -bottom-2 text-5xl opacity-10">🌍</div>
+              <p className="text-slate-400 text-xs mb-1">Всего игроков</p>
+              <p className="text-2xl font-bold text-sky-400">{statsQuery.data?.users || 0}</p>
+            </div>
+            <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px] relative overflow-hidden">
+              <div className="absolute -right-2 -bottom-2 text-5xl opacity-10">💎</div>
+              <p className="text-slate-400 text-xs mb-1">Premium аккаунтов</p>
+              <p className="text-2xl font-bold text-pink-400">{statsQuery.data?.premiums || 0}</p>
+            </div>
+            <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px] relative overflow-hidden">
+              <div className="absolute -right-2 -bottom-2 text-5xl opacity-10">⚔️</div>
+              <p className="text-slate-400 text-xs mb-1">Персонажей в трекере</p>
+              <p className="text-2xl font-bold text-amber-400">{statsQuery.data?.tracked_characters || 0}</p>
+            </div>
           </div>
         </div>
-
-      )}
+      </div>
 
       {/* 3. ЭЛИТА АККАУНТА ИЛИ КНОПКА ДОБАВЛЕНИЯ */}
       {topThree.length > 0 ? (
