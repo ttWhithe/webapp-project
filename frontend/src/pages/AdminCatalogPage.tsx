@@ -1,18 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useAuthStore } from '@/shared/lib/auth-store'
 
 import { adminApi } from '@/shared/api/admin'
 import type {
-  AdminArtifactSet,
-  AdminArtifactSetUpdate,
-  AdminArtifactSetCreate,
-  AdminCharacter,
-  AdminCharacterUpdate,
-  AdminCharacterCreate,
-  AdminWeapon,
-  AdminWeaponUpdate,
-  AdminWeaponCreate,
-  AdminUser,
+  AdminArtifactSet, AdminArtifactSetUpdate, AdminArtifactSetCreate,
+  AdminCharacter, AdminCharacterUpdate, AdminCharacterCreate,
+  AdminWeapon, AdminWeaponUpdate, AdminWeaponCreate, AdminUser, ProgressWeights
 } from '@/shared/api/types'
 import { ELEMENT_LABELS, WEAPON_TYPE_LABELS } from '@/shared/lib/catalog-meta'
 import AdminEditModal from '@/shared/ui/admin/AdminEditModal'
@@ -20,16 +14,14 @@ import AdminTable from '@/shared/ui/admin/AdminTable'
 import ErrorState from '@/shared/ui/ErrorState'
 import LoadingSpinner from '@/shared/ui/LoadingSpinner'
 
-// Импорты наших новых компонентов (их мы создали ранее)
 import AdminCharacterTab from '@/features/admin/components/AdminCharacterTab'
 import AdminWeaponTab from '@/features/admin/components/AdminWeaponTab'
 import AdminArtifactTab from '@/features/admin/components/AdminArtifactTab'
 import AdminCharacterModal from '@/features/admin/components/AdminCharacterModal'
 import AdminBulkImportModal from '@/features/admin/components/AdminBulkImportModal'
 import AdminSyncModal from '@/features/admin/components/AdminSyncModal'
-import { useAuthStore } from '@/shared/lib/auth-store'
 
-type Tab = 'characters' | 'weapons' | 'artifact-sets' | 'users'
+type Tab = 'characters' | 'weapons' | 'artifact-sets' | 'users' | 'settings'
 
 type Editing =
   | { kind: 'character'; row: AdminCharacter }
@@ -42,33 +34,28 @@ export default function AdminCatalogPage() {
   const [editing, setEditing] = useState<Editing>(null)
   const [creating, setCreating] = useState<{ kind: 'character' | 'weapon' | 'artifact-set' } | null>(null)
   const [error, setError] = useState<string | null>(null)
-
-  const qc = useQueryClient()
   const user = useAuthStore((s) => s.user)
 
+  const qc = useQueryClient()
   const [syncDialog, setSyncDialog] = useState(false)
   const [bulkDialog, setBulkDialog] = useState(false)
-
-  // Стейт для модалки смены роли
   const [roleDialog, setRoleDialog] = useState<{ user: AdminUser; newRole: string } | null>(null)
+
+  // Стейт для весов
+  const [weightsDraft, setWeightsDraft] = useState<ProgressWeights | null>(null)
 
   // --- QUERIES ---
   const charactersQuery = useQuery({ queryKey: ['admin', 'characters'], queryFn: () => adminApi.listCharacters(1000, 0), enabled: tab === 'characters' })
   const weaponsQuery = useQuery({ queryKey: ['admin', 'weapons'], queryFn: () => adminApi.listWeapons(1000, 0), enabled: tab === 'weapons' })
   const setsQuery = useQuery({ queryKey: ['admin', 'artifact-sets'], queryFn: () => adminApi.listArtifactSets(1000, 0), enabled: tab === 'artifact-sets' })
   const usersQuery = useQuery({ queryKey: ['admin', 'users'], queryFn: () => adminApi.listUsers(), enabled: tab === 'users' })
+  const weightsQuery = useQuery({ queryKey: ['admin', 'weights'], queryFn: () => adminApi.getWeights(), enabled: tab === 'settings' })
+
+  useEffect(() => {
+    if (weightsQuery.data) setWeightsDraft(weightsQuery.data)
+  }, [weightsQuery.data])
 
   // --- MUTATIONS ---
-  const updateRoleMutation = useMutation({
-    mutationFn: ({ id, role }: { id: string; role: string }) => adminApi.updateUserRole(id, role),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin', 'users'] })
-      setRoleDialog(null)
-      alert('Роль успешно обновлена!')
-    },
-    onError: (e: unknown) => setError(extractError(e)),
-  })
-
   const syncMutation = useMutation({
     mutationFn: () => adminApi.syncCatalog(),
     onSuccess: () => {
@@ -81,13 +68,24 @@ export default function AdminCatalogPage() {
     onError: (e: unknown) => setError(extractError(e)),
   })
 
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ id, role }: { id: string; role: string }) => adminApi.updateUserRole(id, role),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin', 'users'] }); setRoleDialog(null); alert('Роль обновлена!') },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
+  const updateWeightsMutation = useMutation({
+    mutationFn: (weights: ProgressWeights) => adminApi.updateWeights(weights),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'weights'] })
+      alert('Веса сохранены! Прогресс будет пересчитан.')
+    },
+    onError: (e: unknown) => setError(extractError(e)),
+  })
+
   const updateCharacter = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: AdminCharacterUpdate }) => adminApi.updateCharacter(id, payload),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin', 'characters'] })
-      qc.invalidateQueries({ queryKey: ['characters'] })
-      setEditing(null); setError(null)
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin', 'characters'] }); qc.invalidateQueries({ queryKey: ['characters'] }); setEditing(null); setError(null); },
     onError: (e: unknown) => setError(extractError(e)),
   })
 
@@ -196,13 +194,14 @@ export default function AdminCatalogPage() {
       </div>
 
       <div className="flex justify-between items-center gap-4">
-        <div className="flex flex-1 gap-1 bg-slate-800 rounded-lg p-1 max-w-xl border border-slate-700">
+        <div className="flex flex-1 gap-1 bg-slate-800 rounded-lg p-1 max-w-2xl border border-slate-700">
           <TabButton active={tab === 'characters'} onClick={() => setTab('characters')}>Персонажи</TabButton>
           <TabButton active={tab === 'weapons'} onClick={() => setTab('weapons')}>Оружие</TabButton>
           <TabButton active={tab === 'artifact-sets'} onClick={() => setTab('artifact-sets')}>Артефакты</TabButton>
           <TabButton active={tab === 'users'} onClick={() => setTab('users')}>Пользователи</TabButton>
+          <TabButton active={tab === 'settings'} onClick={() => setTab('settings')}>Настройки</TabButton>
         </div>
-        {tab !== 'users' && (
+        {tab !== 'users' && tab !== 'settings' && (
           <div className="flex gap-2">
             <button type="button" onClick={() => setBulkDialog(true)} className="px-4 py-2 bg-teal-600 hover:bg-teal-500 rounded-lg text-sm font-medium">📦 Пакетный импорт</button>
             <button type="button" onClick={() => {
@@ -217,12 +216,10 @@ export default function AdminCatalogPage() {
 
       {error && <ErrorState message={error} />}
 
-      {/* ТАБЫ С ТАБЛИЦАМИ */}
       {tab === 'characters' && <AdminCharacterTab data={charactersQuery.data} isLoading={charactersQuery.isLoading} isError={charactersQuery.isError} onEdit={(row) => { setError(null); setEditing({ kind: 'character', row }) }} />}
       {tab === 'weapons' && <AdminWeaponTab data={weaponsQuery.data} isLoading={weaponsQuery.isLoading} isError={weaponsQuery.isError} onEdit={(row) => { setError(null); setEditing({ kind: 'weapon', row }) }} />}
       {tab === 'artifact-sets' && <AdminArtifactTab data={setsQuery.data} isLoading={setsQuery.isLoading} isError={setsQuery.isError} onEdit={(row) => { setError(null); setEditing({ kind: 'artifact-set', row }) }} />}
 
-      {/* ТАБЛИЦА ПОЛЬЗОВАТЕЛЕЙ */}
       {tab === 'users' && (
         <>
           {usersQuery.isLoading && <LoadingSpinner />}
@@ -231,43 +228,40 @@ export default function AdminCatalogPage() {
             <AdminTable<AdminUser>
               rows={usersQuery.data}
               rowKey={(r) => r.id}
-              // Для пользователей кнопку "Ред." мы заменим на кастомную кнопку смены роли
-              onEdit={(row) => {}}
+              onEdit={() => {}}
               showActions={false}
               columns={[
                 { key: 'email', label: 'Email', className: 'min-w-[200px]', render: (r) => r.email },
                 { key: 'username', label: 'Имя', className: 'min-w-[150px]', render: (r) => r.username },
                 {
-                  key: 'created_at', label: 'Дата рег.', className: 'text-xs text-slate-400',
-                  render: (r) => new Date(r.created_at).toLocaleDateString('ru-RU')
-                },
-                {
-                  key: 'role',
-                  label: 'Роль',
+                  key: 'total_donated',
+                  label: 'Финансы и Подписка',
                   className: 'w-48',
+                  render: (r) => (
+                    <div className="flex flex-col gap-1 text-xs font-bold">
+                      {r.total_donated > 0 && <span className="text-emerald-400">Донат: {r.total_donated} ₽</span>}
+                      {r.total_subscribed > 0 && (
+                        <span className={r.subscription_ends_at ? "text-sky-400" : "text-slate-500"}>
+                          Подписка: {r.total_subscribed} ₽
+                          {r.subscription_ends_at && (
+                            <span className="block text-[10px] text-emerald-300 font-normal">
+                              до {new Date(r.subscription_ends_at).toLocaleDateString('ru-RU')}
+                            </span>
+                          )}
+                        </span>
+                      )}
+                      {r.total_donated === 0 && r.total_subscribed === 0 && <span className="text-slate-500">—</span>}
+                    </div>
+                  )
+                },
+                { key: 'created_at', label: 'Дата рег.', className: 'text-xs text-slate-400', render: (r) => new Date(r.created_at).toLocaleDateString('ru-RU') },
+                {
+                  key: 'role', label: 'Роль', className: 'w-48',
                   render: (r) => {
                     const isSelf = r.id === user?.id;
-
-                    // Если это текущий админ, просто показываем текст
-                    if (isSelf) {
-                      return (
-                        <span className="text-xs font-bold text-red-400 bg-red-900/20 px-3 py-1.5 rounded border border-red-900/50">
-                          ADMIN (Вы)
-                        </span>
-                      )
-                    }
-
+                    if (isSelf) return <span className="text-xs font-bold text-red-400 bg-red-900/20 px-3 py-1.5 rounded border border-red-900/50">ADMIN (Вы)</span>
                     return (
-                      <select
-                        value={r.role}
-                        onChange={(e) => setRoleDialog({ user: r, newRole: e.target.value })}
-                        className={`text-xs px-2 py-1.5 rounded border outline-none cursor-pointer font-bold ${
-                          r.role === 'admin' ? 'bg-red-900/20 text-red-300 border-red-900/50' :
-                          r.role === 'premium' ? 'bg-yellow-900/20 text-yellow-300 border-yellow-900/50' :
-                          'bg-slate-700 text-slate-300 border-slate-600'
-                        }`}
-                      >
-                        {/* Задаем стили для самих опций, чтобы текст не сливался с белым фоном */}
+                      <select value={r.role} onChange={(e) => setRoleDialog({ user: r, newRole: e.target.value })} className={`text-xs px-2 py-1.5 rounded border outline-none cursor-pointer font-bold ${r.role === 'admin' ? 'bg-red-900/20 text-red-300 border-red-900/50' : r.role === 'premium' ? 'bg-yellow-900/20 text-yellow-300 border-yellow-900/50' : 'bg-slate-700 text-slate-300 border-slate-600'}`}>
                         <option value="user" className="bg-slate-800 text-white">USER</option>
                         <option value="premium" className="bg-slate-800 text-white">PREMIUM</option>
                         <option value="admin" className="bg-slate-800 text-white">ADMIN</option>
@@ -278,6 +272,80 @@ export default function AdminCatalogPage() {
               ]}
             />
           )}
+        </>
+      )}
+
+      {/* ВКЛАДКА НАСТРОЕК (ВЕСА) */}
+      {tab === 'settings' && (
+        <>
+          {weightsQuery.isLoading && <LoadingSpinner />}
+          {weightsQuery.isError && <ErrorState />}
+          {weightsDraft && (() => {
+            const currentSum = Object.values(weightsDraft).reduce((a, b) => a + b, 0)
+            const diff = 1.0 - currentSum
+
+            return (
+              <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-2xl relative">
+
+                {/* СЧЕТЧИК В ПРАВОМ ВЕРХНЕМ УГЛУ */}
+                <div className={`absolute top-6 right-6 flex flex-col items-end px-4 py-2 rounded-lg border shadow-lg ${
+                  Math.abs(diff) < 0.01
+                    ? 'bg-emerald-900/40 border-emerald-500/50 text-emerald-400'
+                    : 'bg-red-900/40 border-red-500/50 text-red-400'
+                }`}>
+                  <span className="text-xs opacity-80 uppercase tracking-wider font-bold mb-1">
+                    {Math.abs(diff) < 0.01 ? 'Сумма идеальна' : diff > 0 ? 'Не хватает' : 'Перебор'}
+                  </span>
+                  <span className="text-2xl font-black">
+                    {Math.abs(diff) < 0.01 ? '1.00' : Math.abs(diff).toFixed(2)}
+                  </span>
+                </div>
+
+                <div className="mb-6">
+                  <h2 className="text-xl font-bold mb-2">Веса прогресса</h2>
+                  <p className="text-sm text-slate-400 max-w-sm">
+                    Сумма всех весов должна быть строго равна 1.00. Каждый вес должен быть от 0.05 до 0.50.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {Object.entries({
+                    w_level: 'Уровень персонажа',
+                    w_talents: 'Таланты',
+                    w_weapon: 'Оружие',
+                    w_artifacts: 'Артефакты',
+                    w_friendship: 'Дружба',
+                  }).map(([key, label]) => (
+                    <div key={key} className="flex items-center justify-between">
+                      <label className="text-sm text-slate-300">{label}</label>
+                      <input
+                        type="number"
+                        step="0.05"
+                        min="0.05"
+                        max="0.5"
+                        value={weightsDraft[key as keyof ProgressWeights]}
+                        onChange={(e) => setWeightsDraft({ ...weightsDraft, [key]: Number(e.target.value) })}
+                        className="w-24 px-3 py-2 rounded bg-slate-700 border border-slate-600 focus:border-indigo-500 outline-none text-right"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 flex justify-end items-center border-t border-slate-700 pt-4">
+                  <button
+                    onClick={() => updateWeightsMutation.mutate(weightsDraft)}
+                    disabled={
+                      Math.abs(diff) >= 0.01 ||
+                      Object.values(weightsDraft).some(v => v < 0.05 || v > 0.5)
+                    }
+                    className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+                  >
+                    {updateWeightsMutation.isPending ? 'Сохранение...' : 'Сохранить веса'}
+                  </button>
+                </div>
+              </div>
+            )
+          })()}
         </>
       )}
 
@@ -317,17 +385,11 @@ export default function AdminCatalogPage() {
           <div className="bg-slate-800 border border-slate-700 p-6 rounded-xl max-w-sm w-full mx-4 shadow-2xl">
             <h2 className="text-xl font-bold mb-2 text-white">Подтверждение действия</h2>
             <p className="text-slate-400 text-sm mb-6">
-              Вы уверены, что хотите {roleDialog.newRole === 'premium' ? 'выдать' : 'забрать'} Premium у пользователя <b>{roleDialog.user.username}</b>?
+              Вы уверены, что хотите сменить роль на <b>{roleDialog.newRole.toUpperCase()}</b> для пользователя <b>{roleDialog.user.username}</b>?
             </p>
             <div className="flex justify-end gap-3">
               <button type="button" onClick={() => setRoleDialog(null)} className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-sm font-medium transition-colors text-white">Отмена</button>
-              <button
-                type="button"
-                onClick={() => updateRoleMutation.mutate({ id: roleDialog.user.id, role: roleDialog.newRole })}
-                className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium transition-colors text-white"
-              >
-                Подтвердить
-              </button>
+              <button type="button" onClick={() => updateRoleMutation.mutate({ id: roleDialog.user.id, role: roleDialog.newRole })} className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-medium transition-colors text-white">Подтвердить</button>
             </div>
           </div>
         </div>

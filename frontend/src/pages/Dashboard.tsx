@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { apiClient } from '@/shared/api/client'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -28,6 +29,15 @@ export default function Dashboard() {
     queryKey: ['characters', 'all'],
     queryFn: () => catalogApi.listCharacters({ limit: 200 }),
     staleTime: 5 * 60_000,
+  })
+
+  const statsQuery = useQuery({
+    queryKey: ['stats', 'global'],
+    queryFn: async () => {
+      const { data } = await apiClient.get('/stats/global')
+      return data
+    },
+    staleTime: 60_000,
   })
 
   const catalogMap = useMemo(() => {
@@ -100,7 +110,7 @@ export default function Dashboard() {
 
       {/* 2. СТАТИСТИКА */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
             <p className="text-slate-400 text-sm mb-1">Получено персонажей</p>
             <p className="text-3xl font-bold text-indigo-400">{stats.owned} <span className="text-lg text-slate-500">/ {stats.total}</span></p>
@@ -117,7 +127,20 @@ export default function Dashboard() {
             <p className="text-slate-400 text-sm mb-1">Masterless Stella Fortuna</p>
             <p className="text-3xl font-bold text-purple-400">{stats.stella}</p>
           </div>
+          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+            <p className="text-slate-400 text-sm mb-1">Всего игроков</p>
+            <p className="text-3xl font-bold text-sky-400">{statsQuery.data?.users || 0}</p>
+          </div>
+          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+            <p className="text-slate-400 text-sm mb-1">Premium аккаунтов</p>
+            <p className="text-3xl font-bold text-pink-400">{statsQuery.data?.premiums || 0}</p>
+          </div>
+          <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+            <p className="text-slate-400 text-sm mb-1">Персонажей в трекере</p>
+            <p className="text-3xl font-bold text-amber-400">{statsQuery.data?.tracked_characters || 0}</p>
+          </div>
         </div>
+
       )}
 
       {/* 3. ЭЛИТА АККАУНТА ИЛИ КНОПКА ДОБАВЛЕНИЯ */}

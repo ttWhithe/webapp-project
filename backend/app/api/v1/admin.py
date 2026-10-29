@@ -20,6 +20,8 @@ from app.db.session import get_db
 from app.models.artifact_set import ArtifactSet
 from app.models.character import Character
 from app.models.enums import Role
+from app.models.payment import Payment
+from app.models.progress_weights import ProgressWeights
 from app.models.user import User
 from app.models.weapon import Weapon
 from app.repositories.catalog import (
@@ -34,10 +36,13 @@ from app.schemas.admin import (
     AdminCharacterCreate,
     AdminCharacterRead,
     AdminCharacterUpdate,
+    AdminUserRead,
     AdminUserRoleUpdate,
     AdminWeaponCreate,
     AdminWeaponRead,
     AdminWeaponUpdate,
+    ProgressWeightsRead,
+    ProgressWeightsUpdate,
     SyncStatsSchema,
 )
 from app.schemas.user import UserRead
@@ -48,7 +53,7 @@ from app.services.genshin_db_client import GenshinDbClient
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from redis.asyncio import Redis
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -111,15 +116,6 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 # ---------- users ----------
 
 
-@router.get("/users", response_model=list[UserRead])
-async def list_users(
-    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
-    db: Annotated[AsyncSession, Depends(get_db)],
-) -> list[UserRead]:
-    result = await db.scalars(select(User).order_by(User.created_at))
-    return [UserRead.model_validate(u) for u in result.all()]
-
-
 @router.patch("/users/{user_id}/role", response_model=UserRead)
 async def admin_update_user_role(
     user_id: uuid.UUID,
@@ -136,6 +132,29 @@ async def admin_update_user_role(
     await db.commit()
     await db.refresh(user)
     return UserRead.model_validate(user)
+
+
+@router.get("/users", response_model=list[AdminUserRead])
+async def list_users(
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> list[AdminUserRead]:
+    # Join users with payments (donations only) and sum
+    stmt = (
+        select(User, func.coalesce(func.sum(Payment.amount), 0).label("total_donated"))
+        .outerjoin(Payment, (Payment.user_id == User.id) & (Payment.type == "donation"))
+        .group_by(User.id)
+        .order_by(User.created_at)
+    )
+    result = await db.execute(stmt)
+
+    users_list = []
+    for user_obj, donated in result.all():
+        user_data = AdminUserRead.model_validate(user_obj)
+        user_data.total_donated = float(donated)
+        users_list.append(user_data)
+
+    return users_list
 
 
 # ---------- catalog sync ----------
@@ -365,6 +384,57 @@ async def import_character_from_parser(
     await cache.delete_pattern("*")
 
     return AdminCharacterRead.model_validate(char)
+
+
+@router.get("/weights", response_model=ProgressWeightsRead)
+async def get_weights(
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> ProgressWeightsRead:
+    weights = await db.scalar(select(ProgressWeights).limit(1))
+    if not weights:
+        # Создаем дефолтные, если их вдруг нет
+        weights = ProgressWeights(
+            w_level=0.2, w_talents=0.2, w_weapon=0.2, w_artifacts=0.2, w_friendship=0.2
+        )
+        db.add(weights)
+        await db.commit()
+        await db.refresh(weights)
+    return ProgressWeightsRead.model_validate(weights)
+
+
+@router.patch("/weights", response_model=ProgressWeightsRead)
+async def update_weights(
+    payload: ProgressWeightsUpdate,
+    _admin: Annotated[User, Depends(require_role(Role.ADMIN))],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    cache: Annotated[CacheService, Depends(get_cache_service)],
+) -> ProgressWeightsRead:
+    total = (
+        payload.w_level
+        + payload.w_talents
+        + payload.w_weapon
+        + payload.w_artifacts
+        + payload.w_friendship
+    )
+    if abs(total - 1.0) > 0.01:
+        raise HTTPException(400, "Сумма весов должна быть равна 1.0")
+
+    weights = await db.scalar(select(ProgressWeights).limit(1))
+    if not weights:
+        weights = ProgressWeights()
+        db.add(weights)
+
+    weights.w_level = payload.w_level
+    weights.w_talents = payload.w_talents
+    weights.w_weapon = payload.w_weapon
+    weights.w_artifacts = payload.w_artifacts
+    weights.w_friendship = payload.w_friendship
+
+    await db.commit()
+    await db.refresh(weights)
+    await cache.delete_pattern("*")  # Сбрасываем кэш, чтобы прогресс пересчитался
+    return ProgressWeightsRead.model_validate(weights)
 
 
 # ---------- weapons ----------

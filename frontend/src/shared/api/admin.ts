@@ -183,4 +183,14 @@ export const adminApi = {
     const { data } = await apiClient.patch<AdminUser>(`/admin/users/${id}/role`, { role })
     return data
   },
+
+  async getWeights(): Promise<ProgressWeights> {
+    const { data } = await apiClient.get<ProgressWeights>('/admin/weights')
+    return data
+  },
+
+  async updateWeights(payload: ProgressWeights): Promise<ProgressWeights> {
+    const { data } = await apiClient.patch<ProgressWeights>('/admin/weights', payload)
+    return data
+  },
 }

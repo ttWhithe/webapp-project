@@ -1,11 +1,13 @@
 """Schemas for admin endpoints."""
 
 import uuid
+from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.enums import Element, Role, WeaponType
+from app.schemas.user import UserRead
 
 
 class SyncStatsSchema(BaseModel):
@@ -154,3 +156,27 @@ class AdminArtifactSetCreate(BaseModel):
 
 class AdminUserRoleUpdate(BaseModel):
     role: Role
+
+
+class AdminUserRead(UserRead):
+    total_donated: float = 0.0
+    total_subscribed: float = 0.0
+    subscription_ends_at: datetime | None = None
+
+
+class ProgressWeightsRead(BaseModel):
+    w_level: float
+    w_talents: float
+    w_weapon: float
+    w_artifacts: float
+    w_friendship: float
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProgressWeightsUpdate(BaseModel):
+    w_level: float = Field(..., ge=0.05, le=0.5)
+    w_talents: float = Field(..., ge=0.05, le=0.5)
+    w_weapon: float = Field(..., ge=0.05, le=0.5)
+    w_artifacts: float = Field(..., ge=0.05, le=0.5)
+    w_friendship: float = Field(..., ge=0.05, le=0.5)

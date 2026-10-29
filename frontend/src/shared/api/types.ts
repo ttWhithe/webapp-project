@@ -135,6 +135,9 @@ export interface AdminUser {
   username: string
   role: Role
   created_at: string
+  total_donated: number
+  total_subscribed: number
+  subscription_ends_at: string | null
 }
 
 export interface AdminCharacter {
@@ -317,4 +320,12 @@ export interface AdminWeaponCreate {
 export interface AdminArtifactSetCreate {
   name: string;
   slug?: string;
+}
+
+export interface ProgressWeights {
+  w_level: number
+  w_talents: number
+  w_weapon: number
+  w_artifacts: number
+  w_friendship: number
 }
