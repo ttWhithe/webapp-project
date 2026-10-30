@@ -2,17 +2,17 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { authApi } from '@/shared/api/auth'
 import { useAuthStore } from '@/shared/lib/auth-store'
+import { useSettingsStore } from '@/shared/lib/settings-store'
 
 export default function Layout() {
   const user = useAuthStore((s) => s.user)
   const reset = useAuthStore((s) => s.reset)
   const navigate = useNavigate()
   const location = useLocation()
-
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-
   const isFullWidth = location.pathname === '/' || /^\/characters\/[^/]+\/?$/.test(location.pathname)
+  const { usePremiumImages, togglePremiumImages } = useSettingsStore()
 
   // Закрываем меню при клике вне его
   useEffect(() => {
@@ -104,6 +104,19 @@ export default function Layout() {
                     >
                       Premium подписка
                     </button>
+
+                    {(user.role === 'premium' || user.role === 'admin') && (
+                      <button
+                        onClick={() => { setIsMenuOpen(false); togglePremiumImages(); }}
+                        className="w-full text-left px-4 py-2 text-sm text-emerald-400 hover:bg-slate-700 hover:text-emerald-300 transition-colors font-medium flex justify-between items-center"
+                      >
+                        <span>Премиум-арты</span>
+                        <span className={`w-8 h-4 rounded-full relative transition-colors ${usePremiumImages ? 'bg-emerald-500' : 'bg-slate-600'}`}>
+                          <span className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform ${usePremiumImages ? 'translate-x-4' : ''}`} />
+                        </span>
+                      </button>
+                    )}
+
                     <div className="h-px bg-slate-700/50 my-1"></div>
                     <button
                       onClick={handleLogout}

@@ -8,6 +8,8 @@ import { trackerApi } from '@/shared/api/tracker'
 import { ELEMENT_EMOJI, ELEMENT_HEX, getRarityBackground } from '@/shared/lib/catalog-meta'
 import CircularProgress from '@/shared/ui/CircularProgress'
 import LoadingSpinner from '@/shared/ui/LoadingSpinner'
+import { useSettingsStore } from '@/shared/lib/settings-store'
+import { getCharacterImage } from '@/shared/lib/image-utils'
 
 export default function Dashboard() {
   // ==========================================
@@ -18,6 +20,8 @@ export default function Dashboard() {
   const OVERLAP_Y = -50
   const ODD_ROW_OFFSET = 0
   // ==========================================
+
+  const { usePremiumImages } = useSettingsStore()
 
   const mineQuery = useQuery({
     queryKey: ['me', 'characters'],
@@ -201,7 +205,7 @@ export default function Dashboard() {
                         className="h-full aspect-square rounded-xl overflow-hidden shrink-0 border-2 border-white/30 shadow-2xl"
                         style={{ backgroundImage: `url(${getRarityBackground(char.character.rarity, char.character.slug)})`, backgroundSize: 'cover' }}
                       >
-                        <img src={char.character.icon_url || ''} alt={char.character.name} className="w-full h-full object-cover" />
+                        <img src={getCharacterImage(char.character, usePremiumImages)} alt={char.character.name} className="w-full h-full object-cover" />
                       </div>
 
                       <div className="flex flex-col justify-between h-full py-1">

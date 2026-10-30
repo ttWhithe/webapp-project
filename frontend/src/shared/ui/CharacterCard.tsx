@@ -7,12 +7,13 @@ import {
   ELEMENT_LABELS,
   getRarityBackground,
 } from '@/shared/lib/catalog-meta'
+import { useSettingsStore } from '@/shared/lib/settings-store'
+import { getCharacterImage } from '@/shared/lib/image-utils'
 import CircularProgress from './CircularProgress'
 
 const CROWN_ICON_URL =
   'https://static.wikia.nocookie.net/gensin-impact/images/0/04/Item_Crown_of_Insight.png'
 
-// 4-pointed star (constellation icon)
 function ConstellationStar({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 800 800" className={className} aria-hidden="true">
@@ -24,7 +25,6 @@ function ConstellationStar({ className }: { className?: string }) {
   )
 }
 
-// Name plate colors — tinted by rarity
 function getNamePlateColors(rarity: number, owned: boolean) {
   const five = rarity === 5
   if (owned) {
@@ -54,17 +54,20 @@ export default function CharacterCard({
   crowns = 0,
   constellation = 0,
 }: Props) {
+  const { usePremiumImages } = useSettingsStore() // <--- ДОБАВИЛИ
   const owned = progress !== undefined
   const colors = ELEMENT_HEX[character.element]
   const bgUrl = getRarityBackground(character.rarity, character.slug)
   const namePlate = getNamePlateColors(character.rarity, owned)
+
+  // Получаем нужную картинку
+  const imageUrl = getCharacterImage(character, usePremiumImages)
 
   return (
     <Link
       to={`/characters/${character.slug}`}
       className="group relative block rounded-lg overflow-hidden border border-slate-700 hover:border-indigo-500 transition-colors bg-slate-800"
     >
-      {/* Name plate (top) */}
       <div
         className="px-1.5 py-1 text-center truncate text-sm font-semibold"
         style={{
@@ -76,7 +79,6 @@ export default function CharacterCard({
         {character.name_ru || character.name}
       </div>
 
-      {/* Image area */}
       <div className="relative aspect-square overflow-hidden bg-slate-900">
         {bgUrl && (
           <div
@@ -87,9 +89,9 @@ export default function CharacterCard({
           />
         )}
 
-        {character.icon_url && (
+        {imageUrl && (
           <img
-            src={character.icon_url}
+            src={imageUrl}
             alt={character.name}
             loading="lazy"
             className={`absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 ${
@@ -98,7 +100,7 @@ export default function CharacterCard({
           />
         )}
 
-        {/* Element badge (top-left) — always colored */}
+        {/* ... Остальной код без изменений (Element badge, Constellation, Crowns, Progress) ... */}
         <div
           className="absolute top-1 left-1 w-7 h-7 rounded-full flex items-center justify-center text-sm"
           style={{
@@ -111,7 +113,6 @@ export default function CharacterCard({
           <span className="leading-none">{ELEMENT_EMOJI[character.element]}</span>
         </div>
 
-        {/* Top-right: constellation star (owned only) */}
         {owned && (
           <div className="absolute top-0 right-0 w-10 h-10">
             <ConstellationStar className="w-full h-full drop-shadow-[0_0_5px_rgba(253,224,71,0.95)]" />
@@ -127,7 +128,6 @@ export default function CharacterCard({
           </div>
         )}
 
-        {/* Bottom-left: crowns (always when owned) */}
         {owned && (
           <div className="absolute bottom-0 left-0 w-12 h-12 flex items-center justify-center">
             <img
@@ -147,7 +147,6 @@ export default function CharacterCard({
           </div>
         )}
 
-        {/* Bottom-right: progress circle (owned only) */}
         {owned && (
           <div className="absolute bottom-0.5 right-0.5">
             <CircularProgress
@@ -164,7 +163,6 @@ export default function CharacterCard({
         )}
       </div>
 
-      {/* Level plate (bottom) */}
       <div
         className={`px-1.5 py-1 text-center text-base font-bold leading-tight ${
           owned ? 'bg-slate-200 text-slate-900' : 'bg-slate-700 text-slate-500'

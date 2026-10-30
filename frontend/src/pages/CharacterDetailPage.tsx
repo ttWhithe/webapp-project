@@ -6,6 +6,9 @@ import { catalogApi } from '@/shared/api/catalog'
 import { trackerApi } from '@/shared/api/tracker'
 import { useCharacterDraft } from '@/shared/lib/useCharacterDraft'
 import { useSectionScroll } from '@/shared/lib/useSectionScroll'
+import { useAuthStore } from '@/shared/lib/auth-store'
+import { useSettingsStore } from '@/shared/lib/settings-store'
+import { getCharacterImage } from '@/shared/lib/image-utils'
 
 import ErrorState from '@/shared/ui/ErrorState'
 import LoadingSpinner from '@/shared/ui/LoadingSpinner'
@@ -16,12 +19,12 @@ import { ZoneWeaponArtifacts } from '@/features/character-detail/zones/ZoneWeapo
 import { ZoneConstellations } from '@/features/character-detail/zones/ZoneConstellations'
 import type { EquipmentSlotKey } from '@/features/character-detail/constants'
 import { ConfirmDeleteModal } from '@/features/character-detail/components/ConfirmDeleteModal'
-import { useAuthStore } from '@/shared/lib/auth-store'
 
 export default function CharacterDetailPage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const user = useAuthStore((s) => s.user)
+  const { usePremiumImages } = useSettingsStore() // <--- ДОБАВИЛИ
   const qc = useQueryClient()
   const [selectedSlot, setSelectedSlot] = useState<EquipmentSlotKey>('weapon')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -123,7 +126,13 @@ export default function CharacterDetailPage() {
   if (catalogQuery.isError || !catalogQuery.data)
     return <ErrorState message="Персонаж не найден" />
 
-  const character = catalogQuery.data
+  const rawCharacter = catalogQuery.data
+
+  // ХИТРОСТЬ: Подменяем картинки прямо в объекте, чтобы зоны их подхватили
+  const character = {
+    ...rawCharacter,
+    icon_url: getCharacterImage(rawCharacter, usePremiumImages)
+  }
 
   return (
     <div className="relative w-full overflow-hidden">
