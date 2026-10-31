@@ -118,6 +118,7 @@ class TestStripeWebhook:
 
         # Проверяем БД: роль не должна поменяться на premium
         user = await db_session.get(User, uuid.UUID(user_id))
+        assert user is not None
         assert user.role == Role.USER
 
     @patch("stripe.Webhook.construct_event")
@@ -168,6 +169,7 @@ class TestStripeWebhook:
 
         # Проверяем, что роль обновилась
         user = await db_session.get(User, uuid.UUID(user_id))
+        assert user is not None
         assert user.role == Role.PREMIUM
 
     @patch("stripe.Webhook.construct_event")
