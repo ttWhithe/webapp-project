@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from app.api.deps import CurrentUser
 from app.db.session import get_db
@@ -43,7 +43,7 @@ async def stripe_webhook(
 
     payload = await request.body()
     try:
-        await service.handle_webhook(db, payload, stripe_signature)
+        await service.handle_stripe_webhook(db, payload, stripe_signature)
         return {"status": "success"}
     except Exception as e:
         print(f"❌ ОШИБКА ПРИ ОБРАБОТКЕ ВЕБХУКА: {e}")
@@ -52,7 +52,7 @@ async def stripe_webhook(
 
 @router.post("/webhook/yookassa")
 async def yookassa_webhook(
-    payload: dict = Body(...),
+    payload: dict[str, Any] = Body(...),
     db: AsyncSession = Depends(get_db),
     service: PaymentService = Depends(get_payment_service),
 ) -> dict[str, str]:

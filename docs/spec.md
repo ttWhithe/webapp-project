@@ -390,25 +390,36 @@ Abstraction: `PaymentProvider` (Strategy pattern).
                            +--> [genshin-db-api] (sync)
 
 ### 11.2. Backend Structure
-    app/
-    |-- api/v1/       # admin.py, auth.py, catalog.py, tracker.py
-    |-- core/         # config, security
-    |-- db/           # session, base
-    |-- models/       # SQLAlchemy
-    |-- schemas/      # Pydantic
-    |-- services/     # business logic
-
+```
+backend/
+├── alembic/           # Миграции БД
+├── app/
+│   ├── api/v1/        # Эндпоинты (admin, auth, catalog, payments, stats, tracker)
+│   ├── core/          # Конфигурация, безопасность, куки, логирование
+│   ├── db/            # Подключение к сессии и Redis
+│   ├── models/        # SQLAlchemy модели
+│   ├── repositories/  # Слой доступа к данным (Repository pattern)
+│   ├── schemas/       # Pydantic схемы (DTO)
+│   ├── services/      # Бизнес-логика (auth, payments, progress, sync)
+│   └── tests/         # Pytest тесты (unit + integration)
+├── scripts/           # Скрипты (парсинг картинок, бэкап)
+└── pyproject.toml     # Зависимости и настройки (ruff, mypy, pytest)
+```
 ### 11.3. Frontend Structure (Refactored)
-    src/
-    |-- app/          # routing, providers
-    |-- features/
-        |-- character-detail/
-            |-- components/  # HeroActionArc, RarityArc, RefinementArc, SimpleSlider
-            |-- zones/       # ZoneHero, ZoneStats, ZoneWeaponArtifacts, ZoneConstellations
-            |-- constants.ts, utils.ts
-    |-- pages/        # CharacterDetailPage.tsx
-    |-- shared/       # ui-kit, api-client, lib
-
+```
+frontend/
+├── public/             # Статические файлы (шрифты, иконки, картинки)
+├── src/
+│   ├── app/            # Настройка роутинга и провайдеров
+│   ├── features/       # Модули по фичам (admin, character-detail)
+│   │   ├── components/ # Переиспользуемые компоненты фичи
+│   │   └── zones/      # UI Зоны 1-4 на странице персонажа
+│   ├── pages/          # Страницы (Catalog, Profile, Admin, Auth)
+│   ├── shared/         # Общий код (UI kit, API клиенты, утилиты, Zustand)
+│   └── main.tsx        # Точка входа
+├── package.json        # Зависимости
+└── vite.config.ts      # Конфигурация сборщика
+```
 ---
 
 ## 12. Testing
@@ -452,7 +463,7 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 | 13 | Frontend Polish: Local Images, Premium Toggle, SVG Icons, UX Fixes | ✅ Done |
 | 14 | Landing Page & Public Catalog | ✅ Done |
 | 15 | Payments: YooKassa integration | ✅ Done (Backend & UI ready, pending store access) |
-| 16 | Deployment to free hosting | ⏳ Planned |
+| 16 | Deployment to free hosting | ⏸️ Post-MVP (regional blocks) |
 | 17 | Fix CI tests and linters | ✅ Done |
 
 ---
@@ -475,8 +486,8 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 7. RBAC works (admin / user / guest).
 8. Refresh tokens are stored in Redis.
 9. Catalog is refreshed from an external source.
-10. CI is green; tests >= 70% coverage (currently 72%).
-11. Deployed to free hosting; link in README.
+10. CI is green; tests >= 70% coverage (currently 73%).
+11. Project is fully containerized and ready for deployment (CI/CD configured). Actual deployment is postponed to post-MVP due to regional access restrictions.
 
 ---
 
