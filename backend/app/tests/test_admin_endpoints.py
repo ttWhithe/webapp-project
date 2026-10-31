@@ -85,6 +85,7 @@ async def admin_client(
 
     # Вручную меняем роль в БД на ADMIN
     user = await db_session.scalar(select(User).where(User.email == "admin@example.com"))
+    assert user is not None
     user.role = Role.ADMIN
     await db_session.commit()
 
