@@ -1,9 +1,9 @@
 # Software Requirements Specification
 ## Web Application "Genshin Progress Tracker"
 
-**Version:** 2.5
+**Version:** 2.6
 **Date:** 2026
-**Status:** MVP backend + frontend mostly delivered; Stripe integration complete; UI polishing in progress
+**Status:** MVP frontend fully polished (Zones 1-4, Admin, Dashboard); Local images integrated; Ready for final payment provider (YooKassa) and Deployment
 
 ---
 
@@ -237,6 +237,9 @@ Constellations **do not** affect the percentage (shown as a separate badge).
 | PATCH | `/admin/progress-weights` | Change weights |
 | GET | `/admin/users` | User list |
 | PATCH | `/admin/users/{id}/role` | Change role |
+| GET | `/admin/weights` | Get progress weights |
+| PATCH `| /admin/weights` | Update progress weights |
+| GET | `/admin/users` | User list with financial stats |
 
 ### 4.3. Pagination, Filters, Sorting
 
@@ -444,9 +447,12 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 | 8 | Frontend zone 2 (stats, sliders) | ✅ Done |
 | 9 | Frontend zone 3 (weapon + artifacts) | ✅ Done |
 | 10 | Frontend zone 4 (constellations) | ✅ Done |
-| 11 | Add/Remove character toggle | ✅ Done |
-| 12 | Payments: Stripe (Test Mode + Webhooks) | ✅ Done |
-| 13 | Deployment | ⏳ Planned |
+| 11 | Payments: Stripe (Test Mode + Webhooks) | ✅ Done |
+| 12 | Admin Panel: Users, Weights, Finances, Global Stats | ✅ Done |
+| 13 | Frontend Polish: Local Images, Premium Toggle, SVG Icons, UX Fixes | ✅ Done |
+| 14 | Landing Page & Public Catalog | ✅ Done |
+| 15 | Payments: YooKassa integration | ⏳ Planned |
+| 16 | Deployment to free hosting | ⏳ Planned |
 | 14 | Fix CI tests and linters | ✅ Done |
 
 ---
@@ -484,7 +490,19 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 
 ## 18. Changelog
 
-### v2.5 (current)
+### v2.6 (current)
+- **Local Images:** All character, weapon, and artifact images are now downloaded and served locally (no more Wiki links). Includes talents, constellations, and UI icons (Elements, Crowns, Stella Fortuna).
+- **UX/UI Polish:**
+  - Added auto-calculation for Masterless Stella Fortuna (based on level > 90).
+  - Passive talents in Zone 1 now require specific character levels (20/60) to unlock and have local icons.
+  - Fixed layout scroll issues (switched from `h-screen` to `h-full`).
+  - Fixed 100% font sizing in progress circles.
+  - Added fallback for broken images.
+- **Dashboard:** Added global stats (total users, total tracked characters, premium accounts). Added Premium image toggle for premium users.
+- **Admin Panel:** Added user management (grant/revoke premium), progress weights configuration (with validation), and financial tracking (donations/subscriptions).
+- **Landing Page:** Added a public landing page (`/welcome`) and allowed guests to browse the character catalog.
+
+### v2.5
 - **Payments (Stripe):** Integrated Stripe Checkout for subscriptions and donations. Added secure webhook handling with signature verification.
 - **Database:** Added `payments` and `subscriptions` tables via Alembic migrations.
 - **Profile Page:** Added UI for Premium subscription and Donations.
@@ -541,6 +559,7 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 - OAuth providers: Google, Telegram, VK, Yandex, Discord.
 - Email verification.
 - Password reset flow.
+- Profile editing (avatar upload, password change).
 
 ### Catalog & Data
 - **Local image storage (S3):** Download external images (talents, constellations, character icons) and store them locally to avoid hotlinking and broken links. *(Note: currently using temporary URLs from the parser JSON).*
@@ -557,8 +576,7 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 - Shared element transitions (Framer Motion).
 - Dark / light theme toggle.
 - PWA installation.
-- Premium UI customizations (custom PNG icons for Premium users).
-- Public Landing Page for unauthenticated users.
+- Mobile layout for Zone 1-4 (currently PC-only block).
 
 ### Payments
 - Stripe + YooKassa providers.
