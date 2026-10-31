@@ -1,5 +1,7 @@
 # Genshin Progress Tracker
 
+[![CI](https://github.com/ttWhithe/Genshin-Progress-Tracker/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ttWhithe/Genshin-Progress-Tracker/actions/workflows/ci.yml)
+
 <div align="center">
 
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
