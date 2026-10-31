@@ -128,7 +128,7 @@ async def admin_update_user_role(
     if not user:
         raise HTTPException(404, "User not found")
 
-    user.role = payload.role.value
+    user.role = payload.role
     await db.commit()
     await db.refresh(user)
     return UserRead.model_validate(user)

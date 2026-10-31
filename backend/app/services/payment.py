@@ -66,18 +66,18 @@ class PaymentService:
             raise HTTPException(status_code=500, detail=str(e)) from e
 
     # --- НОВЫЙ МЕТОД ДЛЯ ВЕБХУКОВ ---
-    async def handle_webhook(self, db: AsyncSession, payload: bytes, sig_header: str):
+    async def handle_webhook(self, db: AsyncSession, payload: bytes, sig_header: str) -> None:
         print("🔐 Проверка подписи...")
         try:
             # Проверяем подпись
-            event = stripe.Webhook.construct_event(
+            event = stripe.Webhook.construct_event(  # type: ignore
                 payload, sig_header, settings.stripe_webhook_secret
             )
             print("✅ Подпись валидна! Событие:", event["type"])
         except ValueError as e:
             print("❌ Invalid payload:", e)
             raise HTTPException(status_code=400, detail="Invalid payload") from e
-        except stripe.error.SignatureVerificationError as e:
+        except stripe.SignatureVerificationError as e:
             print("❌ Invalid signature (Secret in .env does not match!):", e)
             raise HTTPException(status_code=400, detail="Invalid signature") from e
 
@@ -123,7 +123,7 @@ class PaymentService:
 
             user = await db.get(User, user_id)
             if user and user.role != Role.ADMIN:
-                user.role = Role.PREMIUM.value
+                user.role = Role.PREMIUM
 
             await db.commit()
             print(f"✅ Успешно обработан платеж {session['id']} для юзера {user_id}")

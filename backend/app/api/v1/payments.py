@@ -35,7 +35,7 @@ async def stripe_webhook(
     stripe_signature: str = Header(None, alias="stripe-signature"),
     db: AsyncSession = Depends(get_db),
     service: PaymentService = Depends(get_payment_service),
-):
+) -> dict[str, str]:
     print("\n" + "=" * 50)
     print("🚨 WEBHOOK RECEIVED FROM STRIPE")
     print(f"Подпись (Header): {stripe_signature}")

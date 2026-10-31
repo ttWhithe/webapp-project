@@ -11,7 +11,7 @@ router = APIRouter(prefix="/stats", tags=["stats"])
 
 
 @router.get("/global")
-async def get_global_stats(db: AsyncSession = Depends(get_db)):
+async def get_global_stats(db: AsyncSession = Depends(get_db)) -> dict[str, int]:
     total_users = await db.scalar(select(func.count()).select_from(User))
     total_premium = await db.scalar(
         select(func.count()).select_from(User).where(User.role == Role.PREMIUM)
@@ -26,7 +26,7 @@ async def get_global_stats(db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/weights")
-async def get_public_weights(db: AsyncSession = Depends(get_db)):
+async def get_public_weights(db: AsyncSession = Depends(get_db)) -> dict[str, float]:
     weights = await db.scalar(select(ProgressWeights).limit(1))
     if not weights:
         return {"level": 0.2, "talents": 0.2, "weapon": 0.2, "artifacts": 0.2, "friendship": 0.2}
