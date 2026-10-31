@@ -125,7 +125,7 @@ export function ZoneWeaponArtifacts({
   }
 
   return (
-    <section className="h-full relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
+    <section className="h-full relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, transparent 70%)` }}>
       <div className="h-full w-full max-w-[1800px] mx-auto px-6 py-6 flex flex-col gap-5">
         <div className="flex flex-wrap items-center justify-between gap-4 w-full shrink-0">
           <div className="flex items-center gap-4 shrink-0">

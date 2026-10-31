@@ -138,10 +138,21 @@ export default function CharacterDetailPage() {
   }
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden bg-slate-900">
+
+      {/* ФОН СТИХИИ */}
+      <div
+        className={`absolute inset-0 z-0 pointer-events-none transition-all duration-1000 ${tracked ? '' : 'grayscale opacity-60'}`}
+        style={{
+          backgroundImage: `url('/images/background/${character.element} background.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
 
       {/* ЗАГЛУШКА ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ */}
-      <div className="flex lg:hidden h-screen items-center justify-center p-6 text-center">
+      <div className="flex lg:hidden h-screen items-center justify-center p-6 text-center relative z-10">
         <div className="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl max-w-sm">
           <div className="text-6xl mb-6">🖥️</div>
           <h2 className="text-2xl font-bold mb-4">Требуется ПК</h2>
@@ -155,7 +166,7 @@ export default function CharacterDetailPage() {
       </div>
 
       {/* ОСНОВНОЙ КОНТЕНТ (ТОЛЬКО ДЛЯ ПК) */}
-      <div className="hidden lg:block h-full">
+      <div className="hidden lg:block h-full relative z-10">
         <div
           className="transition-transform duration-700 ease-in-out h-full"
           style={{ transform: `translateY(-${safeCurrent * 100}%)` }}

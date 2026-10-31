@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ELEMENT_HEX, TALENT_COLORS } from '@/shared/lib/catalog-meta'
 import RadialProgress, { type OuterSlotConfig, type RadialItem } from '@/shared/ui/RadialProgress'
 import { ARTIFACT_MAX_LEVEL } from '../constants'
@@ -9,6 +10,7 @@ import type { EquipmentSlotKey } from '../constants'
 export function ZoneHero({
   character, detail, draft, goTo, onToggleOwned, isOwned, totalOverride, artifactSets, weapons, defaultWeapon, onSelectSlot
 }: any) {
+  const [isFullPortrait, setIsFullPortrait] = useState(false)
   const colors = ELEMENT_HEX[character.element as keyof typeof ELEMENT_HEX]
   const portraitSrc = detail?.custom_portrait_url ?? character.portrait_url ?? character.icon_url ?? ''
   const isUnowned = !isOwned;
@@ -172,23 +174,62 @@ export function ZoneHero({
     }))
 
   return (
-    <section className="h-full relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
+    <section className="h-full relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, transparent 70%)` }}>
       <div className="h-full w-full flex items-center justify-center gap-6 md:gap-12 lg:gap-24 px-6 pt-4 pb-20">
 
         {/* ОБЕРТКА ПОРТРЕТА И ПАССИВОК */}
         <div className="relative shrink-0" style={{ height: 'min(84vh, 780px)', maxWidth: '42vw', aspectRatio: '3 / 4' }}>
 
           <div
-            className="w-full h-full relative bg-slate-900"
+            className="w-full h-full relative bg-transparent transition-all duration-700 ease-in-out"
             style={{
-              boxShadow: `0 0 55px ${colors.main}99`,
-              clipPath: 'inset(0 round 16px)'
+              boxShadow: isFullPortrait ? '0 0 0 transparent, 0 0 0 transparent, inset 0 0 0 transparent' : `0 0 80px ${colors.main}66, 0 20px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.7)`,
+              clipPath: isFullPortrait ? 'none' : 'inset(0 round 16px)',
+              border: isFullPortrait ? '1px solid transparent' : `1px solid ${colors.secondary}40`,
+              zIndex: isFullPortrait ? 0 : 10
             }}
           >
-            {portraitSrc && <img src={portraitSrc} alt={character.name} className="absolute inset-0 w-full h-full object-cover object-center" />}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50 pointer-events-none" />
+            {portraitSrc && (
+              <>
+                {/* Обрезанная версия (плавно исчезает) */}
+                <img
+                  src={portraitSrc}
+                  alt={character.name}
+                  className={`absolute top-0 left-1/2 -translate-x-1/2 h-full w-full object-cover transition-opacity duration-700 ease-in-out ${
+                    isUnowned ? 'grayscale' : ''
+                  } ${isFullPortrait ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                />
+                {/* Полная версия (плавно появляется и вылезает за края) */}
+                <img
+                  src={portraitSrc}
+                  alt={character.name}
+                  className={`absolute top-0 left-1/2 -translate-x-1/2 h-full w-auto max-w-none object-contain transition-opacity duration-700 ease-in-out ${
+                    isUnowned ? 'grayscale' : ''
+                  } ${isFullPortrait ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                />
+              </>
+            )}           {/* {!isFullPortrait && <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50 pointer-events-none" />}*/}
             <HeroActionArc colors={colors} isUnowned={isUnowned} />
           </div>
+
+          {/* Кнопка переключения режима портрета (Стихийная) */}
+          <button
+            onClick={() => setIsFullPortrait(!isFullPortrait)}
+            className="absolute top-4 right-4 z-[60] w-10 h-10 rounded-full flex items-center justify-center border-2 shadow-lg hover:scale-110 cursor-pointer transition-transform"
+            style={{
+              backgroundColor: `${colors.main}cc`,
+              borderColor: colors.secondary,
+              color: colors.secondary,
+              boxShadow: `0 0 14px ${colors.main}`,
+            }}
+            title={isFullPortrait ? "Скрыть края" : "Показать персонажа полностью"}
+          >
+            {isFullPortrait ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            )}
+          </button>
 
           <div className="absolute bottom-4 right-4 flex gap-3 z-30">
             {passives.map((p, idx) => (
@@ -224,22 +265,25 @@ export function ZoneHero({
 
         </div>
 
-        <RadialProgress
-          total={total}
-          items={items}
-          colors={colors}
-          size={Math.min(620, Math.round(window.innerHeight))}
-          outerSlotsConfig={OUTER_CONFIG}
-          onOuterClick={handleOuterClick}
-          onMiddleClick={(key) => {
-            if (isUnowned) return
-            if (key === 'total') return
-            if (key === 'weapon') { onSelectSlot('weapon'); return }
-            onSelectSlot(key as EquipmentSlotKey)
-          }}
-          isUnowned={isUnowned}
-          hideCenter
-        />
+        {/* ОБЕРНУЛИ В DIV С Z-20 */}
+        <div className="relative z-20 flex items-center justify-center">
+          <RadialProgress
+            total={total}
+            items={items}
+            colors={colors}
+            size={Math.min(620, Math.round(window.innerHeight))}
+            outerSlotsConfig={OUTER_CONFIG}
+            onOuterClick={handleOuterClick}
+            onMiddleClick={(key) => {
+              if (isUnowned) return
+              if (key === 'total') return
+              if (key === 'weapon') { onSelectSlot('weapon'); return }
+              onSelectSlot(key as EquipmentSlotKey)
+            }}
+            isUnowned={isUnowned}
+            hideCenter
+          />
+        </div>
       </div>
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none text-center max-w-[70vw]">
         <h1 className="text-3xl md:text-4xl font-bold leading-tight drop-shadow-[0_2px_12px_rgba(0,0,0,1)]" style={{ fontFamily: "'Comic Sans MS', 'Comic Sans', cursive" }}>{character.name_ru || character.name}</h1>

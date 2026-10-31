@@ -27,7 +27,7 @@ export function ZoneConstellations({ character, draft, onUpdate, isSaving, lastS
   const radius = 280;
 
   return (
-    <section className="h-full relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
+    <section className="h-full relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, transparent 70%)` }}>
 
       {/* ШАПКА */}
       <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-30">

@@ -60,8 +60,7 @@ export function ZoneStats({ character, detail, draft, progress, onUpdate, isSavi
   const burstColors = colors
 
   return (
-    <section className="h-full flex items-center justify-center px-4 relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
-      <div className="w-full max-w-[1800px] grid grid-cols-1 lg:grid-cols-[320px_1fr_500px] gap-6 px-6">
+    <section className="h-full flex items-center justify-center px-4 relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, transparent 70%)` }}>      <div className="w-full max-w-[1800px] grid grid-cols-1 lg:grid-cols-[320px_1fr_500px] gap-6 px-6">
         <div className="flex flex-col gap-4 -translate-y-[40px]">
           <div className="text-center"><h2 className="text-2xl font-bold">{character.name_ru || character.name}</h2><p className="text-sm text-slate-400">Характеристики</p></div>
           {character.icon_url && <div className="mx-[10px] rounded-xl overflow-hidden" style={{ border: `2px solid ${colors.secondary}`, boxShadow: `0 0 28px ${colors.main}66`, aspectRatio: '1 / 1' }}><img src={character.icon_url} alt={character.name} className="w-full h-full object-cover" /></div>}
