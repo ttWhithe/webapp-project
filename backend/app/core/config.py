@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     stripe_publishable_key: str = ""
 
+    # Payments: YooKassa
+    yookassa_shop_id: str = ""
+    yookassa_secret_key: str = ""
+
     # CORS
     cors_origins: str = "http://localhost:5173"
 

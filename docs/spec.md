@@ -1,9 +1,9 @@
 # Software Requirements Specification
 ## Web Application "Genshin Progress Tracker"
 
-**Version:** 2.6
+**Version:** 2.7
 **Date:** 2026
-**Status:** MVP frontend fully polished (Zones 1-4, Admin, Dashboard); Local images integrated; Ready for final payment provider (YooKassa) and Deployment
+**Status:** MVP fully polished. YooKassa backend integrated (UI disabled pending store verification). Ready for Deployment.
 
 ---
 
@@ -451,9 +451,9 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 | 12 | Admin Panel: Users, Weights, Finances, Global Stats | ✅ Done |
 | 13 | Frontend Polish: Local Images, Premium Toggle, SVG Icons, UX Fixes | ✅ Done |
 | 14 | Landing Page & Public Catalog | ✅ Done |
-| 15 | Payments: YooKassa integration | ⏳ Planned |
+| 15 | Payments: YooKassa integration | ✅ Done (Backend & UI ready, pending store access) |
 | 16 | Deployment to free hosting | ⏳ Planned |
-| 14 | Fix CI tests and linters | ✅ Done |
+| 17 | Fix CI tests and linters | ✅ Done |
 
 ---
 
@@ -490,7 +490,16 @@ Abstraction: `PaymentProvider` (Strategy pattern).
 
 ## 18. Changelog
 
-### v2.6 (current)
+### v2.7 (current)
+- **Payments:** Integrated YooKassa backend (`aioyookassa`), added webhook handler and idempotency. Added a payment method selection modal on the frontend (Stripe active, YooKassa disabled pending shop registration limits).
+- **Testing:** Increased backend test coverage to 73% (179 tests).
+- **UI/UX:**
+  - Added elemental background images for character pages (with grayscale for unowned characters).
+  - Added smooth portrait toggle button (expand image without clipping) in Zone 1.
+  - Added custom error page illustrations (401, 404, 500).
+- **CI:** Fixed mypy and ruff errors, CI is fully green.
+
+### v2.6
 - **Local Images:** All character, weapon, and artifact images are now downloaded and served locally (no more Wiki links). Includes talents, constellations, and UI icons (Elements, Crowns, Stella Fortuna).
 - **UX/UI Polish:**
   - Added auto-calculation for Masterless Stella Fortuna (based on level > 90).

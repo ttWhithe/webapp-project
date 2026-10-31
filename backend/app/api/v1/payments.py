@@ -4,7 +4,7 @@ from app.api.deps import CurrentUser
 from app.db.session import get_db
 from app.schemas.payment import DonationCreate, PaymentResponse, SubscribeCreate
 from app.services.payment import PaymentService, get_payment_service
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Body, Depends, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/payments", tags=["payments"])
@@ -47,4 +47,18 @@ async def stripe_webhook(
         return {"status": "success"}
     except Exception as e:
         print(f"❌ ОШИБКА ПРИ ОБРАБОТКЕ ВЕБХУКА: {e}")
+        raise
+
+
+@router.post("/webhook/yookassa")
+async def yookassa_webhook(
+    payload: dict = Body(...),
+    db: AsyncSession = Depends(get_db),
+    service: PaymentService = Depends(get_payment_service),
+) -> dict[str, str]:
+    try:
+        await service.handle_yookassa_webhook(db, payload)
+        return {"status": "success"}
+    except Exception as e:
+        print(f"❌ ОШИБКА ПРИ ОБРАБОТКЕ ВЕБХУКА ЮKASSA: {e}")
         raise
