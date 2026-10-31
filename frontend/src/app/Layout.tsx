@@ -11,7 +11,9 @@ export default function Layout() {
   const location = useLocation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const isFullWidth = location.pathname === '/' || /^\/characters\/[^/]+\/?$/.test(location.pathname)
+  const isCharacterDetail = /^\/characters\/[^/]+\/?$/.test(location.pathname)
+  const isDashboard = location.pathname === '/'
+  const isFullWidth = isDashboard || isCharacterDetail
   const { usePremiumImages, togglePremiumImages } = useSettingsStore()
 
   // Закрываем меню при клике вне его
@@ -35,7 +37,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
+    <div className={isCharacterDetail ? "h-screen flex flex-col overflow-hidden bg-slate-900 text-slate-100" : "min-h-screen bg-slate-900 text-slate-100"}>
       <header className="border-b border-slate-800 bg-slate-950 sticky top-0 z-40 select-none">
         <div className="max-w-[95%] mx-auto px-4 h-16 flex items-center justify-between">
           {/* ЛЕВАЯ ЧАСТЬ: Логотип + Кнопка Персонажи */}
@@ -132,7 +134,12 @@ export default function Layout() {
         </div>
       </header>
 
-      <main className={isFullWidth ? 'w-full px-4 md:px-[4%] py-8' : 'max-w-6xl mx-auto px-4 py-8'}>
+      <main className={isCharacterDetail
+        ? 'flex-1 relative w-full overflow-hidden'
+        : isFullWidth
+          ? 'w-full px-4 md:px-[4%] py-8'
+          : 'max-w-6xl mx-auto px-4 py-8'
+      }>
         <Outlet />
       </main>
     </div>

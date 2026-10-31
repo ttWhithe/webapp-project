@@ -81,6 +81,7 @@ def _to_list_item(uc: UserCharacter, weights: dict[str, float] | None) -> UserCh
         constellation=uc.constellation,
         friendship=uc.friendship,
         crowns_used=uc.crowns_used,
+        masterless_stella_fortuna=uc.masterless_stella_fortuna,
         progress=_progress_for(uc, weights).total,
         updated_at=uc.updated_at,
     )

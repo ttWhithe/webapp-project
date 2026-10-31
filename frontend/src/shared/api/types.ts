@@ -123,6 +123,7 @@ export interface UserCharacterListItem {
   constellation: number
   friendship: number
   crowns_used: number
+  masterless_stella_fortuna: number
   progress: number
   updated_at: string;
 }

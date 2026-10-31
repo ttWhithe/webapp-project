@@ -1,6 +1,6 @@
 import { ELEMENT_HEX, TALENT_COLORS } from '@/shared/lib/catalog-meta'
 import RadialProgress, { type OuterSlotConfig, type RadialItem } from '@/shared/ui/RadialProgress'
-import { ARTIFACT_MAX_LEVEL, PLACEHOLDER_ICONS } from '../constants'
+import { ARTIFACT_MAX_LEVEL } from '../constants'
 import { getSetSlotIcon } from '../utils'
 import { HeroActionArc } from '../components/HeroActionArc'
 import { CharacterToggleButton } from '../components/CharacterToggleButton'
@@ -11,7 +11,6 @@ export function ZoneHero({
 }: any) {
   const colors = ELEMENT_HEX[character.element as keyof typeof ELEMENT_HEX]
   const portraitSrc = detail?.custom_portrait_url ?? character.portrait_url ?? character.icon_url ?? ''
-
   const isUnowned = !isOwned;
 
   const weaponPct = (isUnowned || !draft?.weapon_level) ? 0 : Math.min(100, (draft.weapon_level / 90) * 100)
@@ -27,11 +26,11 @@ export function ZoneHero({
       grayscale: isUnowned,
       hideValue: isUnowned,
     },
-    { key: 'flower', label: 'Цветок', value: 0, icon: PLACEHOLDER_ICONS.flower, rawValue: '', disabled: isUnowned, grayscale: isUnowned },
-    { key: 'plume', label: 'Перо', value: 0, icon: PLACEHOLDER_ICONS.plume, rawValue: '', disabled: isUnowned, grayscale: isUnowned },
-    { key: 'sands', label: 'Часы', value: 0, icon: PLACEHOLDER_ICONS.sands, rawValue: '', disabled: isUnowned, grayscale: isUnowned },
-    { key: 'goblet', label: 'Кубок', value: 0, icon: PLACEHOLDER_ICONS.goblet, rawValue: '', disabled: isUnowned, grayscale: isUnowned },
-    { key: 'circlet', label: 'Шапка', value: 0, icon: PLACEHOLDER_ICONS.circlet, rawValue: '', disabled: isUnowned, grayscale: isUnowned },
+    { key: 'flower', label: 'Цветок', value: 0, icon: '', rawValue: '', disabled: isUnowned, grayscale: isUnowned, isArtifact: true },
+    { key: 'plume', label: 'Перо', value: 0, icon: '', rawValue: '', disabled: isUnowned, grayscale: isUnowned, isArtifact: true },
+    { key: 'sands', label: 'Часы', value: 0, icon: '', rawValue: '', disabled: isUnowned, grayscale: isUnowned, isArtifact: true },
+    { key: 'goblet', label: 'Кубок', value: 0, icon: '', rawValue: '', disabled: isUnowned, grayscale: isUnowned, isArtifact: true },
+    { key: 'circlet', label: 'Шапка', value: 0, icon: '', rawValue: '', disabled: isUnowned, grayscale: isUnowned, isArtifact: true },
   ]
 
   if (!isUnowned && detail) {
@@ -81,14 +80,13 @@ export function ZoneHero({
   const outerConsts: OuterSlotConfig[] = Array.from({ length: 6 }, (_, i) => {
     const level = i + 1
     const data = consts[String(level)] || {}
-
     return {
       variant: 'plain',
       icon: data.icon || character.constellation_icon_url || '🌟',
       label: data.name || `Созвездие ${level}`,
-      disabled: isUnowned, // <--- БЛОКИРУЕМ ТОЛЬКО ЕСЛИ ПЕРСОНАЖА НЕТ
+      disabled: isUnowned,
       opacity: isUnowned ? 0.3 : (cLevel >= level ? 1 : 0.4),
-      grayscale: isUnowned || cLevel < level, // Остается серым, если созвездие не открыто
+      grayscale: isUnowned || cLevel < level,
     }
   })
 
@@ -101,9 +99,7 @@ export function ZoneHero({
       ringPercent: isUnowned ? 0 : Math.min(100, (effBurst / (isBurstBuffed ? 12 : 9)) * 100),
       goldenAt: burstCrownAt,
       textColor: isUnowned ? undefined : (effBurst >= burstCrownAt ? TALENT_COLORS.crown.accent : (isBurstBuffed ? TALENT_COLORS.constellation.accent : undefined)),
-      disabled: isUnowned,
-      grayscale: isUnowned,
-      hideValue: isUnowned,
+      disabled: isUnowned, grayscale: isUnowned, hideValue: isUnowned,
     },
     {
       icon: character.talents?.['Elemental Skill']?.icon || '⚡',
@@ -111,9 +107,7 @@ export function ZoneHero({
       ringPercent: isUnowned ? 0 : Math.min(100, (effSkill / (isSkillBuffed ? 12 : 9)) * 100),
       goldenAt: skillCrownAt,
       textColor: isUnowned ? undefined : (effSkill >= skillCrownAt ? TALENT_COLORS.crown.accent : (isSkillBuffed ? TALENT_COLORS.constellation.accent : undefined)),
-      disabled: isUnowned,
-      grayscale: isUnowned,
-      hideValue: isUnowned,
+      disabled: isUnowned, grayscale: isUnowned, hideValue: isUnowned,
     },
     {
       icon: character.talents?.['Normal Attack']?.icon || '⚔️',
@@ -121,51 +115,113 @@ export function ZoneHero({
       ringPercent: isUnowned ? 0 : Math.min(100, (effNormal / (isNormalBuffed ? 12 : 9)) * 100),
       goldenAt: normalCrownAt,
       textColor: isUnowned ? undefined : (effNormal >= normalCrownAt ? TALENT_COLORS.crown.accent : (isNormalBuffed ? TALENT_COLORS.constellation.accent : undefined)),
-      disabled: isUnowned,
-      grayscale: isUnowned,
-      hideValue: isUnowned,
+      disabled: isUnowned, grayscale: isUnowned, hideValue: isUnowned,
     },
     { hidden: true },
     {
-      variant: 'plain',
-      label: isOwned ? 'Убрать из трекера' : 'Добавить в трекер',
-      angle: 180,
-      customRender: <CharacterToggleButton isOwned={isOwned} onClick={onToggleOwned} colors={colors} />
+      variant: 'plain', label: isOwned ? 'Убрать из трекера' : 'Добавить в трекер', angle: 180,
+      customRender: <CharacterToggleButton isOwned={isOwned} onClick={onToggleOwned} colors={colors} element={character.element} />
     },
     {
-      icon: '📊', label: 'Уровень', value: isUnowned ? 0 : (draft?.level ?? 1),
+      icon: '/icons/ui/exp.png', label: 'Уровень', value: isUnowned ? 0 : (draft?.level ?? 1),
       ringPercent: isUnowned ? 0 : Math.min(100, ((draft?.level ?? 1) / 90) * 100),
-      goldenAt: 91,
-      disabled: isUnowned,
-      grayscale: isUnowned,
-      hideValue: isUnowned,
+      goldenAt: 91, disabled: isUnowned, grayscale: isUnowned, hideValue: isUnowned,
+      badge: (!isUnowned && (draft?.level ?? 1) > 90) ? (
+        <div className="flex items-center gap-0.5 ml-0.5 -translate-y-[2px]">
+          <img src="/icons/ui/stella_fortuna.png" className="w-[1.1em] h-[1.1em] object-contain drop-shadow-md" alt="Stella" />
+          <span className="text-purple-500 font-bold">{(draft?.level ?? 1) <= 95 ? 1 : 3}</span>
+        </div>
+      ) : undefined
     },
     {
-      icon: '💚', label: 'Дружба', value: isUnowned ? 0 : (draft?.friendship ?? 1),
+      icon: '/icons/ui/friendship.svg', label: 'Дружба', value: isUnowned ? 0 : (draft?.friendship ?? 1),
       ringPercent: isUnowned ? 0 : Math.min(100, ((draft?.friendship ?? 1) / 10) * 100),
-      disabled: isUnowned,
-      grayscale: isUnowned,
-      hideValue: isUnowned,
+      disabled: isUnowned, grayscale: isUnowned, hideValue: isUnowned,
     },
   ]
 
   function handleOuterClick(i: number) {
     if (isUnowned && i !== 10) return
-
     if (i >= 1 && i <= 6) goTo(3)
     else if (i >= 7 && i <= 9) goTo(1)
     else if (i === 10) onToggleOwned()
     else if (i === 12 || i === 13) goTo(1)
   }
 
+  // --- ПАССИВКИ ---
+  let talentsObj: any = character.talents || {}
+  if (typeof talentsObj === 'string') {
+    try { talentsObj = JSON.parse(talentsObj) } catch (e) { talentsObj = {} }
+  }
+  const standardKeys = ['Normal Attack', 'Elemental Skill', 'Elemental Burst', '1st Ascension Passive', '4th Ascension Passive', 'Utility Passive']
+  const uniqueKey = Object.keys(talentsObj).find(k => !standardKeys.includes(k))
+
+  const charLevel = draft?.level ?? 1
+
+  const passives = [
+    { data: talentsObj['1st Ascension Passive'], reqLevel: 20 },
+    { data: talentsObj['4th Ascension Passive'], reqLevel: 60 },
+    { data: uniqueKey ? talentsObj[uniqueKey] : null, reqLevel: 1 },
+    { data: talentsObj['Utility Passive'], reqLevel: 1 },
+  ]
+    .filter(p => p.data && p.data.icon)
+    .map(p => ({
+      ...p.data,
+      isUnlocked: isUnowned ? false : charLevel >= p.reqLevel,
+      reqLevel: p.reqLevel
+    }))
+
   return (
-    <section className="h-screen relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
+    <section className="h-full relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
       <div className="h-full w-full flex items-center justify-center gap-6 md:gap-12 lg:gap-24 px-6 pt-4 pb-20">
-        {/* Убрали grayscale у контейнера с портретом */}
-        <div className="relative shrink-0 rounded-2xl overflow-hidden transition-all duration-500" style={{ aspectRatio: '3 / 4', height: 'min(84vh, 780px)', maxWidth: '42vw', boxShadow: `0 0 55px ${colors.main}99` }}>
-          {portraitSrc && <img src={portraitSrc} alt={character.name} className="absolute inset-0 w-full h-full object-cover object-center" />}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50 pointer-events-none" />
-          <HeroActionArc colors={colors} isUnowned={isUnowned} />
+
+        {/* ОБЕРТКА ПОРТРЕТА И ПАССИВОК */}
+        <div className="relative shrink-0" style={{ height: 'min(84vh, 780px)', maxWidth: '42vw', aspectRatio: '3 / 4' }}>
+
+          <div
+            className="w-full h-full relative bg-slate-900"
+            style={{
+              boxShadow: `0 0 55px ${colors.main}99`,
+              clipPath: 'inset(0 round 16px)'
+            }}
+          >
+            {portraitSrc && <img src={portraitSrc} alt={character.name} className="absolute inset-0 w-full h-full object-cover object-center" />}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/50 pointer-events-none" />
+            <HeroActionArc colors={colors} isUnowned={isUnowned} />
+          </div>
+
+          <div className="absolute bottom-4 right-4 flex gap-3 z-30">
+            {passives.map((p, idx) => (
+              <div key={idx} className="group relative w-12 h-12 rounded-full cursor-pointer">
+                <div
+                  className="absolute inset-0 rounded-full border-2 flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg"
+                  style={{
+                    borderColor: p.isUnlocked ? colors.secondary : '#475569',
+                    backgroundColor: p.isUnlocked ? `${colors.main}cc` : '#1e293b',
+                    boxShadow: p.isUnlocked ? `0 0 10px ${colors.main}` : 'none',
+                    opacity: p.isUnlocked ? 1 : 0.5,
+                  }}
+                >
+                  <img
+                    src={p.icon}
+                    alt={p.name}
+                    className={`w-full h-full object-cover rounded-full p-0.5 ${!p.isUnlocked ? 'grayscale' : ''}`}
+                  />
+                </div>
+
+                <div className="absolute bottom-full right-0 mb-2 w-48 p-2 rounded-xl bg-slate-800/95 border border-slate-600 shadow-2xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 z-50">
+                  <p className={`text-xs font-bold leading-tight ${p.isUnlocked ? 'text-white' : 'text-slate-400'}`}>
+                    {p.name}
+                  </p>
+                  {/* Показываем требование, ТОЛЬКО если персонаж есть в трекере и уровень пассивки > 1 */}
+                  {!p.isUnlocked && !isUnowned && p.reqLevel > 1 && (
+                    <p className="text-[10px] text-red-400 mt-1">Требуется уровень {p.reqLevel}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
         </div>
 
         <RadialProgress
@@ -181,7 +237,7 @@ export function ZoneHero({
             if (key === 'weapon') { onSelectSlot('weapon'); return }
             onSelectSlot(key as EquipmentSlotKey)
           }}
-          isUnowned={isUnowned} // <--- ПЕРЕДАЕМ ФЛАГ
+          isUnowned={isUnowned}
           hideCenter
         />
       </div>

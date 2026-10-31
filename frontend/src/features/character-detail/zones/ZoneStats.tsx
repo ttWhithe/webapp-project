@@ -60,7 +60,7 @@ export function ZoneStats({ character, detail, draft, progress, onUpdate, isSavi
   const burstColors = colors
 
   return (
-    <section className="h-screen flex items-center justify-center px-4 relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
+    <section className="h-full flex items-center justify-center px-4 relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
       <div className="w-full max-w-[1800px] grid grid-cols-1 lg:grid-cols-[320px_1fr_500px] gap-6 px-6">
         <div className="flex flex-col gap-4 -translate-y-[40px]">
           <div className="text-center"><h2 className="text-2xl font-bold">{character.name_ru || character.name}</h2><p className="text-sm text-slate-400">Характеристики</p></div>
@@ -77,18 +77,26 @@ export function ZoneStats({ character, detail, draft, progress, onUpdate, isSavi
           </div>
         </div>
         <div className="flex flex-col justify-center gap-3 px-[50px]">
+          <div className="relative">
           <ProgressSlider
             label="Уровень персонажа"
             value={draft.level}
             min={1}
             max={100}
             onChange={(v: any) => onUpdate('level', v)}
-            icon="📊"
+            icon="/icons/ui/exp.png"
             colors={colors}
             goldenAt={PROGRESS_LEVEL_CAP + 1} // <--- ЗОЛОТОЙ ЦВЕТ ПОСЛЕ 90
             ringCap={PROGRESS_LEVEL_CAP}
+            badge={(draft.level ?? 1) > 90 ? (
+              <div className="flex items-center gap-0.5 -translate-y-[3px] -translate-x-1">
+                <img src="/icons/ui/stella_fortuna.png" className="w-4 h-4 object-contain drop-shadow-md" alt="Stella" />
+                <span className="text-purple-500 text-sm font-bold">{(draft.level ?? 1) <= 95 ? 1 : 3}</span>
+              </div>
+            ) : undefined}
           />
-          <ProgressSlider label="Уровень дружбы" value={draft.friendship} min={1} max={10} onChange={(v: any) => onUpdate('friendship', v)} icon="💚" colors={colors} ringCap={10} />
+          </div>
+          <ProgressSlider label="Уровень дружбы" value={draft.friendship} min={1} max={10} onChange={(v: any) => onUpdate('friendship', v)} icon="/icons/ui/friendship.svg" colors={colors} ringCap={10} />
 
           <div className="flex items-center gap-3 my-2"><div className="flex-1 h-[2px] rounded-full" style={{ backgroundColor: colors.secondary }} /><span className="text-xs uppercase tracking-widest font-semibold" style={{ color: colors.accent }}>Таланты</span><div className="flex-1 h-[2px] rounded-full" style={{ backgroundColor: colors.secondary }} /></div>
 

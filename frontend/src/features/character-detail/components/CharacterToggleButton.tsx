@@ -1,9 +1,12 @@
-export function CharacterToggleButton({ isOwned, onClick, colors }: { isOwned: boolean, onClick: () => void, colors: any }) {
+import ElementIcon from '@/shared/ui/ElementIcon'
+import type { Element } from '@/shared/api/types'
+
+export function CharacterToggleButton({ isOwned, onClick, colors, element }: { isOwned: boolean, onClick: () => void, colors: any, element: Element }) {
   return (
     <button
       type="button"
       onClick={(e) => {
-        e.stopPropagation() // Защита от случайных кликов
+        e.stopPropagation()
         onClick()
       }}
       title={isOwned ? "Удалить персонажа из трекера" : "Добавить персонажа в трекер"}
@@ -16,13 +19,18 @@ export function CharacterToggleButton({ isOwned, onClick, colors }: { isOwned: b
         boxShadow: `0 0 15px ${colors.main}88`
       }}
     >
-      {/* Тот самый блюр внутри */}
       <div className="absolute inset-[15%] rounded-full opacity-60 filter blur-[4px]" style={{ backgroundColor: colors.main }} />
 
-      {/* Временные иконки (потом заменим на SVG) */}
-      <span className="relative z-10 text-2xl drop-shadow-md text-white font-bold">
-        {isOwned ? '✖' : '＋'}
-      </span>
+      <div className="relative z-10 w-3/5 h-3/5 flex items-center justify-center">
+         <ElementIcon
+           element={element}
+           className="w-full h-full"
+           color={colors.main}
+           outlineColor={colors.secondary}
+           outlineWidth={0.8}
+           glowColor={colors.secondary}
+         />
+      </div>
     </button>
   )
 }

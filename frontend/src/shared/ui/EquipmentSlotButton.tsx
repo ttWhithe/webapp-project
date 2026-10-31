@@ -1,23 +1,27 @@
-import CircularProgress from './CircularProgress'
+import ArtifactIcon from './ArtifactIcon'
 
 interface Props {
   icon: string
-  customIconUrl?: string | null // <--- ДОБАВИЛИ ДЛЯ КАРТИНОК
+  customIconUrl?: string | null
+  isArtifact?: boolean // <--- ДОБАВИЛИ
+  artifactType?: string // <--- ДОБАВИЛИ
   label: string
   selected: boolean
   filled: boolean
-  progress: number // 0-100
+  progress: number
   levelText?: string
   stars?: number
   colors: { main: string; secondary: string; accent: string }
   onClick: () => void
 }
 
-const SIZE = 128 // px — circle diameter (как было у тебя)
+const SIZE = 128
 
 export default function EquipmentSlotButton({
   icon,
   customIconUrl,
+  isArtifact,
+  artifactType,
   label,
   selected,
   filled,
@@ -65,12 +69,21 @@ export default function EquipmentSlotButton({
         }}
       >
         {/* Icon — upper area */}
-        {customIconUrl ? (
+        {filled && customIconUrl ? (
           <img
             src={customIconUrl}
             alt={label}
             className="w-[75%] h-[75%] object-contain drop-shadow-md pointer-events-none"
-            style={{ opacity: filled ? 1 : 0.55, marginBottom: 10 }}
+            style={{ marginBottom: 10 }}
+          />
+        ) : isArtifact && artifactType ? (
+          <ArtifactIcon
+            type={artifactType}
+            size={50} // <--- Размер под кнопку 128px
+            color={colors.accent}
+            outlineColor={colors.secondary}
+            outlineWidth={1}
+            style={{ marginBottom: 8 }}
           />
         ) : (
           <span

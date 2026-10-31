@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import FriendshipIcon from './FriendshipIcon'
 
 interface Props {
   label: string
@@ -14,6 +15,7 @@ interface Props {
   goldenAt?: number
   goldenColor?: string
   ringCap?: number
+  badge?: React.ReactNode
 }
 
 export default function ProgressSlider({
@@ -30,6 +32,7 @@ export default function ProgressSlider({
   goldenAt,
   goldenColor = '#fde047',
   ringCap,
+  badge,
 }: Props) {
   const moduleBorder = 4
   const circleOuterBorder = 3
@@ -107,8 +110,11 @@ export default function ProgressSlider({
             className="leading-none select-none pointer-events-none flex items-center justify-center w-full h-full"
             style={{ fontSize: innerSize * 0.42 }}
           >
-            {isImage ? (
-              // УВЕЛИЧИЛИ РАЗМЕР С 65% ДО 80%
+            {icon === '/icons/ui/friendship.svg' ? (
+              <FriendshipIcon className="w-[85%] h-[85%]" color={colors.secondary} />
+            ) : icon === '/icons/ui/exp.png' ? (
+              <img src={icon} alt="" className="w-[80%] h-[80%] object-contain" />
+            ) : isImage ? (
               <img src={icon} alt="" className="object-contain" />
             ) : (
               icon ?? '◆'
@@ -127,8 +133,8 @@ export default function ProgressSlider({
             zIndex: 5,
           }}
         >
-          {/* Только цифра, никаких иконок */}
           <span>{value}</span>
+          {badge}
         </div>
       </div>
 

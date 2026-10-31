@@ -4,7 +4,6 @@ export function HeroActionArc({ colors, isUnowned }: { colors: any, isUnowned?: 
   const CONTAINER = 200, BTN = 52, cx = CONTAINER - BTN / 2 - 6, cy = BTN / 2 + 6, radius = CONTAINER - BTN - 6
   const angles = [90, 112.5, 135, 157.5, 180]
 
-  // Добавили прозрачность к серым цветам (33, 99, 55, aa — это уровни прозрачности)
   const bgColor = isUnowned ? '#1e293b33' : `${colors.secondary}33`
   const borderColor = isUnowned ? '#33415599' : `${colors.secondary}99`
   const innerShadow = isUnowned ? 'none' : `inset 0 0 30px ${colors.main}22`
@@ -19,7 +18,9 @@ export function HeroActionArc({ colors, isUnowned }: { colors: any, isUnowned?: 
         backgroundColor: bgColor,
         border: `1.5px solid ${borderColor}`,
         backdropFilter: 'blur(8px)',
-        boxShadow: innerShadow
+        boxShadow: innerShadow,
+        transform: 'translateZ(0)',
+        WebkitBackfaceVisibility: 'hidden'
       }}
     >
       {angles.map((deg, i) => {

@@ -1,3 +1,6 @@
+import ArtifactIcon from './ArtifactIcon'
+import FriendshipIcon from './FriendshipIcon'
+
 interface OuterSlotConfig {
   hidden?: boolean
   variant?: 'progress' | 'plain'
@@ -14,6 +17,7 @@ interface OuterSlotConfig {
   grayscale?: boolean
   hideValue?: boolean
   customRender?: React.ReactNode
+  badge?: React.ReactNode
 }
 
 export interface RadialItem {
@@ -26,6 +30,7 @@ export interface RadialItem {
   disabled?: boolean
   grayscale?: boolean
   hideValue?: boolean
+  isArtifact?: boolean
 }
 
 interface Props {
@@ -51,6 +56,12 @@ export default function RadialProgress({
   const middleSize = size * 0.19
   const outerSize = size * 0.15
 
+  const disabledColors = {
+    main: '#334155',
+    secondary: '#475569',
+    accent: '#94a3b8'
+  }
+
   return (
     <div className="relative select-none" style={{ width: size, height: size }}>
       {/* ---- Outer ring: 14 slots ---- */}
@@ -65,6 +76,9 @@ export default function RadialProgress({
         if (cfg.hidden) {
           return <div key={`outer-${i}`} style={{ position: 'absolute', width: outerSize, height: outerSize, left, top, visibility: 'hidden', pointerEvents: 'none' }} />
         }
+
+        const isGray = cfg.grayscale || isUnowned
+        const c = isGray ? disabledColors : colors
 
         if (cfg.variant === 'plain') {
           if (cfg.customRender) {
@@ -87,24 +101,16 @@ export default function RadialProgress({
                 cfg.disabled ? 'cursor-not-allowed' : 'hover:scale-110 cursor-pointer'
               }`}
               style={{
-                width: outerSize,
-                height: outerSize,
-                left,
-                top,
-                backgroundColor: `${colors.main}55`,
-                border: `2px solid ${colors.secondary}`,
-                boxShadow: `0 0 14px ${colors.main}77`,
-                fontSize: outerSize * 0.42,
+                width: outerSize, height: outerSize, left, top,
+                backgroundColor: `${c.main}cc`,
+                border: `2px solid ${c.secondary}`,
+                boxShadow: `0 0 14px ${c.main}`,
                 opacity: cfg.disabled ? 0.3 : (cfg.opacity ?? 1),
                 overflow: 'hidden',
-                filter: cfg.grayscale ? 'grayscale(100%)' : 'none',
+                filter: isGray ? 'grayscale(100%)' : 'none',
               }}
             >
-              {isImage ? (
-                <img src={cfg.icon} alt="" className="w-full h-full object-cover" />
-              ) : (
-                cfg.icon
-              )}
+              {isImage ? <img src={cfg.icon} alt="" className="w-full h-full object-cover" /> : cfg.icon}
             </button>
           )
         }
@@ -114,8 +120,6 @@ export default function RadialProgress({
         const outerRingPct = cfg.ringPercent ?? 0
         const isGolden = cfg.goldenAt != null && outerValue >= cfg.goldenAt
         const isImage = cfg.icon?.startsWith('http') || cfg.icon?.startsWith('/')
-
-        // УМЕНЬШАЕМ ШРИФТ, ЕСЛИ ЗНАЧЕНИЕ 100+
         const outerFontSize = outerValue >= 100 ? outerSize * 0.18 : outerSize * 0.22
 
         return (
@@ -125,33 +129,29 @@ export default function RadialProgress({
             onClick={() => !cfg.disabled && onOuterClick?.(i)}
             disabled={cfg.disabled}
             title={cfg.label ?? `Слот ${i + 1}`}
-            className={`absolute transition-transform duration-300 ${
-              cfg.disabled ? 'cursor-not-allowed' : 'hover:scale-110 cursor-pointer'
-            }`}
-            style={{ width: outerSize, left, top, background: 'transparent', border: 'none', padding: 0, opacity: cfg.disabled ? 0.4 : (cfg.opacity ?? 1), filter: cfg.grayscale ? 'grayscale(100%)' : 'none' }}
+            className={`absolute transition-transform duration-300 ${cfg.disabled ? 'cursor-not-allowed' : 'hover:scale-110 cursor-pointer'}`}
+            style={{ width: outerSize, left, top, background: 'transparent', border: 'none', padding: 0, opacity: cfg.disabled ? 0.4 : (cfg.opacity ?? 1), filter: isGray ? 'grayscale(100%)' : 'none' }}
           >
             <div className="relative rounded-full" style={{ width: outerSize, height: outerSize }}>
-              <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(${colors.secondary} 0deg ${outerRingPct * 3.6}deg, ${colors.main} ${outerRingPct * 3.6}deg 360deg)`, border: `2px solid ${colors.secondary}`, boxSizing: 'border-box' }} />
-              <div className="absolute rounded-full" style={{ top: outerSize * 0.18, left: outerSize * 0.18, right: outerSize * 0.18, bottom: outerSize * 0.18, backgroundColor: colors.main, border: `2px solid ${colors.secondary}`, boxSizing: 'border-box' }} />
+              <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(${c.secondary} 0deg ${outerRingPct * 3.6}deg, ${c.main} ${outerRingPct * 3.6}deg 360deg)`, border: `2px solid ${c.secondary}`, boxSizing: 'border-box' }} />
+              <div className="absolute rounded-full" style={{ top: outerSize * 0.18, left: outerSize * 0.18, right: outerSize * 0.18, bottom: outerSize * 0.18, backgroundColor: c.main, border: `2px solid ${c.secondary}`, boxSizing: 'border-box' }} />
               {cfg.icon && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ fontSize: outerSize * 0.32, lineHeight: 1 }}>
-                  {isImage ? <img src={cfg.icon} alt="" className="w-[65%] h-[65%] object-contain" /> : <span>{cfg.icon}</span>}
+                  {cfg.icon === '/icons/ui/friendship.svg' ? (
+                    <FriendshipIcon className="w-[50%] h-[50%]" color={isGray ? c.secondary : colors.secondary} />
+                  ) : cfg.icon === '/icons/ui/exp.png' ? (
+                    <img src={cfg.icon} alt="" className={`w-[55%] h-[55%] object-contain ${cfg.grayscale ? 'grayscale' : ''}`} />
+                  ) : isImage ? (
+                    <img src={cfg.icon} alt="" className={`w-[65%] h-[65%] object-contain ${cfg.grayscale ? 'grayscale' : ''}`} />
+                  ) : (
+                    <span>{cfg.icon}</span>
+                  )}
                 </div>
               )}
               {!cfg.hideValue && (
-                <div
-                  className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none flex items-center gap-0.5"
-                  style={{
-                    bottom: outerSize * 0.07,
-                    fontSize: outerFontSize, // <--- ПРИМЕНЯЕМ
-                    color: isGolden ? (cfg.goldenColor ?? '#fde047') : (cfg.textColor ?? colors.accent),
-                    textShadow: `0 0 2px ${colors.secondary}, 0 0 4px ${colors.secondary}88`,
-                    fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
-                    lineHeight: 1,
-                    fontWeight: 900,
-                  }}
-                >
+                <div className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none flex items-center gap-0.5" style={{ bottom: outerSize * 0.07, fontSize: outerFontSize, color: isGolden ? (cfg.goldenColor ?? '#fde047') : (cfg.textColor ?? c.accent), textShadow: `0 0 2px ${c.secondary}, 0 0 4px ${c.secondary}88`, fontFamily: "'Comic Sans MS', 'Comic Sans', cursive", lineHeight: 1, fontWeight: 900 }}>
                   <span>{Math.round(outerValue)}</span>
+                  {cfg.badge}
                 </div>
               )}
             </div>
@@ -165,7 +165,10 @@ export default function RadialProgress({
         const x = half + middleRadius * Math.cos(theta)
         const y = half + middleRadius * Math.sin(theta)
         const ringPct = Math.max(0, Math.min(100, item.value))
-        const isImage = item.icon.startsWith('http') || item.icon.startsWith('/')
+        const isImage = item.icon && (item.icon.startsWith('http') || item.icon.startsWith('/'))
+
+        const isGray = item.grayscale || isUnowned
+        const c = isGray ? disabledColors : colors
 
         return (
           <button
@@ -175,17 +178,31 @@ export default function RadialProgress({
             disabled={item.disabled}
             title={item.label}
             className={`absolute transition-transform duration-300 ${item.disabled ? 'cursor-not-allowed' : 'hover:scale-110 cursor-pointer'}`}
-            style={{ width: middleSize, left: x - middleSize / 2, top: y - middleSize / 2, background: 'transparent', border: 'none', padding: 0, opacity: item.disabled ? 0.4 : 1, filter: item.grayscale ? 'grayscale(100%)' : 'none' }}
+            style={{ width: middleSize, left: x - middleSize / 2, top: y - middleSize / 2, background: 'transparent', border: 'none', padding: 0, opacity: item.disabled ? 0.6 : 1, filter: isGray ? 'grayscale(100%)' : 'none' }}
           >
             <div className="relative" style={{ width: middleSize, height: middleSize }}>
-              <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(${colors.secondary} 0deg ${ringPct * 3.6}deg, ${colors.main} ${ringPct * 3.6}deg 360deg)`, border: `2px solid ${colors.secondary}`, boxSizing: 'border-box' }} />
-              <div className="absolute rounded-full" style={{ top: middleSize * 0.16, left: middleSize * 0.16, right: middleSize * 0.16, bottom: middleSize * 0.16, backgroundColor: colors.main, border: `2px solid ${colors.secondary}`, boxSizing: 'border-box' }} />
+              <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(${c.secondary} 0deg ${ringPct * 3.6}deg, ${c.main} ${ringPct * 3.6}deg 360deg)`, border: `2px solid ${c.secondary}`, boxSizing: 'border-box' }} />
+              <div className="absolute rounded-full" style={{ top: middleSize * 0.16, left: middleSize * 0.16, right: middleSize * 0.16, bottom: middleSize * 0.16, backgroundColor: c.main, border: `2px solid ${c.secondary}`, boxSizing: 'border-box' }} />
+
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" style={{ fontSize: middleSize * 0.4, lineHeight: 1, paddingBottom: middleSize * 0.1 }}>
-                {isImage ? <img src={item.icon} alt="" className="w-[75%] h-[75%] object-contain" /> : item.icon}
+                {isImage ? (
+                  <img src={item.icon} alt="" className="w-[75%] h-[75%] object-contain" />
+                ) : item.isArtifact ? (
+                  <ArtifactIcon
+                    type={item.key}
+                    size={middleSize * 0.38}
+                    color={isGray ? c.accent : colors.accent}
+                    outlineColor={isGray ? c.secondary : colors.secondary}
+                    outlineWidth={1}
+                    glowColor={isGray ? undefined : colors.main}
+                  />
+                ) : (
+                  item.icon
+                )}
               </div>
 
               {!item.hideValue && (
-                <div className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none flex items-start" style={{ bottom: middleSize * 0.06, fontSize: middleSize * 0.22, color: colors.accent, textShadow: `0 0 2px ${colors.secondary}, 0 0 4px ${colors.secondary}88`, fontFamily: "'Comic Sans MS', 'Comic Sans', cursive", lineHeight: 1, fontWeight: 900 }}>
+                <div className="absolute left-1/2 -translate-x-1/2 font-bold pointer-events-none flex items-start" style={{ bottom: middleSize * 0.06, fontSize: middleSize * 0.22, color: c.accent, textShadow: `0 0 2px ${c.secondary}, 0 0 4px ${c.secondary}88`, fontFamily: "'Comic Sans MS', 'Comic Sans', cursive", lineHeight: 1, fontWeight: 900 }}>
                   {item.rawValue != null && item.rawValue !== '' ? (
                     <>
                       <span>{item.rawValue}</span>
@@ -195,7 +212,7 @@ export default function RadialProgress({
                 </div>
               )}
             </div>
-            <div className="absolute left-1/2 -translate-x-1/2 text-[10px] whitespace-nowrap pointer-events-none" style={{ top: middleSize + 2, color: colors.accent }}>
+            <div className="absolute left-1/2 -translate-x-1/2 text-[10px] whitespace-nowrap pointer-events-none" style={{ top: middleSize + 2, color: c.accent }}>
               {item.label}
             </div>
           </button>
@@ -216,18 +233,9 @@ export default function RadialProgress({
           opacity: isUnowned ? 0.6 : 1,
         }}
       >
-        <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(${colors.secondary} 0deg ${Math.min(100, total) * 3.6}deg, ${colors.main} ${Math.min(100, total) * 3.6}deg 360deg)`, border: `3px solid ${colors.secondary}`, boxSizing: 'border-box' }} />
-        <div className="absolute rounded-full flex items-center justify-center" style={{ top: centerSize * 0.14, left: centerSize * 0.14, right: centerSize * 0.14, bottom: centerSize * 0.14, backgroundColor: colors.main, border: `3px solid ${colors.secondary}`, boxSizing: 'border-box' }}>
-          <span
-            className="font-bold leading-none"
-            style={{
-              color: colors.secondary,
-              fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
-              // УМЕНЬШАЕМ ШРИФТ В ЦЕНТРЕ, ЕСЛИ 100+
-              fontSize: total >= 100 ? centerSize * 0.24 : centerSize * 0.32,
-              textShadow: `0 0 4px ${colors.accent}`
-            }}
-          >
+        <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(${isUnowned ? disabledColors.secondary : colors.secondary} 0deg ${Math.min(100, total) * 3.6}deg, ${isUnowned ? disabledColors.main : colors.main} ${Math.min(100, total) * 3.6}deg 360deg)`, border: `3px solid ${isUnowned ? disabledColors.secondary : colors.secondary}`, boxSizing: 'border-box' }} />
+        <div className="absolute rounded-full flex items-center justify-center" style={{ top: centerSize * 0.14, left: centerSize * 0.14, right: centerSize * 0.14, bottom: centerSize * 0.14, backgroundColor: isUnowned ? disabledColors.main : colors.main, border: `3px solid ${isUnowned ? disabledColors.secondary : colors.secondary}`, boxSizing: 'border-box' }}>
+          <span className="font-bold leading-none" style={{ color: isUnowned ? disabledColors.secondary : colors.secondary, fontFamily: "'Comic Sans MS', 'Comic Sans', cursive", fontSize: total >= 100 ? centerSize * 0.24 : centerSize * 0.32, textShadow: `0 0 4px ${isUnowned ? disabledColors.accent : colors.accent}` }}>
             {Math.round(total)}%
           </span>
         </div>

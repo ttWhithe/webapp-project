@@ -53,24 +53,34 @@ export default function CharactersPage() {
 
     if (filters.region) {
       if (filters.region === 'none') {
-        // Показываем только тех, у кого регион пустой (null, undefined или '')
         result = result.filter(c => !c.region)
       } else {
         result = result.filter(c => c.region === filters.region)
       }
     }
 
-    // 2. Сортировка (Сначала мои, потом остальные)
+    // 2. Сортировка
     return result.sort((a, b) => {
       const aHas = progressMap.has(a.id) ? 1 : 0
       const bHas = progressMap.has(b.id) ? 1 : 0
 
-      if (aHas !== bHas) return bHas - aHas
+      // Приоритет 1: Сначала "Мои", потом "Остальные"
+      if (aHas !== bHas) {
+        return bHas - aHas
+      }
 
-      // Внутри группы
+      // Приоритет 2: Если ОБА персонажа "Мои", сортируем по прогрессу (сначала 100%)
+      if (aHas === 1 && bHas === 1) {
+        const aProg = progressMap.get(a.id)?.progress || 0
+        const bProg = progressMap.get(b.id)?.progress || 0
+        if (aProg !== bProg) {
+          return bProg - aProg
+        }
+      }
+
+      // Приоритет 3: Внутри группы применяем выбранный фильтр (имя, редкость, дата)
       if (filters.sort === 'rarity_desc') return b.rarity - a.rarity
       if (filters.sort === 'release_date_desc') {
-        // Сортируем по дате. Если даты нет, кидаем в конец.
         const dateA = a.release_date ? new Date(a.release_date).getTime() : 0
         const dateB = b.release_date ? new Date(b.release_date).getTime() : 0
         return dateB - dateA

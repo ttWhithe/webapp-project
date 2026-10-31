@@ -1,75 +1,41 @@
 import { ELEMENT_HEX, RARITY_BG_MAP } from '@/shared/lib/catalog-meta'
 import CircularProgress from '@/shared/ui/CircularProgress'
 import EquipmentSlotButton from '@/shared/ui/EquipmentSlotButton'
-import { ARTIFACT_MAX_LEVEL, ARTIFACT_MAIN_STATS, ARTIFACT_SUB_STATS, EQUIPMENT_SLOTS, PLACEHOLDER_ICONS } from '../constants'
+import ArtifactIcon from '@/shared/ui/ArtifactIcon'
+import { ARTIFACT_MAX_LEVEL, ARTIFACT_MAIN_STATS, ARTIFACT_SUB_STATS, EQUIPMENT_SLOTS } from '../constants' // <--- Убрали PLACEHOLDER_ICONS
 import { getSetSlotIcon } from '../utils'
 import { RefinementArc } from '../components/RefinementArc'
 import { RarityArc } from '../components/RarityArc'
 import { SimpleSlider } from '../components/SimpleSlider'
 import type { UserArtifactRead } from '@/shared/api/types'
 
-// Компонент для красивого фона сетов артефактов
 function ArtifactSetBackground({ minR, maxR }: { minR: number, maxR: number }) {
   if (minR === maxR || minR >= maxR) {
     return <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[minR] || RARITY_BG_MAP[5]})` }} />
   }
-
   if (maxR - minR === 1) {
     return (
       <>
         <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[maxR]})` }} />
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-80"
-          style={{
-            backgroundImage: `url(${RARITY_BG_MAP[minR]})`,
-            clipPath: 'polygon(0 0, 100% 0, 0 100%)'
-          }}
-        />
+        <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[minR]})`, clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
       </>
     )
   }
-
   if (maxR - minR >= 2) {
     const midR = minR + 1
     return (
       <>
         <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[maxR]})` }} />
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-80"
-          style={{
-            backgroundImage: `url(${RARITY_BG_MAP[midR]})`,
-            WebkitMaskImage: 'conic-gradient(from 180deg, black 0deg 120deg, transparent 120deg 360deg)'
-          }}
-        />
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-80"
-          style={{
-            backgroundImage: `url(${RARITY_BG_MAP[minR]})`,
-            WebkitMaskImage: 'conic-gradient(from 300deg, black 0deg 120deg, transparent 120deg 360deg)'
-          }}
-        />
+        <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[midR]})`, WebkitMaskImage: 'conic-gradient(from 180deg, black 0deg 120deg, transparent 120deg 360deg)' }} />
+        <div className="absolute inset-0 bg-cover bg-center opacity-80" style={{ backgroundImage: `url(${RARITY_BG_MAP[minR]})`, WebkitMaskImage: 'conic-gradient(from 300deg, black 0deg 120deg, transparent 120deg 360deg)' }} />
       </>
     )
   }
-
   return null
 }
 
 export function ZoneWeaponArtifacts({
-  character,
-  detail,
-  draft,
-  progress,
-  onUpdate,
-  goTo,
-  isSaving,
-  lastSaved,
-  artifactSets,
-  weapons,
-  defaultWeapon,
-  weaponsQuery,
-  selectedSlot,
-  setSelectedSlot
+  character, detail, draft, progress, onUpdate, goTo, isSaving, lastSaved, artifactSets, weapons, defaultWeapon, weaponsQuery, selectedSlot, setSelectedSlot
 }: any) {
   const colors = ELEMENT_HEX[character.element as keyof typeof ELEMENT_HEX]
 
@@ -87,12 +53,8 @@ export function ZoneWeaponArtifacts({
   const selectedWeapon = draft.weapon_id ? weapons.find((w: any) => w.id === draft.weapon_id) : defaultWeapon
   const displayWeaponIcon = selectedWeapon?.icon_url
 
-  // Получаем доступные Main Stats для текущего слота
   const availableMainStats = ARTIFACT_MAIN_STATS[selectedSlot] || []
-  // Для цветка и пера Main Stat нельзя изменить
   const isMainStatLocked = selectedSlot === 'flower' || selectedSlot === 'plume'
-
-  // Если слот залочен, показываем дефолтное значение (HP/ATK), иначе берем из БД
   const displayMainStat = isMainStatLocked ? availableMainStats[0] : (currentArtifact?.main_stat || '')
 
   function handleArtifactUpdate(updates: Partial<UserArtifactRead> | null) {
@@ -105,9 +67,8 @@ export function ZoneWeaponArtifacts({
       return
     }
 
-    // Если меняется Main Stat, нужно убрать этот стат из Sub Stats, чтобы не было дубликата
     if (updates.main_stat && idx >= 0) {
-      updates.substats = (newArtifacts[idx].substats || []).filter(s => s.stat !== updates.main_stat)
+      updates.substats = (newArtifacts[idx].substats || []).filter((s: any) => s.stat !== updates.main_stat)
     }
 
     let finalLevel = updates.level !== undefined ? updates.level : (idx >= 0 ? Math.max(1, newArtifacts[idx].level) : 1)
@@ -118,14 +79,12 @@ export function ZoneWeaponArtifacts({
     if (finalLevel < 1) finalLevel = 1
 
     if (idx >= 0) {
-      // Если артефакт уже есть, но у него пустой main_stat (например, цветок), принудительно ставим дефолт
-      let finalMainStat = newArtifacts[idx].main_stat
+      let finalMainStat = updates.main_stat !== undefined ? updates.main_stat : newArtifacts[idx].main_stat
       if (!finalMainStat && selectedSlot === 'flower') finalMainStat = 'HP'
       if (!finalMainStat && selectedSlot === 'plume') finalMainStat = 'ATK'
 
       newArtifacts[idx] = { ...newArtifacts[idx], ...updates, level: finalLevel, main_stat: finalMainStat }
     } else {
-      // При создании артефакта сразу ставим дефолтный main_stat для цветка/пера
       const defaultMain = selectedSlot === 'flower' ? 'HP' : selectedSlot === 'plume' ? 'ATK' : (updates.main_stat || null)
 
       newArtifacts.push({
@@ -138,17 +97,15 @@ export function ZoneWeaponArtifacts({
     onUpdate('artifacts', newArtifacts)
   }
 
-  // Функция для получения доступных Sub Stats для конкретного инпута
   const getAvailableSubStats = (currentIndex: number) => {
-    // Собираем статы, которые уже заняты в ДРУГИХ слотах
     const usedStats = (currentArtifact?.substats || [])
-      .filter((_, idx) => idx !== currentIndex)
+      .filter((_: any, idx: number) => idx !== currentIndex)
       .map((s: any) => s.stat)
 
     return ARTIFACT_SUB_STATS.filter(
       (s) =>
-        s !== currentArtifact?.main_stat && // Не должен совпадать с Main Stat
-        !usedStats.includes(s) // Не должен дублироваться в других Sub Stats
+        s !== currentArtifact?.main_stat &&
+        !usedStats.includes(s)
     )
   }
 
@@ -168,42 +125,42 @@ export function ZoneWeaponArtifacts({
   }
 
   return (
-    <section className="h-screen relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
+    <section className="h-full relative overflow-hidden" style={{ background: `radial-gradient(ellipse at center, ${colors.secondary}40 0%, #0f172a 70%)` }}>
       <div className="h-full w-full max-w-[1800px] mx-auto px-6 py-6 flex flex-col gap-5">
-
-        {/* Header row */}
-        <div className="flex items-center justify-between gap-4 shrink-0">
+        <div className="flex flex-wrap items-center justify-between gap-4 w-full shrink-0">
           <div className="flex items-center gap-4 shrink-0">
             {character.icon_url && <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0" style={{ border: `2px solid ${colors.secondary}`, boxShadow: `0 0 20px ${colors.main}66` }}><img src={character.icon_url} alt={character.name} className="w-full h-full object-cover" /></div>}
             <div><h2 className="text-2xl font-bold whitespace-nowrap" style={{ fontFamily: "'Comic Sans MS', 'Comic Sans', cursive" }}>{character.name_ru || character.name}</h2><p className="text-sm text-slate-400">Экипировка</p></div>
           </div>
 
           <div className="flex items-center gap-2">
-            <EquipmentSlotButton
-              icon={EQUIPMENT_SLOTS[0].icon}
-              customIconUrl={displayWeaponIcon}
-              label={EQUIPMENT_SLOTS[0].label}
-              selected={selectedSlot === 'weapon'}
-              filled={!!draft.weapon_id || !!defaultWeapon}
-              progress={weaponPct}
-              levelText={draft.weapon_level != null ? String(draft.weapon_level) : undefined}
-              stars={refinement}
-              colors={colors}
-              onClick={() => setSelectedSlot('weapon')}
-            />
+            <EquipmentSlotButton icon={EQUIPMENT_SLOTS[0].icon} customIconUrl={displayWeaponIcon} label={EQUIPMENT_SLOTS[0].label} selected={selectedSlot === 'weapon'} filled={!!draft.weapon_id || !!defaultWeapon} progress={weaponPct} levelText={draft.weapon_level != null ? String(draft.weapon_level) : undefined} stars={refinement} colors={colors} onClick={() => setSelectedSlot('weapon')} />
             <div className="h-16 w-[3px] rounded-full" style={{ backgroundColor: colors.secondary }} />
 
             {EQUIPMENT_SLOTS.slice(1).map((slot) => {
               const a = draft.artifacts.find((x: UserArtifactRead) => x.slot === slot.key)
               const set = artifactSets.find((s: any) => s.id === a?.set_id)
               const isNone = !a || a.set_id === 'none'
-
-              const iconUrl = (!isNone && set) ? getSetSlotIcon(set, slot.key) : PLACEHOLDER_ICONS[slot.key]
+              // Убрали PLACEHOLDER_ICONS, теперь передаем undefined, если пусто
+              const iconUrl = (!isNone && set) ? getSetSlotIcon(set, slot.key) : undefined
               const pct = a && !isNone ? (a.level / (ARTIFACT_MAX_LEVEL[a.rarity] || 20)) * 100 : 0
               const lvlText = a && !isNone ? String(Math.max(1, a.level)) : undefined
 
               return (
-                <EquipmentSlotButton key={slot.key} icon={slot.icon} customIconUrl={iconUrl} label={slot.label} selected={selectedSlot === slot.key} filled={!isNone} progress={pct} levelText={lvlText} colors={colors} onClick={() => setSelectedSlot(slot.key)} />
+                <EquipmentSlotButton
+                  key={slot.key}
+                  icon={slot.icon}
+                  customIconUrl={iconUrl}
+                  isArtifact={isNone} // <--- ПЕРЕДАЕМ ФЛАГ
+                  artifactType={slot.key} // <--- ПЕРЕДАЕМ ТИП
+                  label={slot.label}
+                  selected={selectedSlot === slot.key}
+                  filled={!isNone}
+                  progress={pct}
+                  levelText={lvlText}
+                  colors={colors}
+                  onClick={() => setSelectedSlot(slot.key)}
+                />
               )
             })}
 
@@ -217,27 +174,24 @@ export function ZoneWeaponArtifacts({
             </button>
           </div>
 
-          <div className="flex items-center gap-4 shrink-0 justify-end min-w-[300px]">
+          <div className="flex-1 flex flex-col items-end justify-center min-w-[250px]">
             {activeBonuses.length > 0 && (
-              <div className="bg-indigo-950/60 p-2 rounded-xl border border-indigo-700/50 flex flex-col gap-1 max-w-[250px] shadow-lg">
+              <div className="bg-indigo-950/60 p-3 rounded-xl border border-indigo-700/50 flex flex-col gap-1.5 w-full shadow-lg">
                 <h3 className="text-[10px] uppercase tracking-wider font-bold text-indigo-300">Активные бонусы:</h3>
                 {activeBonuses.map((b, i) => (
-                  <div key={i} className="text-[11px] text-slate-300 leading-tight">
+                  <div key={i} className="text-[11px] text-slate-300 leading-snug whitespace-normal break-words">
                     <span className="font-semibold text-indigo-200">{b.set}</span> — {b.text}
                   </div>
                 ))}
               </div>
             )}
-            <div className="text-xs text-slate-400 shrink-0 min-w-[100px] text-right">
+            <div className="text-xs text-slate-400 mt-2 text-right w-full">
               {isSaving ? <span className="text-yellow-400">● Сохранение...</span> : lastSaved ? <span className="text-green-400">✓ Сохранено {lastSaved.toLocaleTimeString().slice(0, 5)}</span> : null}
             </div>
           </div>
         </div>
 
-        {/* Main content */}
         <div className="flex-1 min-h-0 grid grid-cols-[380px_1fr] gap-6">
-
-          {/* LEFT: big circle, stats, set bonuses */}
           <div className="flex flex-col items-center gap-3 relative overflow-y-auto pr-2 pb-4 scrollbar-thin scrollbar-thumb-slate-700">
             <div className="relative flex items-center justify-center shrink-0" style={{ width: 340, height: 340 }}>
               <div className="relative" style={{ width: 240, height: 240 }}>
@@ -246,7 +200,15 @@ export function ZoneWeaponArtifacts({
                 {selectedSlot === 'weapon' && displayWeaponIcon ? (
                   <img src={displayWeaponIcon} alt="weapon" className="absolute rounded-full object-cover pointer-events-none" style={{ top: '18%', left: '18%', width: '64%', height: '64%' }} />
                 ) : isPlaceholder ? (
-                  <img src={PLACEHOLDER_ICONS[selectedSlot]} alt="placeholder" className="absolute rounded-full object-cover pointer-events-none opacity-50" style={{ top: '18%', left: '18%', width: '64%', height: '64%' }} />
+                  <ArtifactIcon
+                    type={selectedSlot}
+                    className="absolute inset-0 m-auto pointer-events-none opacity-80"
+                    size={110} // <--- ОСТАВИЛИ 110
+                    color={colors.accent}
+                    outlineColor={colors.secondary}
+                    outlineWidth={1.5} // <--- ВЕРНУЛИ 1.5
+                    glowColor={colors.main}
+                  />
                 ) : artifactIcon ? (
                   <img src={artifactIcon} alt="artifact" className="absolute rounded-full object-cover pointer-events-none" style={{ top: '18%', left: '18%', width: '64%', height: '64%' }} />
                 ) : (
@@ -260,14 +222,7 @@ export function ZoneWeaponArtifacts({
                 {selectedSlot === 'weapon' ? (
                   <RefinementArc value={refinement} colors={colors} size={240} onChange={(v) => onUpdate('weapon_refinement', v)} />
                 ) : (
-                  <RarityArc
-                    value={isPlaceholder ? 0 : (currentArtifact?.rarity || 5)}
-                    minRarity={isPlaceholder ? 0 : (currentSetInfo?.min_rarity || 1)}
-                    maxRarity={isPlaceholder ? 0 : (currentSetInfo?.max_rarity || 5)}
-                    colors={colors}
-                    size={240}
-                    onChange={(r) => !isPlaceholder && handleArtifactUpdate({ rarity: r })}
-                  />
+                  <RarityArc value={isPlaceholder ? 0 : (currentArtifact?.rarity || 5)} minRarity={isPlaceholder ? 0 : (currentSetInfo?.min_rarity || 1)} maxRarity={isPlaceholder ? 0 : (currentSetInfo?.max_rarity || 5)} colors={colors} size={240} onChange={(r) => !isPlaceholder && handleArtifactUpdate({ rarity: r })} />
                 )}
               </div>
             </div>
@@ -278,24 +233,11 @@ export function ZoneWeaponArtifacts({
               </div>
             ) : (
               <div className="w-full flex flex-col gap-3 shrink-0">
-                <SimpleSlider
-                  label={`Уровень артефакта`}
-                  value={isPlaceholder ? 1 : Math.max(1, currentArtifact?.level || 1)}
-                  min={1}
-                  max={isPlaceholder ? 1 : (ARTIFACT_MAX_LEVEL[currentArtifact?.rarity || 5] || 20)}
-                  onChange={(v) => !isPlaceholder && handleArtifactUpdate({ level: v })}
-                  colors={colors}
-                  disabled={isPlaceholder}
-                />
+                <SimpleSlider label={`Уровень артефакта`} value={isPlaceholder ? 1 : Math.max(1, currentArtifact?.level || 1)} min={1} max={isPlaceholder ? 1 : (ARTIFACT_MAX_LEVEL[currentArtifact?.rarity || 5] || 20)} onChange={(v) => !isPlaceholder && handleArtifactUpdate({ level: v })} colors={colors} disabled={isPlaceholder} />
 
                 <div className={`bg-slate-900/60 p-3 rounded-xl border border-slate-700 flex flex-col gap-2 ${isPlaceholder ? 'opacity-50 pointer-events-none' : ''}`}>
                   <label className="text-xs text-slate-400 font-semibold">Основная характеристика (Main Stat)</label>
-                  <select
-                    value={displayMainStat}
-                    onChange={(e) => handleArtifactUpdate({ main_stat: e.target.value })}
-                    className="bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white disabled:opacity-50"
-                    disabled={isMainStatLocked}
-                  >
+                  <select value={displayMainStat} onChange={(e) => handleArtifactUpdate({ main_stat: e.target.value })} className="bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white disabled:opacity-50" disabled={isMainStatLocked}>
                     <option value="">— Не выбрано —</option>
                     {availableMainStats.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
@@ -307,63 +249,23 @@ export function ZoneWeaponArtifacts({
                     const options = getAvailableSubStats(i)
                     return (
                       <div key={i} className="flex gap-2">
-                        <select
-                          value={sub.stat || ''}
-                          onChange={(e) => {
-                            const newSubs = [...currentArtifact.substats]
-                            newSubs[i].stat = e.target.value
-                            handleArtifactUpdate({ substats: newSubs })
-                          }}
-                          className="bg-slate-800 border border-slate-600 rounded p-1 text-sm text-white flex-1"
-                        >
+                        <select value={sub.stat || ''} onChange={(e) => { const newSubs = [...currentArtifact.substats]; newSubs[i].stat = e.target.value; handleArtifactUpdate({ substats: newSubs }) }} className="bg-slate-800 border border-slate-600 rounded p-1 text-sm text-white flex-1">
                           <option value="">—</option>
                           {options.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
-                        <input
-                          type="text"
-                          value={sub.value || ''}
-                          onChange={(e) => {
-                            const newSubs = [...currentArtifact.substats]
-                            newSubs[i].value = e.target.value
-                            handleArtifactUpdate({ substats: newSubs })
-                          }}
-                          className="bg-slate-800 border border-slate-600 rounded p-1 text-sm text-white w-20"
-                          placeholder="+10%"
-                        />
-                        <button
-                          onClick={() => {
-                            const newSubs = currentArtifact.substats.filter((_: any, idx: number) => idx !== i)
-                            handleArtifactUpdate({ substats: newSubs })
-                          }}
-                          className="text-red-400 px-2 hover:bg-slate-800 rounded"
-                        >
-                          ✕
-                        </button>
+                        <input type="text" value={sub.value || ''} onChange={(e) => { const newSubs = [...currentArtifact.substats]; newSubs[i].value = e.target.value; handleArtifactUpdate({ substats: newSubs }) }} className="bg-slate-800 border border-slate-600 rounded p-1 text-sm text-white w-20" placeholder="+10%" />
+                        <button onClick={() => { const newSubs = currentArtifact.substats.filter((_: any, idx: number) => idx !== i); handleArtifactUpdate({ substats: newSubs }) }} className="text-red-400 px-2 hover:bg-slate-800 rounded">✕</button>
                       </div>
                     )
                   })}
                   {(currentArtifact?.substats?.length || 0) < 4 && (
-                    <button
-                      onClick={() => {
-                        const usedStats = (currentArtifact?.substats || []).map((s: any) => s.stat)
-                        const firstAvailable = ARTIFACT_SUB_STATS.find(s =>
-                          s !== currentArtifact?.main_stat && !usedStats.includes(s)
-                        ) || 'HP'
-
-                        const newSubs = [...(currentArtifact?.substats || []), { stat: firstAvailable, value: '' }]
-                        handleArtifactUpdate({ substats: newSubs })
-                      }}
-                      className="text-teal-400 text-xs text-left hover:underline mt-1"
-                    >
-                      + Добавить сабстат
-                    </button>
+                    <button onClick={() => { const usedStats = (currentArtifact?.substats || []).map((s: any) => s.stat); const firstAvailable = ARTIFACT_SUB_STATS.find(s => s !== currentArtifact?.main_stat && !usedStats.includes(s)) || 'HP'; const newSubs = [...(currentArtifact?.substats || []), { stat: firstAvailable, value: '' }]; handleArtifactUpdate({ substats: newSubs }) }} className="text-teal-400 text-xs text-left hover:underline mt-1">+ Добавить сабстат</button>
                   )}
                 </div>
               </div>
             )}
           </div>
 
-          {/* RIGHT: Grid of weapons or sets */}
           <div className="relative rounded-xl border border-slate-700 bg-slate-900/40 overflow-hidden flex flex-col">
             <div className="p-3 border-b border-slate-700 bg-slate-800/80">
                <h3 className="font-semibold text-slate-200">{selectedSlot === 'weapon' ? 'Выбор оружия' : 'Выбор сета артефактов'}</h3>
@@ -375,25 +277,10 @@ export function ZoneWeaponArtifacts({
                     {weapons.map((w: any) => {
                       const isSelected = draft.weapon_id === w.id
                       return (
-                        <button
-                          key={w.id}
-                          type="button"
-                          onClick={() => { onUpdate('weapon_id', w.id); if (draft.weapon_id !== w.id) { onUpdate('weapon_level', 1); onUpdate('weapon_refinement', 1); } }}
-                          title={w.name}
-                          className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col"
-                          style={{
-                            border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`,
-                            boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none',
-                            backgroundImage: `url(${RARITY_BG_MAP[w.rarity]})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center'
-                          }}
-                        >
+                        <button key={w.id} type="button" onClick={() => { onUpdate('weapon_id', w.id); if (draft.weapon_id !== w.id) { onUpdate('weapon_level', 1); onUpdate('weapon_refinement', 1); } }} title={w.name} className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col" style={{ border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`, boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none', backgroundImage: `url(${RARITY_BG_MAP[w.rarity]})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                           {w.icon_url && <img src={w.icon_url} alt={w.name} loading="lazy" className="w-full h-full object-contain p-1 pb-6 drop-shadow-md z-10" />}
                           <div className="absolute top-1 right-1 px-1 rounded text-[10px] font-bold z-20" style={{ backgroundColor: colors.secondary, color: '#fde047' }}>★{w.rarity}</div>
-                          <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1 z-20">
-                            <span className="text-[10px] text-white font-medium truncate block text-center w-full">{w.name}</span>
-                          </div>
+                          <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1 z-20"><span className="text-[10px] text-white font-medium truncate block text-center w-full">{w.name}</span></div>
                         </button>
                       )
                     })}
@@ -401,44 +288,24 @@ export function ZoneWeaponArtifacts({
                 )
               ) : (
                 <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => handleArtifactUpdate(null)}
-                    title="Убрать артефакт"
-                    className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col bg-slate-700"
-                    style={{ border: `${isPlaceholder ? 4 : 2}px solid ${isPlaceholder ? colors.accent : colors.secondary}`, boxShadow: isPlaceholder ? `0 0 20px ${colors.accent}88` : 'none' }}
-                  >
-                    <img src={PLACEHOLDER_ICONS[selectedSlot]} alt="Нет" loading="lazy" className="w-full h-full object-cover pb-8 opacity-60 z-10" />
-                    <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1.5 z-20">
-                      <span className="text-[10px] text-white font-medium truncate block text-center w-full">— Нет —</span>
-                    </div>
+                  <button type="button" onClick={() => handleArtifactUpdate(null)} title="Убрать артефакт" className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col bg-slate-700" style={{ border: `${isPlaceholder ? 4 : 2}px solid ${isPlaceholder ? colors.accent : colors.secondary}`, boxShadow: isPlaceholder ? `0 0 20px ${colors.accent}88` : 'none' }}>
+                    <ArtifactIcon
+                      type={selectedSlot}
+                      className="absolute inset-0 m-auto w-[50%] h-[50%] opacity-80 z-10"
+                      color={colors.accent}
+                      outlineColor={colors.secondary}
+                      outlineWidth={0.8}
+                    />
+                    <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1.5 z-20"><span className="text-[10px] text-white font-medium truncate block text-center w-full">— Нет —</span></div>
                   </button>
 
                   {artifactSets.map((s: any) => {
                     const isSelected = currentArtifact?.set_id === s.id
                     return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => handleArtifactUpdate({ set_id: s.id, set_name: s.name, set_slug: s.slug, rarity: Math.min(Math.max(currentArtifact?.rarity || 5, s.min_rarity || 1), s.max_rarity || 5) })}
-                        title={s.name}
-                        className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col"
-                        style={{
-                          border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`,
-                          boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none'
-                        }}
-                      >
+                      <button key={s.id} type="button" onClick={() => handleArtifactUpdate({ set_id: s.id, set_name: s.name, set_slug: s.slug, rarity: Math.min(Math.max(currentArtifact?.rarity || 5, s.min_rarity || 1), s.max_rarity || 5) })} title={s.name} className="relative aspect-square rounded-lg overflow-hidden transition-transform duration-200 cursor-pointer hover:scale-105 flex flex-col" style={{ border: `${isSelected ? 4 : 2}px solid ${isSelected ? colors.accent : colors.secondary}`, boxShadow: isSelected ? `0 0 20px ${colors.accent}88` : 'none' }}>
                         <ArtifactSetBackground minR={s.min_rarity || 1} maxR={s.max_rarity || 5} />
-
-                        {getSetSlotIcon(s, selectedSlot) ? (
-                          <img src={getSetSlotIcon(s, selectedSlot)!} alt={s.name} loading="lazy" className="w-full h-full object-contain p-1 pb-8 z-10 drop-shadow-md" />
-                        ) : (
-                          <div className="w-full h-full pb-8 flex items-center justify-center opacity-50 text-3xl z-10">{selectedMeta.icon}</div>
-                        )}
-
-                        <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1.5 z-20">
-                          <span className="text-[10px] text-white font-medium truncate block text-center w-full">{s.name}</span>
-                        </div>
+                        {getSetSlotIcon(s, selectedSlot) ? <img src={getSetSlotIcon(s, selectedSlot)!} alt={s.name} loading="lazy" className="w-full h-full object-contain p-1 pb-8 z-10 drop-shadow-md" /> : <div className="w-full h-full pb-8 flex items-center justify-center opacity-50 text-3xl z-10">{selectedMeta.icon}</div>}
+                        <div className="absolute bottom-0 left-0 w-full bg-black/70 backdrop-blur-sm p-1.5 z-20"><span className="text-[10px] text-white font-medium truncate block text-center w-full">{s.name}</span></div>
                       </button>
                     )
                   })}

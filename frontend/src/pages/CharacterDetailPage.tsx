@@ -129,13 +129,16 @@ export default function CharacterDetailPage() {
   const rawCharacter = catalogQuery.data
 
   // ХИТРОСТЬ: Подменяем картинки прямо в объекте, чтобы зоны их подхватили
+  const premiumUrl = getCharacterImage(rawCharacter, usePremiumImages)
   const character = {
     ...rawCharacter,
-    icon_url: getCharacterImage(rawCharacter, usePremiumImages)
+    icon_url: premiumUrl,
+    // Сохраняем оригинальный URL как fallback
+    fallback_icon_url: rawCharacter.icon_url
   }
 
   return (
-    <div className="relative w-full overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden">
 
       {/* ЗАГЛУШКА ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ */}
       <div className="flex lg:hidden h-screen items-center justify-center p-6 text-center">
@@ -152,10 +155,10 @@ export default function CharacterDetailPage() {
       </div>
 
       {/* ОСНОВНОЙ КОНТЕНТ (ТОЛЬКО ДЛЯ ПК) */}
-      <div className="hidden lg:block h-screen">
+      <div className="hidden lg:block h-full">
         <div
-          className="transition-transform duration-700 ease-in-out"
-          style={{ transform: `translateY(-${safeCurrent * 100}vh)` }}
+          className="transition-transform duration-700 ease-in-out h-full"
+          style={{ transform: `translateY(-${safeCurrent * 100}%)` }}
         >
           <ZoneHero
             character={character}

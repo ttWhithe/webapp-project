@@ -8,7 +8,7 @@ type Draft = Pick<
   | 'talent_normal' | 'talent_skill' | 'talent_burst'
   | 'custom_hp' | 'custom_atk' | 'custom_def' | 'custom_em'
   | 'custom_crit_rate' | 'custom_crit_dmg' | 'custom_energy_recharge' | 'custom_elemental_dmg_bonus'
-  | 'weapon_id' | 'weapon_level' | 'weapon_refinement'
+  | 'weapon_id' | 'weapon_level' | 'weapon_refinement' | 'masterless_stella_fortuna'
 > & { artifacts: UserArtifactRead[] }
 
 export interface UseCharacterDraftResult {
@@ -68,6 +68,7 @@ export function useCharacterDraft({
       weapon_id: detail.weapon_id,
       weapon_level: detail.weapon_level,
       weapon_refinement: detail.weapon_refinement,
+      masterless_stella_fortuna: detail.masterless_stella_fortuna || 0,
       artifacts: detail.artifacts || [],
     })
   }, [detail])
@@ -92,7 +93,18 @@ export function useCharacterDraft({
     <K extends keyof Draft>(key: K, value: Draft[K]) => {
       setDraft((prev) => {
         if (!prev) return prev
-        return { ...prev, [key]: value }
+        const next = { ...prev, [key]: value }
+
+        // АВТО-РАСЧЕТ СТЕЛЛЫ ФОРТУНЫ ПРИ ИЗМЕНЕНИИ УРОВНЯ
+        if (key === 'level') {
+          const lvl = value as number
+          // Уровни 91-95 = 1 стелла, 96-99 = 2 стеллы, 100 = 3 стеллы
+          const stella = lvl <= 90 ? 0 : lvl === 100 ? 3 : Math.min(3, Math.ceil((lvl - 90) / 4))
+          next.masterless_stella_fortuna = stella
+          pendingPatch.current['masterless_stella_fortuna'] = stella // Сохраняем на бэкенд
+        }
+
+        return next
       })
       setIsDirty(true)
       pendingPatch.current[key] = value

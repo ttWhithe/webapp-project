@@ -5,21 +5,25 @@ import { Link } from 'react-router-dom'
 
 import { catalogApi } from '@/shared/api/catalog'
 import { trackerApi } from '@/shared/api/tracker'
-import { ELEMENT_EMOJI, ELEMENT_HEX, getRarityBackground } from '@/shared/lib/catalog-meta'
+import { ELEMENT_HEX, getRarityBackground } from '@/shared/lib/catalog-meta'
 import CircularProgress from '@/shared/ui/CircularProgress'
 import LoadingSpinner from '@/shared/ui/LoadingSpinner'
 import { useSettingsStore } from '@/shared/lib/settings-store'
 import { getCharacterImage } from '@/shared/lib/image-utils'
+import ElementIcon from '@/shared/ui/ElementIcon'
+import FriendshipIcon from '@/shared/ui/FriendshipIcon'
+
+// Локальные иконки
+const CROWN_ICON = '/icons/ui/crown.png'
+const STELLA_ICON = '/icons/ui/stella_fortuna.png'
+const CONSTELLATION_STAR = '/icons/ui/constellation_star.svg'
+const FRIENDSHIP_ICON = '/icons/ui/friendship.svg'
 
 export default function Dashboard() {
-  // ==========================================
-  // НАСТРОЙКИ ШАХМАТНОГО ПОРЯДКА (МЕНЯЙ ЗДЕСЬ)
-  // ==========================================
   const ROW_SIZE = 14
   const CHAR_SIZE = 100
   const OVERLAP_Y = -50
   const ODD_ROW_OFFSET = 0
-  // ==========================================
 
   const { usePremiumImages } = useSettingsStore()
 
@@ -60,7 +64,7 @@ export default function Dashboard() {
 
     for (const item of mineQuery.data) {
       crowns += item.crowns_used
-      stella += item.masterless_stella_fortuna || 0
+      stella += item.masterless_stella_fortuna || 0 // <--- ТЕПЕРЬ РАБОТАЕТ
       totalProgress += item.progress
     }
 
@@ -115,7 +119,7 @@ export default function Dashboard() {
       {/* БЛОК СТАТИСТИКИ (ДВЕ ПОДЛОЖКИ В ОДИН РЯД) */}
       <div className="flex flex-col xl:flex-row gap-6">
 
-        {/* ПОДЛОЖКА 1: Моя статистика (занимает больше места) */}
+        {/* ПОДЛОЖКА 1: Моя статистика */}
         {stats && (
           <div className="flex-[4] bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4">
             <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">Моя статистика</h2>
@@ -128,11 +132,15 @@ export default function Dashboard() {
                 <p className="text-slate-400 text-xs mb-1">Средний прогресс</p>
                 <p className="text-2xl font-bold text-emerald-400">{stats.avgProgress}%</p>
               </div>
-              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px]">
+              {/* ВОДЯНОЙ ЗНАК КОРОНЫ */}
+              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px] relative overflow-hidden">
+                <img src={CROWN_ICON} alt="" className="absolute -right-2 -bottom-2 w-16 h-16 opacity-10 pointer-events-none" />
                 <p className="text-slate-400 text-xs mb-1">Использовано корон</p>
                 <p className="text-2xl font-bold text-yellow-400">{stats.crowns}</p>
               </div>
-              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px]">
+              {/* ВОДЯНОЙ ЗНАК STELLA FORTUNA */}
+              <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/40 flex flex-col justify-between min-h-[100px] relative overflow-hidden">
+                <img src={STELLA_ICON} alt="" className="absolute -right-2 -bottom-2 w-16 h-16 opacity-10 pointer-events-none" />
                 <p className="text-slate-400 text-xs mb-1">Masterless Stella Fortuna</p>
                 <p className="text-2xl font-bold text-purple-400">{stats.stella}</p>
               </div>
@@ -140,7 +148,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* ПОДЛОЖКА 2: Глобальная статистика (занимает меньше места) */}
+        {/* ПОДЛОЖКА 2: Глобальная статистика */}
         <div className="flex-[3] bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4">
           <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">Глобальная статистика</h2>
           <div className="grid grid-cols-3 gap-3">
@@ -177,6 +185,10 @@ export default function Dashboard() {
                 ? new Date(char.updated_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
                 : '00.00.0000'
 
+              // ЛОГИКА STELLA FORTUNA (только если уровень > 90)
+              const stellaCount = char.masterless_stella_fortuna || 0
+              const showStella = char.level > 90
+
               return (
                 <div
                   key={char.id}
@@ -199,6 +211,15 @@ export default function Dashboard() {
                     Выдан: {issueDate}
                   </div>
 
+                  {/* ВОДЯНОЙ ЗНАК СТИХИИ */}
+                  <div className="absolute inset-0 flex items-center justify-end pr-32 pointer-events-none">
+                    <ElementIcon
+                      element={char.character.element}
+                      className="w-[120%] h-[120%] opacity-10"
+                      color={colors.main}
+                    />
+                  </div>
+
                   <div className="relative p-5 h-full flex items-center justify-between">
                     <div className="flex items-center gap-4 h-[80%]">
                       <div
@@ -215,20 +236,39 @@ export default function Dashboard() {
 
                         <div className="flex flex-col gap-1.5">
                           <div className="flex items-center gap-1.5 text-sm text-slate-200 drop-shadow font-bold">
-                            <span>{ELEMENT_EMOJI[char.character.element]}</span>
+                            <ElementIcon
+                              element={char.character.element}
+                              size={16}
+                              color={colors.main}
+                              outlineColor={colors.secondary}
+                              outlineWidth={0.5}
+                            />
                             <span className="font-mono text-xs tracking-widest text-slate-300">lvl.{char.level}</span>
                           </div>
 
                           <div className="flex items-center gap-3 text-xs font-bold">
+                            {/* КОРОНЫ */}
                             <span className="flex items-center gap-1 text-yellow-300" title="Короны">
-                              <span className="text-sm">👑</span> {char.crowns_used}
+                              <img src={CROWN_ICON} alt="crown" className="w-4 h-4 drop-shadow-[0_0_2px_rgba(253,224,71,0.8)]" />
+                              {char.crowns_used}
                             </span>
+                            {/* СОЗВЕЗДИЯ */}
                             <span className="flex items-center gap-1 text-indigo-300" title="Созвездия">
-                              <span className="text-sm">C</span> {char.constellation}
+                              <img src={CONSTELLATION_STAR} alt="constellation" className="w-4 h-4" />
+                              {char.constellation}
                             </span>
+                            {/* ДРУЖБА */}
                             <span className="flex items-center gap-1 text-pink-300" title="Дружба">
-                              <span className="text-sm">💖</span> {char.friendship}
+                              <FriendshipIcon className="w-4 h-4" color="#f472b6" />
+                              {char.friendship}
                             </span>
+                            {/* STELLA FORTUNA (только если level > 90) */}
+                            {showStella && (
+                              <span className="flex items-center gap-1 text-purple-300" title="Masterless Stella Fortuna">
+                                <img src={STELLA_ICON} alt="stella" className="w-4 h-4 drop-shadow-[0_0_2px_rgba(192,132,252,0.8)]" />
+                                {stellaCount}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>

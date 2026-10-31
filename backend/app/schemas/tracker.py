@@ -156,6 +156,7 @@ class UserCharacterListItem(BaseModel):
     constellation: int
     friendship: int
     crowns_used: int
+    masterless_stella_fortuna: int
     progress: float
     updated_at: datetime | None = None
 
