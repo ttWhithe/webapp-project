@@ -4,8 +4,10 @@ We mock at the client boundary (not at HTTP level) because we're testing
 business logic — mapping, upsert, dedup, error handling — not HTTP.
 """
 
+import uuid
 from collections.abc import AsyncGenerator
 from typing import Any
+from unittest.mock import AsyncMock
 
 import pytest_asyncio
 from sqlalchemy import select
@@ -247,3 +249,56 @@ class TestSyncAll:
 
         assert stats.added == 0
         assert stats.failed == 0
+
+
+class TestCatalogSyncEdgeCases:
+    async def test_artifacts_sync_fails_gracefully(self, db_session: AsyncSession) -> None:
+        # Мокаем клиент, чтобы list_artifacts выбросил ошибку
+        client = AsyncMock()
+        client.list_artifacts.side_effect = GenshinDbClientError("API down")
+
+        service = CatalogSyncService(db_session, client)
+        stats = await service.sync_artifacts()
+
+        # Должен вернуть пустую статистику и не упасть
+        assert stats.added == 0
+        assert stats.failed == 0
+
+    async def test_upsert_skips_manually_edited(self, db_session: AsyncSession) -> None:
+        # Создаем запись, которая выглядит как "отредактированная вручную"
+        from datetime import UTC, datetime, timedelta
+
+        from app.models.character import Character
+        from app.models.enums import Element, WeaponType
+
+        char = Character(
+            id=uuid.uuid4(),
+            external_id=123,
+            slug="test",
+            name="Test",
+            title="Original Title",
+            element=Element.PYRO,
+            weapon_type=WeaponType.SWORD,
+            rarity=5,
+            created_at=datetime.now(UTC) - timedelta(days=1),
+            updated_at=datetime.now(UTC),  # Обновлено позже создания
+        )
+        db_session.add(char)
+        await db_session.commit()
+
+        client = AsyncMock()
+        service = CatalogSyncService(db_session, client)
+
+        # Мокаем внешние данные
+        ext = AsyncMock()
+        ext.id = 123
+        ext.name = "Test Updated"
+        ext.element_type = "Pyro"
+        ext.weapon_type = "Sword"
+        ext.rarity = 5
+
+        # Вызываем upsert
+        await service._upsert_character(ext)
+
+        # Проверяем, что title не изменился (так как запись "ручная")
+        assert char.title == "Original Title"

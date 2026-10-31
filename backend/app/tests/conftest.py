@@ -102,6 +102,9 @@ async def db_session(_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]
         await conn.execute(text("DELETE FROM characters"))
         await conn.execute(text("DELETE FROM weapons"))
         await conn.execute(text("DELETE FROM artifact_sets"))
+        await conn.execute(text("DELETE FROM progress_weights"))
+        await conn.execute(text("DELETE FROM payments"))
+        await conn.execute(text("DELETE FROM subscriptions"))
 
 
 @pytest_asyncio.fixture
@@ -147,10 +150,14 @@ async def async_client(
         yield client
 
     async with _engine.begin() as conn:
-        await conn.execute(text("DELETE FROM user_artifacts"))
-        await conn.execute(text("DELETE FROM user_characters"))
+        await conn.execute(text("DELETE FROM users"))
         await conn.execute(text("DELETE FROM characters"))
         await conn.execute(text("DELETE FROM weapons"))
         await conn.execute(text("DELETE FROM artifact_sets"))
-        await conn.execute(text("DELETE FROM users"))
+        await conn.execute(text("DELETE FROM progress_weights"))
+        await conn.execute(text("DELETE FROM payments"))
+        await conn.execute(text("DELETE FROM subscriptions"))
+        await conn.execute(text("DELETE FROM user_artifacts"))
+        await conn.execute(text("DELETE FROM user_characters"))
+
     app.dependency_overrides.clear()

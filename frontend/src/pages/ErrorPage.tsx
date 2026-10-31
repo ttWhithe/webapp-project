@@ -6,22 +6,22 @@ export default function ErrorPage() {
 
   let title = 'Что-то пошло не так'
   let message = 'Произошла непредвиденная ошибка.'
-  let icon = '💥'
+  let iconSrc = '/icons/errors/generic.png'
 
   // Определяем тип ошибки
   if (isRouteErrorResponse(error)) {
     if (error.status === 404) {
       title = 'Страница не найдена'
       message = 'Похоже, эта страница потерялась в Бездне. Возможно, она была удалена или вы ошиблись с адресом.'
-      icon = '🧭'
+      iconSrc = '/icons/errors/404.png'
     } else if (error.status === 401 || error.status === 403) {
       title = 'Доступ запрещен'
       message = 'У вас нет прав для просмотра этой страницы. Пожалуйста, войдите в аккаунт.'
-      icon = '🔒'
+      iconSrc = '/icons/errors/401.png'
     } else if (error.status === 500) {
       title = 'Ошибка сервера'
       message = 'Наши сервера прилегли отдохнуть. Мы уже чиним это, попробуйте обновить страницу позже.'
-      icon = '🔧'
+      iconSrc = '/icons/errors/500.png'
     }
   } else if (error instanceof Error) {
     // Ошибки JS (например, TypeError)
@@ -30,7 +30,11 @@ export default function ErrorPage() {
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 text-center select-none">
-      <div className="text-8xl mb-8 animate-bounce">{icon}</div>
+      <img
+        src={iconSrc}
+        alt={title}
+        className="w-48 h-48 md:w-64 md:h-64 object-contain mb-8 animate-bounce drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+      />
 
       <h1 className="text-5xl font-bold text-white mb-4" style={{ fontFamily: "'Comic Sans MS', 'Comic Sans', cursive" }}>
         {title}

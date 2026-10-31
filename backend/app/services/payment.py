@@ -1,12 +1,14 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import stripe
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.models.enums import Role
 from app.models.payment import Payment, Subscription
+from app.models.user import User
 from app.schemas.payment import DonationCreate, PaymentResponse, SubscribeCreate
 
 stripe.api_key = settings.stripe_secret_key
@@ -112,18 +114,15 @@ class PaymentService:
                 sub = Subscription(
                     user_id=user_id,
                     plan=metadata.get("plan", "premium_visual"),
-                    ends_at=datetime.utcnow() + timedelta(days=30),
+                    ends_at=datetime.now(UTC) + timedelta(days=30),
                     status="active",
                 )
                 db.add(sub)
 
                 # Обновляем роль пользователя (для проверки в UI)
-                from app.models.enums import Role
-                from app.models.user import User
-
-            user = await db.get(User, user_id)
-            if user and user.role != Role.ADMIN:
-                user.role = Role.PREMIUM
+                user = await db.get(User, user_id)
+                if user and user.role != Role.ADMIN:
+                    user.role = Role.PREMIUM
 
             await db.commit()
             print(f"✅ Успешно обработан платеж {session['id']} для юзера {user_id}")

@@ -8,6 +8,8 @@ import pytest
 
 from app.services.progress import (
     ProgressBreakdown,
+    _friendship_fraction,
+    _level_fraction,
     calculate_progress,
     count_crowns,
 )
@@ -236,3 +238,11 @@ class TestCountCrowns:
 
     def test_three_crowns(self) -> None:
         assert count_crowns(10, 10, 10) == 3
+
+
+class TestProgressEdgeCases:
+    def test_zero_caps(self) -> None:
+        # Проверяем ветки, где cap <= 1 (строки 99, 107, 140)
+        assert _level_fraction(level=10, level_cap=1) == 0.0
+        assert _level_fraction(level=10, level_cap=0) == 0.0
+        assert _friendship_fraction(friendship=5) >= 0.0  # Тут cap = 10, но проверим логику

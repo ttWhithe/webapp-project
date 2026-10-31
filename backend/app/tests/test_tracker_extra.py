@@ -426,3 +426,64 @@ class TestDeleteUserCascade:
         # user_characters should be gone via ON DELETE CASCADE
         rows = await db_session.scalars(select(UserCharacter))
         assert list(rows.all()) == []
+
+
+class TestTrackerEdgeCases:
+    async def test_create_with_invalid_weapon_returns_404(
+        self,
+        auth_client: httpx.AsyncClient,
+        catalog_entities: dict[str, uuid.UUID],
+    ) -> None:
+        resp = await auth_client.post(
+            "/api/v1/me/characters",
+            json={
+                "character_id": str(catalog_entities["character_id"]),
+                "weapon_id": str(uuid.uuid4()),  # Несуществующее оружие
+            },
+        )
+        assert resp.status_code == 404
+        assert "Weapon" in resp.json()["detail"]
+
+    async def test_create_with_invalid_artifact_set_returns_404(
+        self,
+        auth_client: httpx.AsyncClient,
+        catalog_entities: dict[str, uuid.UUID],
+    ) -> None:
+        resp = await auth_client.post(
+            "/api/v1/me/characters",
+            json={
+                "character_id": str(catalog_entities["character_id"]),
+                "artifacts": [
+                    {"slot": "flower", "set_id": str(uuid.uuid4()), "rarity": 5, "level": 20}
+                ],
+            },
+        )
+        assert resp.status_code == 404
+        assert "ArtifactSet" in resp.json()["detail"]
+
+    async def test_update_and_remove_weapon(
+        self,
+        auth_client: httpx.AsyncClient,
+        catalog_entities: dict[str, uuid.UUID],
+    ) -> None:
+        create = await auth_client.post(
+            "/api/v1/me/characters",
+            json={"character_id": str(catalog_entities["character_id"])},
+        )
+        uc_id = create.json()["id"]
+
+        # Добавляем оружие
+        resp = await auth_client.patch(
+            f"/api/v1/me/characters/{uc_id}",
+            json={"weapon_id": str(catalog_entities["weapon_id"]), "weapon_level": 90},
+        )
+        assert resp.status_code == 200
+        assert resp.json()["weapon"]["slug"] == "staff-of-homa"
+
+        # Убираем оружие (ставим None)
+        resp2 = await auth_client.patch(
+            f"/api/v1/me/characters/{uc_id}",
+            json={"weapon_id": None},
+        )
+        assert resp2.status_code == 200
+        assert resp2.json()["weapon"] is None
