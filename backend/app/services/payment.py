@@ -1,5 +1,6 @@
 import uuid
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import stripe
 from aioyookassa import YooKassa
@@ -131,10 +132,58 @@ class PaymentService:
     async def handle_stripe_webhook(
         self, db: AsyncSession, payload: bytes, sig_header: str
     ) -> None:
-        # ... (оставь существующий код обработки Stripe как есть) ...
-        pass
+        print("🔐 Проверка подписи...")
+        try:
+            event = stripe.Webhook.construct_event(  # type: ignore
+                payload, sig_header, settings.stripe_webhook_secret
+            )
+            print("✅ Подпись валидна! Событие:", event["type"])
+        except ValueError as e:
+            print("❌ Invalid payload:", e)
+            raise HTTPException(status_code=400, detail="Invalid payload") from e
+        except stripe.SignatureVerificationError as e:
+            print("❌ Invalid signature (Secret in .env does not match!):", e)
+            raise HTTPException(status_code=400, detail="Invalid signature") from e
 
-    async def handle_yookassa_webhook(self, db: AsyncSession, payload: dict) -> None:
+        if event["type"] == "checkout.session.completed":
+            session = event["data"]["object"]
+            client_ref = session.get("client_reference_id")
+            if not client_ref:
+                print("⚠️ Вебхук получен, но нет client_reference_id (тестовый триггер)")
+                return
+
+            user_id = uuid.UUID(client_ref)
+            metadata = session["metadata"]
+            payment_type = metadata.get("type")
+
+            new_payment = Payment(
+                user_id=user_id,
+                provider="stripe",
+                external_id=session["id"],
+                amount=session["amount_total"] / 100 if session.get("amount_total") else 0,
+                currency=session.get("currency", "rub").upper(),
+                status="succeeded",
+                type=payment_type,
+            )
+            db.add(new_payment)
+
+            if payment_type == "subscription":
+                sub = Subscription(
+                    user_id=user_id,
+                    plan=metadata.get("plan", "premium_visual"),
+                    ends_at=datetime.now(UTC) + timedelta(days=30),
+                    status="active",
+                )
+                db.add(sub)
+
+                user = await db.get(User, user_id)
+                if user and user.role != Role.ADMIN:
+                    user.role = Role.PREMIUM
+
+            await db.commit()
+            print(f"✅ Успешно обработан платеж {session['id']} для юзера {user_id}")
+
+    async def handle_yookassa_webhook(self, db: AsyncSession, payload: dict[str, Any]) -> None:
         event = payload.get("event")
         if event != "payment.succeeded":
             return

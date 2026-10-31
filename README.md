@@ -1,76 +1,83 @@
 # Genshin Progress Tracker
 
-Web application for tracking character progression in **Genshin Impact**. Fills a gap: existing trackers are either EN-only, paid, or lack the "investment percentage" view.
+<div align="center">
 
-## What it does
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
-- Track every character: level, ascension, constellation, friendship, talents, weapon, 5 artifacts
-- Compute an aggregate **progress percentage (0–100%)** per character
-- Sort / filter characters to plan resource spending
-- (MVP) OAuth via Google and Telegram, donations via Stripe and YooKassa
+**Full-stack web application for tracking character progression in Genshin Impact.**
 
-## Status
+*Fills a gap: existing trackers are either EN-only, paid, or lack the "investment percentage" view.*
 
-🚧 Active development — MVP in progress. See [`docs/spec.md`](docs/spec.md) for the full SRS.
+</div>
 
-## Stack
+---
 
-**Backend:** Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0 (async), Alembic, PostgreSQL 16, Redis 7, structlog
-**Auth:** JWT in httpOnly cookies, OAuth (Google, Telegram), RBAC
-**Payments:** Stripe, YooKassa
-**Frontend:** React 18, TypeScript, Vite, TanStack Query, Tailwind, shadcn/ui *(planned)*
-**Infra:** Docker Compose, GitHub Actions
-**Quality:** ruff, mypy (strict), pytest, pre-commit
+## ✨ Features
 
-## Quick start
+- 🔐 **Authentication & Security:** JWT in httpOnly cookies, refresh token rotation, RBAC (Admin, Premium, User).
+- 📊 **Smart Progress Formula:** Calculates a weighted 0–100% investment score based on level, talents, weapon, artifacts, and friendship.
+- 🎨 **Interactive UI:** Custom scroll-based navigation, radial SVG progress rings, smooth animations, and elemental dynamic backgrounds.
+- 💳 **Payments (Strategy Pattern):** Stripe (fully active) and YooKassa (backend implemented, awaiting store verification).
+- ⚙️ **Admin Dashboard:** Sync catalog from external API, manage users, adjust progress weights, and view financial stats.
+- ✅ **Quality Assurance:** strict `mypy`, `ruff`, `pre-commit` hooks, and 73% backend test coverage.
+
+## 📸 Screenshots
+
+| Dashboard & Stats | Character Catalog |
+|:---:|:---:|
+| ![Dashboard](docs/images/dashboard.png) | ![Catalog](docs/images/catalog.png) |
+
+| Character Progress (Owned) | Character Progress (Unowned) |
+|:---:|:---:|
+| ![Character Page](docs/images/character-page.png) | ![Unowned Character](docs/images/character-unowned.png) |
+
+| Admin Panel |
+|:---:|
+| ![Admin Panel](docs/images/admin-panel.png) |
+
+## 🛠 Tech Stack
+
+- **Backend:** Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0 (async), Alembic, asyncpg.
+- **Frontend:** React 18, TypeScript, Vite, TanStack Query, Zustand, Tailwind CSS.
+- **Infrastructure:** PostgreSQL 16, Redis 7, Docker Compose, GitHub Actions.
+- **Integrations:** Stripe, YooKassa, Genshin-DB API.
+
+## 🚀 Quick Start
 
 Requirements: Docker Desktop, Git.
 
 ```bash
-git clone <your-repo-url>
-cd webapp-project
+git clone https://github.com/ttWhithe/Genshin-Tracker.git
+cd Genshin-Tracker
 copy .env.example .env
-# generate a secret key and put it into .env as APP_SECRET_KEY
 python -c "import secrets; print(secrets.token_urlsafe(64))"
 docker compose up --build
 ```
 
 Then open:
+- **Frontend:** http://localhost:5173
+- **API Docs (Swagger UI):** http://localhost:8000/docs
 
-- API docs (Swagger UI): http://localhost:8000/docs
-- Liveness: http://localhost:8000/api/v1/health
-- Readiness: http://localhost:8000/api/v1/health/ready
+## 🧪 Development & Testing
 
-## Development
-
-Run linters and tests locally (Windows):
+Run linters and tests locally (inside Docker):
 
 ```bash
-cd backend
-.venv\Scripts\python.exe -m ruff check app
-.venv\Scripts\python.exe -m mypy app
-.venv\Scripts\python.exe -m pytest
-.venv\Scripts\python.exe -m pre_commit run --all-files
+docker compose exec backend pytest
+docker compose exec backend mypy app
+docker compose exec backend ruff check app
 ```
 
-Or on Linux / macOS:
+## 📄 Documentation
 
-```bash
-cd backend
-python -m ruff check app
-python -m mypy app
-python -m pytest
-python -m pre_commit run --all-files
-```
+- [Software Requirements Specification](docs/spec.md) — full SRS, MVP scope, architecture details.
 
-## Documentation
+## ⚠️ Disclaimer
 
-- [Software Requirements Specification](docs/spec.md) — full SRS, MVP scope, acceptance criteria
-
-## License
-
-MIT (or TBD — will be decided before public release).
-
-## Disclaimer
-
-Not affiliated with HoYoverse. Uses public game data.
+Not affiliated with HoYoverse. Uses public game data for educational and portfolio purposes.
